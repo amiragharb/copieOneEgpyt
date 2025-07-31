@@ -1,0 +1,99 @@
+name: egpycopsversion4
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
+
+  fluttertoast: ^8.2.12
+  http: ^1.4.0
+  firebase_messaging: ^14.0.0
+  shared_preferences: ^2.0.0
+  connectivity_plus: ^5.0.2
+  skeleton_text: ^3.0.0
+  cached_network_image: ^3.3.0
+  flutter_local_notifications: ^19.4.0
+  youtube_player_flutter: ^9.1.1
+  awesome_dialog: ^3.1.0 
+  flutter_easyloading: ^3.0.0
+  table_calendar: ^3.0.8
+  better_player_enhanced: ^0.0.5
+  permission_handler: ^11.3.1
+  flutter_gen: ^5.11.0
+  intl_utils: ^2.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  intl: ^0.20.2
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "images/splash_image.png"
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  assets:
+    - images/splash_image.png
+    - images/profile.jpg
+    - images/settings_drawer.png
+    - images/home_background.png
+    - images/blue_traingale.png
+    - images/home.png
+    - images/exit.png
+    - images/online_booking.png
+    - images/settings.png
+    - images/speaker.png
+    - images/internet.png
+    - images/new_booking_sound.mp3
+    - images/camera_icon.png
+    - images/text_icon.png
+    - images/menu.png
+    - images/barcode.png
+    - images/e_script.png
+    - images/scan_barcode.png
+    - images/script.png
+    - images/send.png
+    - images/menu_home.png
+    - images/logout.png
+    - images/close.png
+    - images/logotransparents.png
+    - images/success.png
+    - images/translate.png
+    - images/audio.png
+    - images/excel.png
+    - images/picture.png
+    - images/docs.png
+    - images/unknownfile.png
+    - images/pdf.png
+    - images/pptx.png
+    - images/zip.png
+    - images/video.png
+    - images/logout_white.png
+    - images/lock.png
+    - images/love.png
+    - images/user.png
+    - images/live.png
+    - images/youtube_social_icon_red.png
+    - images/hidePassword.png
+    - images/showPassword.png
+    - images/list.png
+    - images/earth.png
+    - sounds/bellsound.caf
+
+  fonts:
+    - family: cocon-next-arabic-regular
+      fonts:
+        - asset: fonts/cocon-next-arabic-regular.otf

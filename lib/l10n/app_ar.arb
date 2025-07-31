@@ -1,0 +1,913 @@
+{
+  "@@locale": "ar",
+  "@@last_modified": "2019-07-04T18:11:05.132189",
+  "email": "البريد الالكترونى",
+  "@email": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "password": "كلمة السر",
+  "@password": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "login": "تسجيل الدخول",
+  "@login": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "forgotYourPassword": "نسيت كلمة السر؟",
+  "@forgotYourPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "donNotHaveAccount": "ليس لديك حساب؟",
+  "@donNotHaveAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "createOne": "سجل حساب جديد",
+  "@createOne": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "forgotPassword": "نسيت كلمة السر",
+  "@forgotPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailWithAstric": "البريد الالكترونى*",
+  "@emailWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "send": "إرسال",
+  "@send": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "createNewAccount": "تسجيل حساب جديد",
+  "@createNewAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountTypeWithAstric": "نوع الحساب*",
+  "@accountTypeWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "firstNameWithAstric": "الإسم الأول*",
+  "@firstNameWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "lastNameWithAstric": "الإسم الأخير*",
+  "@lastNameWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "fullNameWithAstric": "الإسم كامل*",
+  "@fullNameWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "none": "لا يوجد",
+  "@none": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "family": "عائلة",
+  "@family": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "personal": "فرد",
+  "@personal": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "relationshipWithAstric": "صلة القرابة*",
+  "@relationshipWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "husband": "زوج",
+  "@husband": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "wife": "زوجة",
+  "@wife": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "son": "ابن",
+  "@son": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "daughter": "ابنه",
+  "@daughter": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "nationalIdWithAstric": "الرقم القومى*",
+  "@nationalIdWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "mobileWithAstric": "رقم الهاتف المحمول*",
+  "@mobileWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "mobile": "رقم الهاتف المحمول",
+  "@mobile": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "addressWithAstric": "العنوان*",
+  "@addressWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "churchOfAttendanceWithAstric": "كنيسة الحضور*",
+  "@churchOfAttendanceWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "genderWithAstric": "النوع*",
+  "@genderWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "male": "ذكر",
+  "@male": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "female": "أنثى",
+  "@female": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "next": "التالى",
+  "@next": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "deaconWithAstric": "شماس",
+  "@deaconWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "createPassword": "إنشاء كلمة سر",
+  "@createPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "passwordWithAstric": "كلمة السر*",
+  "@passwordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "confirmPasswordWithAstric": "تأكيد كلمة السر*",
+  "@confirmPasswordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "register": "تسجيل",
+  "@register": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "termsAndConditionsTitle": "بإنشاءك حساب EGY Copts  فإنك توافق على",
+  "@termsAndConditionsTitle": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "termsAndConditions": "الأحكام و الشروط",
+  "@termsAndConditions": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "privacyPolicy": "سياسة الخصوصية",
+  "@privacyPolicy": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "and": "و",
+  "@and": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourEmail": "من فضلك ادخل الإيميل",
+  "@pleaseEnterYourEmail": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourPassword": "من فضلك ادل كلمة السر",
+  "@pleaseEnterYourPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourFirstName": "من فضلك ادخل الاسم الأول",
+  "@pleaseEnterYourFirstName": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourLastName": "من فضلك ادخل الاسم الأخير",
+  "@pleaseEnterYourLastName": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourFullName": "من فضلك ادخل الاسم كامل",
+  "@pleaseEnterYourFullName": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourFullNameThreeWords": "يجب كتابة الإسم ثلاثى",
+  "@pleaseEnterYourFullNameThreeWords": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourNationalId": "من فضلك ادخل الرقم القومى",
+  "@pleaseEnterYourNationalId": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourMobile": "من فضلك ادخل رقم الهاتف المحمول",
+  "@pleaseEnterYourMobile": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourAddress": "من فضلك ادخل العنوان",
+  "@pleaseEnterYourAddress": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourChurchOfAttendance": "من فضلك ادخل كنيسة الحضور",
+  "@pleaseEnterYourChurchOfAttendance": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseAccountType": "من فضلك اختر نوع الحساب",
+  "@pleaseChooseAccountType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseRelationship": "من فضلك اختر صلة القرابة",
+  "@pleaseChooseRelationship": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseRelationship": "اختر صلة القرابة",
+  "@chooseRelationship": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseGender": "من فضلك اختر النوع",
+  "@pleaseChooseGender": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseDeacon": "من فضلك اختر الشماس",
+  "@pleaseChooseDeacon": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterCorrectNationalId": "من فضلك ادخل رقم قومى صحيح",
+  "@pleaseEnterCorrectNationalId": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterAValidMobileNumber": "من فضلك ادخل رقم هاتف صحيح",
+  "@pleaseEnterAValidMobileNumber": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "areYouSureOfExitFromEGYCopts": "هل انت متأكد من الخروج من EGY Copts ؟",
+  "@areYouSureOfExitFromEGYCopts": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "yes": "نعم",
+  "@yes": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "no": "لا",
+  "@no": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "governorate": "المحافظة",
+  "@governorate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "church": "الكنيسة",
+  "@church": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "holyLiturgyDate": "التاريخ",
+  "@holyLiturgyDate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "thereAre": "يوجد",
+  "@thereAre": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "thereIs": "يوجد",
+  "@thereIs": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "availableSeats": "أماكن متبقية",
+  "@availableSeats": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "availableSeat": "مكان متبقى",
+  "@availableSeat": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "availableSeatSingular": "مكان متبقى",
+  "@availableSeatSingular": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "version": "نسخة 1.0.22",
+  "@version": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "home": "الرئيسية",
+  "@home": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "language": "اللغة",
+  "@language": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "changePassword": "تغيير كلمة السر",
+  "@changePassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "logout": "تسجيل خروج",
+  "@logout": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "newBooking": "حجز جديد",
+  "@newBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "myBookings": "الحجوزات",
+  "@myBookings": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "myFamily": "العائلة",
+  "@myFamily": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "myProfile": "حسابى",
+  "@myProfile": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "notifications": "الإشعارات",
+  "@notifications": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseFamilyMembers": "اختيار أفراد العائلة",
+  "@chooseFamilyMembers": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseFamilyMembers2": "اختار أفراد العائلة",
+  "@chooseFamilyMembers2": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "time": "الموعد",
+  "@time": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "backToHome": "العودة إلى الرئيسية",
+  "@backToHome": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookedSuccessfully": "لقد تم الحجز بنجاح",
+  "@bookedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookingNumber": "رقم الحجز",
+  "@bookingNumber": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseSaveBookingNumber": "برجاء حفظ رقم الحجز",
+  "@pleaseSaveBookingNumber": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "liturgyDate": "التاريخ",
+  "@liturgyDate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "liturgyTime": "الموعد",
+  "@liturgyTime": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "addFamilyMember": "إضافة فرد للعائلة",
+  "@addFamilyMember": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "editFamilyMember": "تعديل فرد فى العائلة",
+  "@editFamilyMember": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "save": "حفظ",
+  "@save": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "currentPasswordWithAstric": "كلمة السر الحالية*",
+  "@currentPasswordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "newPasswordWithAstric": "كلمة السر الجديدة*",
+  "@newPasswordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "confirmNewPasswordWithAstric": "تأكيد كلمة السر الجديدة*",
+  "@confirmNewPasswordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourCurrentPassword": "من فضلك ادخل كلمة السر الحالية",
+  "@pleaseEnterYourCurrentPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterNewPassword": "من فضلك ادخل كلمة السر الجديدة",
+  "@pleaseEnterNewPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseConfirmYourNewPassword": "من فضلك أكد كلمة السر الجديدة",
+  "@pleaseConfirmYourNewPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "passwordCannotBeLessThan8": "كلمة السر لا يمكن ان تقل عن ٨",
+  "@passwordCannotBeLessThan8": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "sorryThisEmailIsUsedBefore": "عفوا هذا البريد الالكترونى مستخدم من قبل",
+  "@sorryThisEmailIsUsedBefore": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "passwordDoesNotMatch": "كلمة السر غير متطابقة",
+  "@passwordDoesNotMatch": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountCreatedSuccessfully": "تم إنشاء الحساب بنجاح, من فضلك اذهب للبريد الإلكترونى للتفعيل",
+  "@accountCreatedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "errorConnectingWithServer": "خطأ فى الاتصال بالخادم",
+  "@errorConnectingWithServer": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailOrPasswordIsNotCorrect": "البريد الإلكترونى او كلمة السر غير صحيحة",
+  "@emailOrPasswordIsNotCorrect": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountIsNotActivated": "الحساب غير مفعل",
+  "@accountIsNotActivated": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailAndPasswordDoesNotMatch": "البريد الالكترونى و كلمة السر غير متطابقة",
+  "@emailAndPasswordDoesNotMatch": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseWait": "برجاء الإنتظار",
+  "@pleaseWait": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "familyMembers": "أفراد العائلة",
+  "@familyMembers": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noMembersFound": "لا يوجد أفراد فى العائلة",
+  "@noMembersFound": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "deletedSuccessfully": "تم الحذف بنجاح",
+  "@deletedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "addedSuccessfully": "تم الإضافة بنجاح",
+  "@addedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "doYouWantToDeleteThisMember": "هل تريد حذف هذا الفرد؟",
+  "@doYouWantToDeleteThisMember": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "duplicatedNationalID": "رقم قومى مستخدم من قبل",
+  "@duplicatedNationalID": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "passwordUpdatedSuccessfully": "تم تغيير كلمة السر بنجاح",
+  "@passwordUpdatedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "completeInformation": "إكمال البيانات",
+  "@completeInformation": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "book": "حجز",
+  "@book": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noSeatsAvailable": "عفوا لا توجد مواعيد متاحة",
+  "@noSeatsAvailable": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "editBooking": "تعديل حجز",
+  "@editBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "sorryYouCannotEditThisBooking": "عفوا لا يمكنك تعديل هذا الحجز",
+  "@sorryYouCannotEditThisBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noBookingFound": "لا يوجد حجوزات",
+  "@noBookingFound": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseAtLeastFamilyMember": "من فضلك اختر فرد واحد على الأقل",
+  "@pleaseChooseAtLeastFamilyMember": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "sorryYouCannotBookBefore": "عفوا لا يمكنك الحجز قبل",
+  "@sorryYouCannotBookBefore": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "savedSuccessfully": "تم الحفظ بنجاح",
+  "@savedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "cancelBooking": "إلغاء الحجز",
+  "@cancelBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "cancelledSuccessfully": "تم الإلغاء بنجاح",
+  "@cancelledSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "doYouWantToCancelThisBooking": "هل أنت متأكد من إلغاء هذا الحجز؟",
+  "@doYouWantToCancelThisBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseBookingDate": "من فضلك اختر ميعاد الحجز",
+  "@pleaseChooseBookingDate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseChurch": "من فضلك اختر الكنيسة",
+  "@pleaseChooseChurch": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseGovernorate": "من فضلك اختر المحافظة",
+  "@pleaseChooseGovernorate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookADate": "حجز موعد",
+  "@bookADate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookingInformation": "معلومات الحجز",
+  "@bookingInformation": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseAttendingPersons": "اختار أفراد الحضور",
+  "@chooseAttendingPersons": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "confirmBooking": "تأكيد الحجز",
+  "@confirmBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseCompleteAllInformation": "برجاء إكمال جميع البيانات",
+  "@pleaseCompleteAllInformation": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "loginUser": "دخول مستخدم",
+  "@loginUser": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "cannotDeleteBecauseThisUserIsLinkedToBookings": "لا يمكن الحذف لارتباطه ببيانات حجز",
+  "@cannotDeleteBecauseThisUserIsLinkedToBookings": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "validationRefresh": "إعادة المحاولة",
+  "@validationRefresh": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountValidation": "تفعيل الحساب",
+  "@accountValidation": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountNotValidated": "الحساب غير مفعل",
+  "@accountNotValidated": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseCheckYourEmailToValidateYourAccount": "من فضلك اذهب للبريد الإلكترونى للتفعيل",
+  "@pleaseCheckYourEmailToValidateYourAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "resendValidationEmail": "إعادة ارسال البريد الإلكترونى للتفعيل",
+  "@resendValidationEmail": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailWasSentToYouPleaseCheckYourEmailToValidateYourAccount": "تم إرسال البريد الإلكترونى، من فضل اذهب للبريد الإلكترونى للتفعيل",
+  "@emailWasSentToYouPleaseCheckYourEmailToValidateYourAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseHolyLiturgyDate": "اختر تاريخ القداس",
+  "@chooseHolyLiturgyDate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseHolyLiturgyDate2": "اختار التاريخ",
+  "@chooseHolyLiturgyDate2": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "modify": "تعديل",
+  "@modify": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "anEmailHasBeenSentToYouPleaseCheckYourInbox": "تم إرسال بريد إلكترونى، من فضل اذهب للبريد الإلكترونى",
+  "@anEmailHasBeenSentToYouPleaseCheckYourInbox": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailNotFoundPleaseCheckYourEmail": "لم يتم العثور على البريد الإلكترونى، من فضلك تأكد من البريد الإلكترونى",
+  "@emailNotFoundPleaseCheckYourEmail": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "errorConnectingToTheInternet": "خطأ فى الاتصال بالانترنت",
+  "@errorConnectingToTheInternet": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pressRetryToTryAgain": "اضغط إعادة محاولة للمحاولة مرة أخرى",
+  "@pressRetryToTryAgain": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "retry": "إعادة المحاولة",
+  "@retry": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "youCannotBookBecauseYouHaveABookingOnTheSameTime": "لا يمكنك الحجز لوجود حجز اخر فى نفس الموعد",
+  "@youCannotBookBecauseYouHaveABookingOnTheSameTime": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "countryWithAstric": "الدولة*",
+  "@countryWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseCountry": "من فضلك اختر دولة",
+  "@pleaseChooseCountry": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "live": "بث مباشر",
+  "@live": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noVideosFound": "غير متوفر حاليا",
+  "@noVideosFound": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "settings": "الإعدادات",
+  "@settings": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "newsCategories": "أقسام الأخبار",
+  "@newsCategories": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noNewsFound": "لا يوجد أخبار",
+  "@noNewsFound": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "by": "بواسطة:",
+  "@by": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "newsDetails": "تفاصيل الخبر",
+  "@newsDetails": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "videoDetails": "تفاصيل الفيديو",
+  "@videoDetails": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookingType": "نوع الحجز",
+  "@bookingType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "choose": "اختار",
+  "@choose": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "details": "التفاصيل",
+  "@details": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "youAreNotRegisteredInThisChurchMembership": "انت غير مسجل فى العضوية الكنسية بالكنيسة",
+  "@youAreNotRegisteredInThisChurchMembership": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseAttendanceType": "يرجى تحديد نوع الحضور",
+  "@pleaseChooseAttendanceType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "person": "فرد",
+  "@person": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "deacon": "شماس",
+  "@deacon": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "attendanceType": "الحضور",
+  "@attendanceType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chosenPersonIsNotaDeacon": "الشخص الذى تم اختياره ليس شماس",
+  "@chosenPersonIsNotaDeacon": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "name": "الاسم",
+  "@name": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "nationalId": "الرقم القومى",
+  "@nationalId": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "nationalIdPhoto": "صورة بطاقة الرقم القومى",
+  "@nationalIdPhoto": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "news": "الأخبار",
+  "@news": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "alreadyHaveAnAccount": "هل لديك حساب بالفعل؟",
+  "@alreadyHaveAnAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "username": "اسم المستخدم",
+  "@username": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "rememberMe": "تذكرنى",
+  "@rememberMe": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "doYouWantExit": "هل تريد الخروج؟",
+  "@doYouWantExit": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "confirm": "تأكيد",
+  "@confirm": {
+    "type": "text",
+    "placeholders": {}
+  },
+  
+  "chooseAttendanceTypeDescription": "يرجى اختيار نوع الحضور للحجز.",
+  "@chooseAttendanceTypeDescription": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseAttendanceType": "اختر نوع الحضور",
+  "@chooseAttendanceType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  
+  "availableSeatsMessage": "المقاعد المتاحة {count}",
+"@availableSeatsMessage": {
+  "placeholders": {
+    "count": {
+      "type": "String"
+    }
+  }
+}
+
+
+}
+
+

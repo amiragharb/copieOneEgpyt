@@ -1,0 +1,929 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2019-07-04T18:11:05.132189",
+  "email": "Email",
+  "@email": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "password": "Password",
+  "@password": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "login": "Login",
+  "@login": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "forgotYourPassword": "Forgot your Password?",
+  "@forgotYourPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "donNotHaveAccount": "Don't have Account?",
+  "@donNotHaveAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "createOne": "Create one",
+  "@createOne": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "forgotPassword": "Forgot Password",
+  "@forgotPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailWithAstric": "Email*",
+  "@emailWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "send": "Send",
+  "@send": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "createNewAccount": "Create new account",
+  "@createNewAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountTypeWithAstric": "Account Type*",
+  "@accountTypeWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "firstNameWithAstric": "First Name*",
+  "@firstNameWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "lastNameWithAstric": "Last Name*",
+  "@lastNameWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "fullNameWithAstric": "Full Name*",
+  "@fullNameWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "none": "None",
+  "@none": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "family": "Family",
+  "@family": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "personal": "Personal",
+  "@personal": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "relationshipWithAstric": "Relationship*",
+  "@relationshipWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "husband": "Husband",
+  "@husband": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "wife": "Wife",
+  "@wife": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "son": "Son",
+  "@son": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "daughter": "Daughter",
+  "@daughter": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "nationalIdWithAstric": "National ID*",
+  "@nationalIdWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "mobileWithAstric": "Mobile*",
+  "@mobileWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "mobile": "Mobile",
+  "@mobile": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "addressWithAstric": "Address*",
+  "@addressWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "churchOfAttendanceWithAstric": "Church of Attendance*",
+  "@churchOfAttendanceWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "genderWithAstric": "Gender*",
+  "@genderWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "male": "Male",
+  "@male": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "female": "Female",
+  "@female": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "next": "Next",
+  "@next": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "deaconWithAstric": "Deacon*",
+  "@deaconWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "createPassword": "Create password",
+  "@createPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "passwordWithAstric": "Password*",
+  "@passwordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "confirmPasswordWithAstric": "Confirm Password*",
+  "@confirmPasswordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "register": "Register",
+  "@register": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "termsAndConditionsTitle": "By creating EGY Copts account, you agree to the",
+  "@termsAndConditionsTitle": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "termsAndConditions": "terms and conditions",
+  "@termsAndConditions": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "privacyPolicy": "privacy policy",
+  "@privacyPolicy": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "and": "and",
+  "@and": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourEmail": "Please enter your Email",
+  "@pleaseEnterYourEmail": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourPassword": "Please enter your Password",
+  "@pleaseEnterYourPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourFirstName": "Please enter your First Name",
+  "@pleaseEnterYourFirstName": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourLastName": "Please enter your Last Name",
+  "@pleaseEnterYourLastName": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourFullName": "Please enter your Full Name",
+  "@pleaseEnterYourFullName": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourFullNameThreeWords": "Please enter your Full Name",
+  "@pleaseEnterYourFullNameThreeWords": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourNationalId": "Please enter your National ID",
+  "@pleaseEnterYourNationalId": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourMobile": "Please enter your Mobile",
+  "@pleaseEnterYourMobile": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourAddress": "Please enter your Address",
+  "@pleaseEnterYourAddress": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourChurchOfAttendance": "Please enter your Church of attendance",
+  "@pleaseEnterYourChurchOfAttendance": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseAccountType": "Please choose Account type",
+  "@pleaseChooseAccountType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseRelationship": "Please choose Relationship",
+  "@pleaseChooseRelationship": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseRelationship": "Choose Relationship",
+  "@chooseRelationship": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseGender": "Please choose Gender",
+  "@pleaseChooseGender": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseDeacon": "Please choose Deacon",
+  "@pleaseChooseDeacon": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterCorrectNationalId": "Please enter correct National ID",
+  "@pleaseEnterCorrectNationalId": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterAValidMobileNumber": "Please enter a valid Mobile Number",
+  "@pleaseEnterAValidMobileNumber": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "areYouSureOfExitFromEGYCopts": "Are you sure of Exit from EGY Copts?",
+  "@areYouSureOfExitFromEGYCopts": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "yes": "Yes",
+  "@yes": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "no": "No",
+  "@no": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "governorate": "Governorate",
+  "@governorate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "church": "Church",
+  "@church": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "holyLiturgyDate": "Date",
+  "@holyLiturgyDate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "thereAre": "There are",
+  "@thereAre": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "thereIs": "There is",
+  "@thereIs": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "availableSeats": "available seats",
+  "@availableSeats": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "availableSeat": "available seat",
+  "@availableSeat": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "availableSeatSingular": "available seat",
+  "@availableSeatSingular": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "version": "Version 1.0.22",
+  "@version": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "home": "Home",
+  "@home": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "language": "Language",
+  "@language": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "changePassword": "Change Password",
+  "@changePassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "logout": "Logout",
+  "@logout": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "newBooking": "New Booking",
+  "@newBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "myBookings": "Bookings",
+  "@myBookings": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "myFamily": "Family",
+  "@myFamily": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "myProfile": "Profile",
+  "@myProfile": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseFamilyMembers": "Choose Family Members",
+  "@chooseFamilyMembers": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseFamilyMembers2": "Choose Family Members",
+  "@chooseFamilyMembers2": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "time": "Time",
+  "@time": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "backToHome": "Back to Home",
+  "@backToHome": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookedSuccessfully": "Booked Successfully",
+  "@bookedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookingNumber": "Booking number",
+  "@bookingNumber": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseSaveBookingNumber": "Please save Booking number",
+  "@pleaseSaveBookingNumber": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "liturgyDate": "Date",
+  "@liturgyDate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "liturgyTime": "Time",
+  "@liturgyTime": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "addFamilyMember": "Add Family Member",
+  "@addFamilyMember": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "editFamilyMember": "Edit Family Member",
+  "@editFamilyMember": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "save": "Save",
+  "@save": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "currentPasswordWithAstric": "Current Password*",
+  "@currentPasswordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "newPasswordWithAstric": "New Password*",
+  "@newPasswordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "confirmNewPasswordWithAstric": "Confirm New Password*",
+  "@confirmNewPasswordWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterYourCurrentPassword": "Please enter your current password",
+  "@pleaseEnterYourCurrentPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseEnterNewPassword": "Please enter new password",
+  "@pleaseEnterNewPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseConfirmYourNewPassword": "Please confirm your new password",
+  "@pleaseConfirmYourNewPassword": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "passwordCannotBeLessThan8": "Password can't be less than 8",
+  "@passwordCannotBeLessThan8": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "sorryThisEmailIsUsedBefore": "Sorry this email is used before",
+  "@sorryThisEmailIsUsedBefore": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "passwordDoesNotMatch": "Password doesn't match",
+  "@passwordDoesNotMatch": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountCreatedSuccessfully": "Account Created Successfully, Please check your mail to verify your account",
+  "@accountCreatedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "errorConnectingWithServer": "Error connecting with server",
+  "@errorConnectingWithServer": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailOrPasswordIsNotCorrect": "Email or Password is not correct",
+  "@emailOrPasswordIsNotCorrect": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountIsNotActivated": "Account isn't activated",
+  "@accountIsNotActivated": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailAndPasswordDoesNotMatch": "Email and Password doesn't match",
+  "@emailAndPasswordDoesNotMatch": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseWait": "Please wait",
+  "@pleaseWait": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "familyMembers": "Family Members",
+  "@familyMembers": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noMembersFound": "No Members found",
+  "@noMembersFound": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "deletedSuccessfully": "Deleted Successfully",
+  "@deletedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "addedSuccessfully": "Added Successfully",
+  "@addedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "doYouWantToDeleteThisMember": "Do you want to delete this member?",
+  "@doYouWantToDeleteThisMember": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "duplicatedNationalID": "Duplicated National ID",
+  "@duplicatedNationalID": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "passwordUpdatedSuccessfully": "Password updated successfully",
+  "@passwordUpdatedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "completeInformation": "Complete Information",
+  "@completeInformation": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "book": "Book",
+  "@book": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noSeatsAvailable": "Sorry, No available dates",
+  "@noSeatsAvailable": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "editBooking": "Edit Booking",
+  "@editBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "sorryYouCannotEditThisBooking": "Sorry you can't edit this booking",
+  "@sorryYouCannotEditThisBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noBookingFound": "No Bookings found",
+  "@noBookingFound": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseAtLeastFamilyMember": "Please choose at least 1 family member",
+  "@pleaseChooseAtLeastFamilyMember": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "sorryYouCannotBookBefore": "Sorry you can't book before",
+  "@sorryYouCannotBookBefore": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "savedSuccessfully": "Saved Successfully",
+  "@savedSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "cancelBooking": "Cancel Booking",
+  "@cancelBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "cancelledSuccessfully": "Cancelled Successfully",
+  "@cancelledSuccessfully": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "doYouWantToCancelThisBooking": "Do you want to cancel this booking?",
+  "@doYouWantToCancelThisBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseBookingDate": "Please choose booking date",
+  "@pleaseChooseBookingDate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseChurch": "Please choose church",
+  "@pleaseChooseChurch": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseGovernorate": "Please choose governorate",
+  "@pleaseChooseGovernorate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookADate": "Book a date",
+  "@bookADate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookingInformation": "Booking information",
+  "@bookingInformation": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseAttendingPersons": "Choose attending persons",
+  "@chooseAttendingPersons": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "confirmBooking": "Confirm Booking",
+  "@confirmBooking": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseCompleteAllInformation": "Please complete all Information",
+  "@pleaseCompleteAllInformation": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "loginUser": "Login",
+  "@loginUser": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "cannotDeleteBecauseThisUserIsLinkedToBookings": "Can't delete because this user is linked to Bookings",
+  "@cannotDeleteBecauseThisUserIsLinkedToBookings": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "validationRefresh": "Refresh",
+  "@validationRefresh": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountValidation": "Account validation",
+  "@accountValidation": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "accountNotValidated": "Account not validated",
+  "@accountNotValidated": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseCheckYourEmailToValidateYourAccount": "Please check your email to validate your account",
+  "@pleaseCheckYourEmailToValidateYourAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "resendValidationEmail": "Resend validation email",
+  "@resendValidationEmail": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailWasSentToYouPleaseCheckYourEmailToValidateYourAccount": "Email was sent to you, Please check your email to validate your account",
+  "@emailWasSentToYouPleaseCheckYourEmailToValidateYourAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseHolyLiturgyDate": "Choose Holy Liturgy Date",
+  "@chooseHolyLiturgyDate": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseHolyLiturgyDate2": "Choose Date",
+  "@chooseHolyLiturgyDate2": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "modify": "Modify",
+  "@modify": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "anEmailHasBeenSentToYouPleaseCheckYourInbox": "An email has been sent to you, Please check your inbox",
+  "@anEmailHasBeenSentToYouPleaseCheckYourInbox": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "emailNotFoundPleaseCheckYourEmail": "Email not found, Please check your email",
+  "@emailNotFoundPleaseCheckYourEmail": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "errorConnectingToTheInternet": "Error connecting to the Internet",
+  "@errorConnectingToTheInternet": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pressRetryToTryAgain": "Press retry to try again",
+  "@pressRetryToTryAgain": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "retry": "Retry",
+  "@retry": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "youCannotBookBecauseYouHaveABookingOnTheSameTime": "You can't book because you have a booking on the same time",
+  "@youCannotBookBecauseYouHaveABookingOnTheSameTime": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "countryWithAstric": "Country*",
+  "@countryWithAstric": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseCountry": "Please choose Country",
+  "@pleaseChooseCountry": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "live": "Live",
+  "@live": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noVideosFound": "Currently not available",
+  "@noVideosFound": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "settings": "Settings",
+  "@settings": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "newsCategories": "News categories",
+  "@newsCategories": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "noNewsFound": "No news found",
+  "@noNewsFound": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "by": "By:",
+  "@by": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "newsDetails": "News details",
+  "@newsDetails": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "videoDetails": "Video Details",
+  "@videoDetails": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "bookingType": "Booking type",
+  "@bookingType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "choose": "Choose",
+  "@choose": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "details": "Details",
+  "@details": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "youAreNotRegisteredInThisChurchMembership": "You are not registered in church membership for this church",
+  "@youAreNotRegisteredInThisChurchMembership": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "pleaseChooseAttendanceType": "Please choose attendance type",
+  "@pleaseChooseAttendanceType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "person": "Person",
+  "@person": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "deacon": "Deacon",
+  "@deacon": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "attendanceType": "Attendance type",
+  "@attendanceType": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chosenPersonIsNotaDeacon": "Chosen person isn't a deacon",
+  "@chosenPersonIsNotaDeacon": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "name": "Name",
+  "@name": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "nationalId": "National ID",
+  "@nationalId": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "nationalIdPhoto": "National ID photo",
+  "@nationalIdPhoto": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "news": "News",
+  "@news": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "alreadyHaveAnAccount": "Already have an account?",
+  "@alreadyHaveAnAccount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "username": "Username",
+  "@username": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "rememberMe": "Remember me",
+  "@rememberMe": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "doYouWantExit": "Do you want to exit?",
+  "@doYouWantExit": {
+    "type": "text",
+    "placeholders": {}
+  },
+
+  "confirm": "Confirm",
+  "@confirm": {
+    "type": "text",
+    "placeholders": {}
+  },
+
+  "chooseAttendanceTypeDescription": "Please choose the type of attendance for booking.",
+  "@chooseAttendanceTypeDescription": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "chooseAttendanceType": "Choose Attendance Type",
+  "@chooseAttendanceType": {
+    "type": "text",
+    "placeholders": {}
+  },
+
+  "availableSeatsMessage": "There are {count} available seats",
+  "@availableSeatsMessage": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "5"
+      }
+    }
+  },
+  "availableSeatSingular": "There is {count} available seat",
+  "@availableSeatSingular": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "availableSeats": "There are {count} available seats",
+  "@availableSeats": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "5"
+      }
+    }
+  }
+}

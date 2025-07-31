@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "948864873937",
+    "firebase_url": "https://egy-copts.firebaseio.com",
+    "project_id": "egy-copts",
+    "storage_bucket": "egy-copts.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:948864873937:android:a5c59a0a7101260bf49cf0",
+        "android_client_info": {
+          "package_name": "com.egycopts.booking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "948864873937-3502klqb1vi0k9ejvavglj7hpv8fh484.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3wmy6jHccUFN5s8dJ5K1n90tkOiMQOa4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "948864873937-3502klqb1vi0k9ejvavglj7hpv8fh484.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "948864873937-bjthgcegg2rvhidns2tee49bip0hc7nc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.egycopts.booking"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

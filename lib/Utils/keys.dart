@@ -1,0 +1,2 @@
+const String YOUTUBE_API_KEY_IOS = 'AIzaSyC7Cxli_ls3JMYmRC6kIbDafiVwv4AL-5s';
+const String YOUTUBE_API_KEY_ANDROID = 'AIzaSyDlnG0-yGfYyZMZrmdBfhFPLQtMC29ptNM';
