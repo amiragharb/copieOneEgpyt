@@ -16,6 +16,7 @@ import 'package:skeleton_text/skeleton_text.dart';
 import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 import '../Booking/editBooking.dart';
+import '../Booking/viewBookingDetails.dart';
 
 BaseUrl BASE_URL = BaseUrl();
 String baseUrl = BASE_URL.BASE_URL;
@@ -178,17 +179,24 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
       final uri = Uri.parse('$baseUrl/Booking/GetMyBookings/?UserAccountID=$userID&Token=${mobileToken ?? ""}');
       final response = await http.get(uri);
 
+      debugPrint("[DEBUG] GetMyBookings - Status Code: ${response.statusCode}");
+      debugPrint("[DEBUG] GetMyBookings - Response Body: ${response.body}");
+
       if (!mounted) return [];
       if (response.statusCode == 200) {
         if (response.body.toString() == "[]") {
+          debugPrint("[DEBUG] GetMyBookings - Empty array returned");
           setState(() => loadingState = 3);
           return [];
         } else {
+          debugPrint("[DEBUG] GetMyBookings - Parsing booking data...");
           setState(() => loadingState = 1);
           var myBookingsObj = bookingFromJson(response.body.toString());
+          debugPrint("[DEBUG] GetMyBookings - Parsed ${myBookingsObj.length} bookings");
           return myBookingsObj;
         }
       } else {
+        debugPrint("[DEBUG] GetMyBookings - HTTP Error: ${response.statusCode}");
         setState(() => loadingState = 2);
         return [];
       }
@@ -547,48 +555,39 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
                         
                         if (!mounted) return;
                         if (response == '1') {
-                          if (!allowEdit) {
-                            Fluttertoast.showToast(
-                              msg: AppLocalizations.of(context)?.sorryYouCannotEditThisBooking ?? "Sorry, you cannot edit this booking",
-                              toastLength: Toast.LENGTH_LONG,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.white,
-                              textColor: accentColor,
-                              fontSize: 16.0,
-                            );
-                          } else {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => EditBookingActivity(
-                                  remAttendanceCount.isEmpty ? "0" : remAttendanceCount,
-                                  churchRemarks,
-                                  courseRemarks,
-                                  courseDateAr,
-                                  courseDateEn,
-                                  courseTimeAr,
-                                  courseTimeEn,
-                                  churchNameAr,
-                                  churchNameEn,
-                                  coupleID,
-                                  myFamilyList,
-                                  registrationNumber,
-                                  courseTypeName,
-                                  attendanceTypeID,
-                                  attendanceTypeNameAr,
-                                  attendanceTypeNameEn,
-                                ),
+                          // Always show details in view-only mode first
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ViewBookingDetailsActivity(
+                                remAttendanceCount.isEmpty ? "0" : remAttendanceCount,
+                                churchRemarks,
+                                courseRemarks,
+                                courseDateAr,
+                                courseDateEn,
+                                courseTimeAr,
+                                courseTimeEn,
+                                churchNameAr,
+                                churchNameEn,
+                                coupleID,
+                                myFamilyList,
+                                registrationNumber,
+                                courseTypeName,
+                                attendanceTypeID,
+                                attendanceTypeNameAr,
+                                attendanceTypeNameEn,
+                                allowEdit,
                               ),
-                            ).then((value) async {
-                              if (!mounted) return;
-                              loadingState = 0;
-                              myBookingsList.clear();
-                              listViewMyBookings.clear();
-                              myBookingsList = await getMyBookings();
-                              if (mounted && loadingState == 1 && myBookingsList.isNotEmpty) {
-                                myBookingsListViewData();
-                              }
-                            });
-                          }
+                            ),
+                          ).then((value) async {
+                            if (!mounted) return;
+                            loadingState = 0;
+                            myBookingsList.clear();
+                            listViewMyBookings.clear();
+                            myBookingsList = await getMyBookings();
+                            if (mounted && loadingState == 1 && myBookingsList.isNotEmpty) {
+                              myBookingsListViewData();
+                            }
+                          });
                         } else {
                           Fluttertoast.showToast(
                             msg: AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
@@ -1039,10 +1038,13 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
   }
 
   Future<void> showLoadingDialog(BuildContext context) async {
+    if (!mounted) return;
+    
     return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
+      useRootNavigator: false, // This helps prevent navigation conflicts
+      builder: (BuildContext dialogContext) => WillPopScope(
         onWillPop: () async => false,
         child: AlertDialog(
           backgroundColor: Colors.transparent,
@@ -1078,11 +1080,17 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
   }
 
   Future<String> getBookingDetails(String bookingID) async {
+    bool dialogShown = false;
     try {
       debugPrint("[DEBUG] getBookingDetails called with bookingID: $bookingID");
       
-      // Show the loading dialog
-      await showLoadingDialog(context);
+      // Show the loading dialog and wait for it to be shown
+      if (mounted) {
+        showLoadingDialog(context);
+        dialogShown = true;
+        // Add a small delay to ensure dialog is fully shown
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
 
       final uri = Uri.parse(
         '$baseUrl/Booking/GetBookingDetails/?CoupleID=$bookingID&UserAccountID=$userID&Token=${mobileToken ?? ""}',
@@ -1093,8 +1101,11 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
       debugPrint("[DEBUG] Response status: ${response.statusCode}");
       debugPrint("[DEBUG] Response body: ${response.body}");
 
-      // Hide the loading dialog
-      if (mounted) Navigator.of(context).pop();
+      // Hide the loading dialog safely
+      if (mounted && dialogShown) {
+        await _safelyDismissDialog();
+        dialogShown = false;
+      }
 
       if (response.statusCode == 200) {
         final body = response.body;
@@ -1152,8 +1163,29 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
     } catch (e, stackTrace) {
       debugPrint("[ERROR] Exception in getBookingDetails: $e");
       debugPrint("[ERROR] Stack trace: $stackTrace");
-      if (mounted) Navigator.of(context).pop(); // Hide loading dialog
+      if (mounted && dialogShown) {
+        await _safelyDismissDialog();
+      }
       return "0";
+    }
+  }
+
+  // Safe dialog dismissal method to prevent navigation errors
+  Future<void> _safelyDismissDialog() async {
+    try {
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      debugPrint("[ERROR] Error dismissing dialog safely: $e");
+      // If normal pop fails, try to remove the top route
+      try {
+        if (mounted) {
+          Navigator.of(context).removeRoute(ModalRoute.of(context)!);
+        }
+      } catch (e2) {
+        debugPrint("[ERROR] Error removing route: $e2");
+      }
     }
   }
 }
