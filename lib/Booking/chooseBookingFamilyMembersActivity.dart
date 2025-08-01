@@ -518,19 +518,164 @@ Widget build(BuildContext context) {
     print("attendanceTypeIDAddBooking $attendanceTypeIDAddBooking");
     print("attendanceTypeNameArAddBooking $attendanceTypeNameArAddBooking");
     print("attendanceTypeNameEnAddBooking $attendanceTypeNameEnAddBooking");
+    print("courseID: $courseID");
+    print("userID: $userID");
+    print("mobileToken: ${mobileToken.isNotEmpty ? 'present' : 'missing'}");
+    
+    // Set default attendance type if not set (1 = regular attendance)
+    if (attendanceTypeIDAddBooking == 0) {
+      print("⚠️ AttendanceTypeID is 0, setting default value to 1 (regular attendance)");
+      attendanceTypeIDAddBooking = 1;
+      attendanceTypeNameArAddBooking = "حضور عادي";
+      attendanceTypeNameEnAddBooking = "Regular Attendance";
+    }
     
     String chosenMembers = "";
-    print("chosenMembers $chosenMembers");
-
+    
+    // Debug: Check family member church attendance
+    print("🏛️ Family members church attendance check:");
+    List<String> membersWithoutChurch = [];
+    
     for (int i = 0; i < listViewMyFamily.length; i++) {
       if (listViewMyFamily[i]["isChecked"]) {
-        chosenMembers = chosenMembers +
-            listViewMyFamily[i]["userAccountMemberId"].toString() +
-            ",";
-        print("chosenMembers $chosenMembers");
+        String memberName = listViewMyFamily[i]["accountMemberNameAr"] ?? "Unknown";
+        String churchAttendance = listViewMyFamily[i]["churchOfAttendance"] ?? "Not set";
+        String memberID = listViewMyFamily[i]["userAccountMemberId"].toString();
+        
+        print("   - $memberName (ID: $memberID): Church = '$churchAttendance'");
+        
+        // Check if church attendance is not set or empty
+        if (churchAttendance == "Not set" || churchAttendance.isEmpty || churchAttendance == "null") {
+          membersWithoutChurch.add(memberName);
+        }
+        
+        chosenMembers = chosenMembers + memberID + ",";
       }
     }
+    
     print("chosenMembers $chosenMembers");
+    
+    // Only validate church attendance if family members are actually selected
+    if (membersWithoutChurch.isNotEmpty) {
+      print("❌ Found ${membersWithoutChurch.length} members without church attendance set");
+      
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(
+                  Icons.warning,
+                  color: accentColor,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    "Church Attendance Required",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: primaryDarkColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "The following family members need to set their church attendance:",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: primaryDarkColor.withOpacity(0.8),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: accentColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: accentColor.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: membersWithoutChurch
+                        .map((name) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.person,
+                                    size: 16,
+                                    color: accentColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      name,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: primaryDarkColor,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  "Options:",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: primaryDarkColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "• Uncheck these family members and continue with only yourself\n• Or go to Profile → Family to set their church attendance",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: primaryDarkColor.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  "Go Back",
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+      return; // Stop processing
+    }
+
+    // Continue with booking process
+    
+    print("🎯 Final chosenMembers: $chosenMembers");
 
     if (chosenMembers.isEmpty) {
       Fluttertoast.showToast(
@@ -547,8 +692,16 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
         bookingState = 1;
       });
       chosenMembers = chosenMembers.substring(0, chosenMembers.length - 1);
-      print("chosenMembers = $chosenMembers");
+      print("🔥 About to call addBooking with:");
+      print("   - chosenMembers: $chosenMembers");
+      print("   - courseID: $courseID");
+      print("   - userID: $userID");
+      print("   - attendanceTypeID: $attendanceTypeIDAddBooking"); // Use the correct variable
+      print("   - mobileToken: ${mobileToken.substring(0, 20)}...");
+      
       String? addBookingResponse = await addBooking(chosenMembers, courseID);
+      print("📋 addBooking response: $addBookingResponse");
+      
       if (addBookingResponse == "1") {
         setState(() {
           bookingState = 2;
@@ -634,16 +787,128 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
           bookingState = 2;
         });
 
-        Fluttertoast.showToast(
-  msg: AppLocalizations.of(context)?.youAreNotRegisteredInThisChurchMembership
-       ?? "You are not registered in this church membership",
-  toastLength: Toast.LENGTH_LONG,
-  gravity: ToastGravity.BOTTOM,
-  timeInSecForIosWeb: 1,
-  backgroundColor: Colors.white,
-  textColor: Colors.red,
-  fontSize: 16.0,
-);
+        // Show detailed error message about church membership
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  Icon(
+                    Icons.church,
+                    color: accentColor,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Church Membership Required",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: primaryDarkColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)?.youAreNotRegisteredInThisChurchMembership
+                        ?? "You are not registered in church membership for this church",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: primaryDarkColor.withOpacity(0.8),
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: logoBlue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: logoBlue.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: logoBlue,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              "Solution:",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: logoBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "To make a booking, your family members need to be registered in the church where you want to attend. Please update your family member profiles to include the correct church attendance.",
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: primaryDarkColor.withOpacity(0.7),
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: primaryDarkColor.withOpacity(0.6),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    // Navigate to family management
+                    Navigator.of(context).pop(); // Close current screen
+                    Navigator.of(context).pop(); // Go back to main menu
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryDarkColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Manage Family",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
       }
       else if (addBookingResponse == "7") {
         setState(() {
@@ -746,17 +1011,22 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
       '$baseUrl/Booking/AddBooking/?listAccountMemberIDs=$chosenMembers'
       '&CourseID=$courseID'
       '&UserAccountID=$userID'
-      '&AttendanceTypeID=$attendanceTypeID'
+      '&AttendanceTypeID=$attendanceTypeIDAddBooking' // Use the correct variable
       '&Token=$mobileToken',
     );
 
     final response = await http.post(url);
-  print(url);
-  print("response body: ${response.body}");
-  print("response statusCode: ${response.statusCode}");
+    print("🌐 API Call URL: $url");
+    print("📡 Response Status Code: ${response.statusCode}");
+    print("📄 Response Body: ${response.body}");
 
   if (response.statusCode == 200) {
     final myAddBookingDetailsObj = addBookingDetailsFromJson(response.body);
+
+    print("✅ Parsed Response:");
+    print("   - Success Code: ${myAddBookingDetailsObj.sucessCode}");
+    print("   - Error Message (AR): ${myAddBookingDetailsObj.errorMessageAr}");
+    print("   - Error Message (EN): ${myAddBookingDetailsObj.errorMessageEn}");
 
     // 🔹 Assignation des données de la réponse
     bookNumberAddBooking = myAddBookingDetailsObj.bookNumber ?? "";
@@ -786,6 +1056,10 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
 
     if (myAddBookingDetailsObj.sucessCode == "1") {
       courseTypeName = myAddBookingDetailsObj.courseTypeName ?? "";
+      print("🎉 Booking successful!");
+    } else {
+      print("❌ Booking failed with code: ${myAddBookingDetailsObj.sucessCode}");
+      print("   Error message: $failureMessage");
     }
 
     return myAddBookingDetailsObj.sucessCode;
