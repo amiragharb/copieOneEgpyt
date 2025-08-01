@@ -124,6 +124,7 @@ List<Map<String, dynamic>> listViewMyFamily = [];
 String mobileToken = ""; // ✅ pas de late, initialisé par défaut
   String failureMessage = "";
   List<BookedPersonsList> bookedPersonsList = [];
+  bool _isNavigating = false; // Add navigation guard
 
 @override
 void initState() {
@@ -309,7 +310,7 @@ Widget build(BuildContext context) {
                         ),
                       ),
                       const Text(
-                        "Select family members",
+                        "You're pre-selected • Add family if needed",
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
@@ -384,13 +385,29 @@ Widget build(BuildContext context) {
         "personRelationNameAr": member.personRelationNameAr,
         "personRelationNameEn": member.personRelationNameEn,
         "isMainPerson": member.isMainPerson,
+        "churchOfAttendance": member.churchOfAttendance,
         "isChecked": false,
       });
     }
 
-    if (accountType == "2" && listViewMyFamily.isNotEmpty) {
-      listViewMyFamily[0]["isChecked"] = true;
-      showSaveButton = true;
+    // Auto-select the main person (yourself) by default for all account types
+    if (listViewMyFamily.isNotEmpty) {
+      // Find the main person and auto-select them
+      for (int i = 0; i < listViewMyFamily.length; i++) {
+        if (listViewMyFamily[i]["isMainPerson"] == true) {
+          listViewMyFamily[i]["isChecked"] = true;
+          showSaveButton = true;
+          print("✅ Auto-selected main person: ${listViewMyFamily[i]["accountMemberNameAr"]}");
+          break;
+        }
+      }
+      
+      // If no main person found, select the first member as fallback
+      if (!showSaveButton && listViewMyFamily.isNotEmpty) {
+        listViewMyFamily[0]["isChecked"] = true;
+        showSaveButton = true;
+        print("✅ Auto-selected first member as fallback: ${listViewMyFamily[0]["accountMemberNameAr"]}");
+      }
     }
     
     // Update button state after populating the list
@@ -500,6 +517,8 @@ Widget build(BuildContext context) {
       }
     }
     print("chosenMembers $chosenMembers");
+    print("✅ Main person auto-selected: You can proceed with booking without choosing additional family members");
+    
     if (chosenMembers.isEmpty) {
       setState(() {
         showSaveButton = false;
@@ -521,6 +540,7 @@ Widget build(BuildContext context) {
     print("courseID: $courseID");
     print("userID: $userID");
     print("mobileToken: ${mobileToken.isNotEmpty ? 'present' : 'missing'}");
+    print("🏛️ Selected Church: AR='$churchNameAr' EN='$churchNameEn'");
     
     // Set default attendance type if not set (1 = regular attendance)
     if (attendanceTypeIDAddBooking == 0) {
@@ -541,11 +561,13 @@ Widget build(BuildContext context) {
         String memberName = listViewMyFamily[i]["accountMemberNameAr"] ?? "Unknown";
         String churchAttendance = listViewMyFamily[i]["churchOfAttendance"] ?? "Not set";
         String memberID = listViewMyFamily[i]["userAccountMemberId"].toString();
+        bool isMainPerson = listViewMyFamily[i]["isMainPerson"] ?? false;
         
-        print("   - $memberName (ID: $memberID): Church = '$churchAttendance'");
+        print("   - $memberName (ID: $memberID): Church = '$churchAttendance', isMainPerson = $isMainPerson");
         
         // Check if church attendance is not set or empty
-        if (churchAttendance == "Not set" || churchAttendance.isEmpty || churchAttendance == "null") {
+        // Allow main person (yourself) to proceed without church attendance validation
+        if (!isMainPerson && (churchAttendance == "Not set" || churchAttendance.isEmpty || churchAttendance == "null")) {
           membersWithoutChurch.add(memberName);
         }
         
@@ -555,9 +577,9 @@ Widget build(BuildContext context) {
     
     print("chosenMembers $chosenMembers");
     
-    // Only validate church attendance if family members are actually selected
+    // Only validate church attendance for non-main family members
     if (membersWithoutChurch.isNotEmpty) {
-      print("❌ Found ${membersWithoutChurch.length} members without church attendance set");
+      print("❌ Found ${membersWithoutChurch.length} family members (not main person) without church attendance set");
       
       showDialog(
         context: context,
@@ -638,6 +660,15 @@ Widget build(BuildContext context) {
                 ),
                 const SizedBox(height: 16),
                 Text(
+                  "Note: You can proceed with the booking as the main person. Only additional family members require church attendance to be set.",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: primaryDarkColor.withOpacity(0.6),
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
                   "Options:",
                   style: TextStyle(
                     fontSize: 14,
@@ -706,50 +737,68 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
         setState(() {
           bookingState = 2;
         });
-        Navigator.of(context).pop();
+        
+        if (_isNavigating) return; // Prevent multiple navigation operations
+        _isNavigating = true;
+        
+        try {
+          // Close current screen and navigate to success screen
+          Navigator.of(context).pop();
 
-        Navigator.of(context).push(
-  MaterialPageRoute(
-    builder: (BuildContext context) => BookingSuccessActivity(
-      bookNumber: bookNumberAddBooking,
-      courseDateAr: courseDateArAddBooking,
-      courseDateEn: courseDateEnAddBooking,
-      courseTimeAr: courseTimeArAddBooking,
-      courseTimeEn: courseTimeEnAddBooking,
-      churchRemarks: churchRemarksAddBooking,
-      courseRemarks: courseRemarksAddBooking,
-      churchNameAr: churchNameArAddBooking,
-      churchNameEn: churchNameEnAddBooking,
-      governerateNameAr: governerateNameArAddBooking,
-      governerateNameEn: governerateNameEnAddBooking,
-      myLanguage: myLanguage,
-      courseTypeName: courseTypeName,
-      attendanceTypeIDAddBooking: attendanceTypeIDAddBooking,
-      attendanceTypeNameArAddBooking: attendanceTypeNameArAddBooking,
-      attendanceTypeNameEnAddBooking: attendanceTypeNameEnAddBooking,
-      bookedPersonsList: bookedPersonsList,
-      bookingInfo: { // ✅ Fournir l'argument requis
-        "members": listViewMyFamily
-            .where((member) => member['isChecked'] == true)
-            .toList(),
-        "church": selectedChurch ?? "",
-        "courseDate": selectedDate ?? "",
-        "courseTime": selectedTime ?? "",
-        "attendanceType": attendanceTypeIDAddBooking,
-      },
-    ),
-  ),
-);
+          // Use a small delay to ensure the previous navigation completes
+          await Future.delayed(const Duration(milliseconds: 200));
+          
+          if (mounted) { // Check if widget is still mounted
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) => BookingSuccessActivity(
+                  bookNumber: bookNumberAddBooking,
+                  courseDateAr: courseDateArAddBooking,
+                  courseDateEn: courseDateEnAddBooking,
+                  courseTimeAr: courseTimeArAddBooking,
+                  courseTimeEn: courseTimeEnAddBooking,
+                  churchRemarks: churchRemarksAddBooking,
+                  courseRemarks: courseRemarksAddBooking,
+                  churchNameAr: churchNameArAddBooking,
+                  churchNameEn: churchNameEnAddBooking,
+                  governerateNameAr: governerateNameArAddBooking,
+                  governerateNameEn: governerateNameEnAddBooking,
+                  myLanguage: myLanguage,
+                  courseTypeName: courseTypeName,
+                  attendanceTypeIDAddBooking: attendanceTypeIDAddBooking,
+                  attendanceTypeNameArAddBooking: attendanceTypeNameArAddBooking,
+                  attendanceTypeNameEnAddBooking: attendanceTypeNameEnAddBooking,
+                  bookedPersonsList: bookedPersonsList,
+                  bookingInfo: { // ✅ Fournir l'argument requis
+                    "members": listViewMyFamily
+                        .where((member) => member['isChecked'] == true)
+                        .toList(),
+                    "church": selectedChurch ?? "",
+                    "courseDate": selectedDate ?? "",
+                    "courseTime": selectedTime ?? "",
+                    "attendanceType": attendanceTypeIDAddBooking,
+                  },
+                ),
+              ),
+            );
+          }
 
-        Fluttertoast.showToast(
-  msg: AppLocalizations.of(context)?.bookedSuccessfully 
-       ?? "Booked successfully",            toastLength: Toast.LENGTH_LONG,
+          Fluttertoast.showToast(
+            msg: AppLocalizations.of(context)?.bookedSuccessfully 
+                 ?? "Booked successfully",            
+            toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.white,
             textColor: Colors.green,
-            fontSize: 16.0);
+            fontSize: 16.0
+          );
+        } catch (e) {
+          print("Navigation error in booking success: $e");
+        } finally {
+          _isNavigating = false;
         }
+      }
       else if (addBookingResponse == "3") {
         setState(() {
           bookingState = 2;
@@ -787,7 +836,19 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
           bookingState = 2;
         });
 
-        // Show detailed error message about church membership
+        // Check if this is the main person without church attendance
+        bool isMainPersonWithoutChurch = false;
+        for (int i = 0; i < listViewMyFamily.length; i++) {
+          if (listViewMyFamily[i]["isChecked"] && listViewMyFamily[i]["isMainPerson"] == true) {
+            String churchAttendance = listViewMyFamily[i]["churchOfAttendance"] ?? "";
+            if (churchAttendance.isEmpty || churchAttendance == "null") {
+              isMainPersonWithoutChurch = true;
+              break;
+            }
+          }
+        }
+
+        // Show different dialog based on whether it's main person or family members
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -805,7 +866,9 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Church Membership Required",
+                      isMainPersonWithoutChurch 
+                          ? "Church Attendance Setup Required"
+                          : "Church Membership Required",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -820,8 +883,10 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)?.youAreNotRegisteredInThisChurchMembership
-                        ?? "You are not registered in church membership for this church",
+                    isMainPersonWithoutChurch
+                        ? "To complete your booking, you need to set your church attendance in your profile. This helps us verify your membership for this church."
+                        : AppLocalizations.of(context)?.youAreNotRegisteredInThisChurchMembership
+                            ?? "You are not registered in church membership for this church",
                     style: TextStyle(
                       fontSize: 16,
                       color: primaryDarkColor.withOpacity(0.8),
@@ -851,7 +916,7 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              "Solution:",
+                              "Quick Solution:",
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -862,7 +927,9 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "To make a booking, your family members need to be registered in the church where you want to attend. Please update your family member profiles to include the correct church attendance.",
+                          isMainPersonWithoutChurch
+                              ? "Go to Profile → Personal Info → Church Attendance and select '${myLanguage == "ar" ? churchNameAr : churchNameEn}' to match your booking location."
+                              : "To make a booking, your family members need to be registered in the church where you want to attend. Please update your family member profiles to include the correct church attendance.",
                           style: TextStyle(
                             fontSize: 13,
                             color: primaryDarkColor.withOpacity(0.7),
@@ -886,10 +953,51 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    // Navigate to family management
-                    Navigator.of(context).pop(); // Close current screen
-                    Navigator.of(context).pop(); // Go back to main menu
+                    if (_isNavigating) return; // Prevent multiple taps
+                    _isNavigating = true;
+                    
+                    // Close dialog and navigate safely
+                    Navigator.of(context).pop(); // Close the dialog
+                    
+                    // Show helpful toast message
+                    Fluttertoast.showToast(
+                      msg: isMainPersonWithoutChurch 
+                          ? "Go to Profile → Personal Info → Church Attendance to set your church"
+                          : "Go to Profile → Family to update family member church attendance",
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 3,
+                      backgroundColor: logoBlue,
+                      textColor: Colors.white,
+                      fontSize: 14.0,
+                    );
+                    
+                    // Schedule navigation after dialog closes
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted && Navigator.canPop(context)) {
+                        try {
+                          if (isMainPersonWithoutChurch) {
+                            // Navigate to main menu/home screen for profile access
+                            Navigator.of(context).popUntil((route) => route.isFirst);
+                            print("✅ Navigated to main menu for profile access");
+                          } else {
+                            // Navigate to main menu for family management
+                            Navigator.of(context).popUntil((route) => route.isFirst);
+                            print("✅ Navigated to main menu for family management");
+                          }
+                        } catch (e) {
+                          print("Navigation error: $e");
+                          // Fallback: just go back one screen
+                          if (Navigator.canPop(context)) {
+                            Navigator.of(context).pop();
+                          }
+                        } finally {
+                          _isNavigating = false;
+                        }
+                      } else {
+                        _isNavigating = false;
+                      }
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryDarkColor,
@@ -897,9 +1005,9 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    "Manage Family",
-                    style: TextStyle(
+                  child: Text(
+                    isMainPersonWithoutChurch ? "Go to Profile" : "Manage Family",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1123,7 +1231,7 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
 
       // Debug
       for (final member in myFamilyMembersObj) {
-        print('👤 ${member.accountMemberNameAr} | ${member.genderTypeNameAr} | Deacon: ${member.isDeacon}');
+        print('👤 ${member.accountMemberNameAr} | ${member.genderTypeNameAr} | Deacon: ${member.isDeacon} | isMainPerson: ${member.isMainPerson} | churchOfAttendance: ${member.churchOfAttendance}');
       }
 
       return myFamilyMembersObj;
@@ -1603,12 +1711,27 @@ Widget buildChild() {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  "Select Family Members",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: primaryDarkColor,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Select Family Members",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: primaryDarkColor,
+                        ),
+                      ),
+                      Text(
+                        "You are automatically selected • Tap to add/remove family members",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: primaryDarkColor.withOpacity(0.6),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -1626,6 +1749,7 @@ Widget buildChild() {
                 final member = listViewMyFamily[index];
                 final isChecked = member['isChecked'] ?? false;
                 final isDeacon = member['isDeacon'] ?? false;
+                final isMainPerson = member['isMainPerson'] ?? false;
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -1637,6 +1761,26 @@ Widget buildChild() {
                     borderRadius: BorderRadius.circular(20),
                     child: InkWell(
                       onTap: () {
+                        // Prevent unchecking the main person (yourself)
+                        if (isMainPerson && isChecked) {
+                          // Show a message that the main person cannot be unchecked
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "You cannot uncheck yourself. You are always included in the booking.",
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: primaryDarkColor,
+                              duration: const Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                          return; // Don't change the state
+                        }
+                        
                         setState(() {
                           member['isChecked'] = !isChecked;
                         });
@@ -1649,25 +1793,36 @@ Widget buildChild() {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: isChecked 
+                            color: isMainPerson
                                 ? primaryDarkColor
-                                : Colors.grey.withOpacity(0.3),
-                            width: isChecked ? 2 : 1,
+                                : isChecked 
+                                    ? primaryDarkColor
+                                    : Colors.grey.withOpacity(0.3),
+                            width: isMainPerson ? 3 : (isChecked ? 2 : 1),
                           ),
-                          gradient: isChecked
+                          gradient: isMainPerson
                               ? LinearGradient(
                                   colors: [
-                                    primaryDarkColor.withOpacity(0.1),
-                                    primaryDarkColor.withOpacity(0.05),
+                                    primaryDarkColor.withOpacity(0.15),
+                                    primaryDarkColor.withOpacity(0.08),
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 )
-                              : LinearGradient(
-                                  colors: [Colors.white, Colors.grey[50]!],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                              : isChecked
+                                  ? LinearGradient(
+                                      colors: [
+                                        primaryDarkColor.withOpacity(0.1),
+                                        primaryDarkColor.withOpacity(0.05),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : LinearGradient(
+                                      colors: [Colors.white, Colors.grey[50]!],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
                         ),
                         child: Row(
                           children: [
@@ -1733,16 +1888,53 @@ Widget buildChild() {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    member['accountMemberNameAr'] ?? '',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: isChecked 
-                                          ? primaryDarkColor
-                                          : Colors.grey[800],
-                                    ),
-                                    textDirection: TextDirection.rtl,
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          member['accountMemberNameAr'] ?? '',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: isChecked 
+                                                ? primaryDarkColor
+                                                : Colors.grey[800],
+                                          ),
+                                          textDirection: TextDirection.rtl,
+                                        ),
+                                      ),
+                                      if (isMainPerson)
+                                        Container(
+                                          margin: const EdgeInsets.only(left: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: primaryDarkColor,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.person,
+                                                color: Colors.white,
+                                                size: 12,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                "YOU",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
