@@ -1867,8 +1867,8 @@ getCourseDetailsWithCourseID() async {
                     end: Alignment.bottomRight,
                     colors: [
                       primaryDarkColor,
-                      primaryDarkColor.withOpacity(0.8),
-                      accentColor,
+                      primaryColor,
+                      logoBlue.withOpacity(0.9),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),

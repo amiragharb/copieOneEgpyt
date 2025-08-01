@@ -94,6 +94,21 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       myLanguage = (prefs.getString('language') ?? "en");
       userID = prefs.getString("userID") ?? "";
+      mobileToken = prefs.getString("mobileToken");
+      
+      // If no stored token, get from Firebase
+      if (mobileToken == null || mobileToken!.isEmpty) {
+        try {
+          mobileToken = await FirebaseMessaging.instance.getToken();
+          debugPrint("[DEBUG] Got Firebase token: ${mobileToken?.substring(0, 20)}...");
+        } catch (e) {
+          debugPrint("[ERROR] Failed to get Firebase token: $e");
+          mobileToken = "";
+        }
+      }
+      
+      debugPrint("[DEBUG] Loaded user credentials: userID=$userID, mobileToken=${mobileToken?.isNotEmpty == true ? 'present' : 'missing'}");
+      
       if (mounted) setState(() => loadingState = 0);
 
       String connectionResponse = await _checkInternetConnection();
@@ -519,9 +534,17 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
                   borderRadius: BorderRadius.circular(16),
                   onTap: () async {
                     try {
+                      debugPrint("[DEBUG] Booking item clicked: ${booking["coupleId"]}");
+                      debugPrint("[DEBUG] Current userID: $userID");
+                      debugPrint("[DEBUG] Current mobileToken: ${mobileToken ?? 'null'}");
+                      
                       String connectionResponse = await _checkInternetConnection();
+                      debugPrint("[DEBUG] Internet connection: $connectionResponse");
+                      
                       if (connectionResponse == '1') {
                         String response = await getBookingDetails(booking["coupleId"] ?? "");
+                        debugPrint("[DEBUG] getBookingDetails response: $response");
+                        
                         if (!mounted) return;
                         if (response == '1') {
                           if (!allowEdit) {
@@ -1019,64 +1042,116 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Center(
-        child: CircularProgressIndicator(),
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          content: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(primaryDarkColor),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  "Loading booking details...",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'cocon-next-arabic-regular',
+                    color: primaryDarkColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Future<String> getBookingDetails(String bookingID) async {
     try {
+      debugPrint("[DEBUG] getBookingDetails called with bookingID: $bookingID");
+      
       // Show the loading dialog
       await showLoadingDialog(context);
 
       final uri = Uri.parse(
         '$baseUrl/Booking/GetBookingDetails/?CoupleID=$bookingID&UserAccountID=$userID&Token=${mobileToken ?? ""}',
       );
+      debugPrint("[DEBUG] API URL: $uri");
+      
       final response = await http.get(uri);
+      debugPrint("[DEBUG] Response status: ${response.statusCode}");
+      debugPrint("[DEBUG] Response body: ${response.body}");
 
       // Hide the loading dialog
       if (mounted) Navigator.of(context).pop();
 
       if (response.statusCode == 200) {
         final body = response.body;
-        final editBookingDetailsList = editBookingDetailsFromJson(body);
+        
+        if (body.isEmpty || body == "[]" || body == "null") {
+          debugPrint("[DEBUG] Empty or null response");
+          return "0";
+        }
+        
+        try {
+          final editBookingDetailsList = editBookingDetailsFromJson(body);
+          debugPrint("[DEBUG] Parsed ${editBookingDetailsList.length} booking details");
 
-        if (editBookingDetailsList.isNotEmpty) {
-          final details = editBookingDetailsList.first;
+          if (editBookingDetailsList.isNotEmpty) {
+            final details = editBookingDetailsList.first;
+            debugPrint("[DEBUG] First booking details: allowEdit=${details.allowEdit}");
 
-          setState(() {
-            remAttendanceCount = details.remAttendanceCount?.toString() ?? "0";
-            remAttendanceDeaconCount = details.remAttendanceDeaconCount?.toString() ?? "0";
-            churchRemarks = details.churchRemarks ?? '';
-            courseRemarks = details.courseRemarks ?? '';
-            courseDateAr = details.courseDateAr ?? '';
-            courseDateEn = details.courseDateEn ?? '';
-            courseTimeAr = details.courseTimeAr ?? '';
-            courseTimeEn = details.courseTimeEn ?? '';
-            churchNameAr = details.churchNameAr ?? '';
-            churchNameEn = details.churchNameEn ?? '';
-            coupleID = details.coupleId?.toString() ?? '';
-            myFamilyList = details.listOfmember ?? [];
-            allowEdit = details.allowEdit ?? false;
-            registrationNumber = details.registrationNumber ?? '';
-            courseTypeName = details.courseTypeName ?? '';
-            attendanceTypeID = details.attendanceTypeID ?? 0;
-            attendanceTypeNameEn = details.attendanceTypeNameEn ?? '';
-            attendanceTypeNameAr = details.attendanceTypeNameAr ?? '';
-          });
+            setState(() {
+              remAttendanceCount = details.remAttendanceCount?.toString() ?? "0";
+              remAttendanceDeaconCount = details.remAttendanceDeaconCount?.toString() ?? "0";
+              churchRemarks = details.churchRemarks ?? '';
+              courseRemarks = details.courseRemarks ?? '';
+              courseDateAr = details.courseDateAr ?? '';
+              courseDateEn = details.courseDateEn ?? '';
+              courseTimeAr = details.courseTimeAr ?? '';
+              courseTimeEn = details.courseTimeEn ?? '';
+              churchNameAr = details.churchNameAr ?? '';
+              churchNameEn = details.churchNameEn ?? '';
+              coupleID = details.coupleId?.toString() ?? '';
+              myFamilyList = details.listOfmember ?? [];
+              allowEdit = details.allowEdit ?? false;
+              registrationNumber = details.registrationNumber ?? '';
+              courseTypeName = details.courseTypeName ?? '';
+              attendanceTypeID = details.attendanceTypeID ?? 0;
+              attendanceTypeNameEn = details.attendanceTypeNameEn ?? '';
+              attendanceTypeNameAr = details.attendanceTypeNameAr ?? '';
+            });
 
-          return "1";
-        } else {
-          debugPrint("Empty booking details list.");
+            debugPrint("[DEBUG] Successfully updated booking details state");
+            return "1";
+          } else {
+            debugPrint("[DEBUG] Empty booking details list.");
+            return "0";
+          }
+        } catch (parseError) {
+          debugPrint("[ERROR] JSON parsing error: $parseError");
+          debugPrint("[ERROR] Raw response: $body");
           return "0";
         }
       } else {
-        debugPrint("Failed to fetch booking details: ${response.statusCode}");
+        debugPrint("[ERROR] HTTP error: ${response.statusCode}");
+        debugPrint("[ERROR] Response body: ${response.body}");
         return "0";
       }
-    } catch (e) {
-      debugPrint("Error in getBookingDetails: $e");
+    } catch (e, stackTrace) {
+      debugPrint("[ERROR] Exception in getBookingDetails: $e");
+      debugPrint("[ERROR] Stack trace: $stackTrace");
       if (mounted) Navigator.of(context).pop(); // Hide loading dialog
       return "0";
     }
