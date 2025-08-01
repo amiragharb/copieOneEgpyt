@@ -136,15 +136,36 @@ class _CoursesActivityState extends State<CoursesActivity> {
     mContext = context;
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                primaryDarkColor,
+                primaryColor,
+                logoBlue.withOpacity(0.8),
+              ],
+            ),
+          ),
+        ),
+        elevation: 0,
+        shadowColor: primaryDarkColor.withOpacity(0.1),
         iconTheme: const IconThemeData(color: Colors.white),
         title: Padding(
           padding: const EdgeInsets.all(2.0),
           child: Text(
             AppLocalizations.of(context)?.chooseHolyLiturgyDate ?? "Choose Holy Liturgy Date",
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.normal),
+            style: const TextStyle(
+              color: Colors.white, 
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              fontFamily: 'cocon-next-arabic-regular',
+            ),
           ),
         ),
-        backgroundColor: primaryDarkColor,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: buildChild(),

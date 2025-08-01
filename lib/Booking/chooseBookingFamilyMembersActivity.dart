@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:egpycopsversion4/API/apiClient.dart';
 import 'package:egpycopsversion4/Booking/bookingSuccessActivity.dart' show BookingSuccessActivity;
 import 'package:egpycopsversion4/Colors/colors.dart';
-import 'package:egpycopsversion4/Family/addFamilyMemberActivity.dart';
 import 'package:egpycopsversion4/Models/addBookingDetails.dart';
 import 'package:egpycopsversion4/Models/familyMember.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
@@ -18,16 +16,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:skeleton_text/skeleton_text.dart';
 
-import '../Family/addFamilyMemberActivity.dart';
-
 typedef void LocaleChangeCallback(Locale locale);
 
 // 🔐 Variables liées à la réservation
-late String bookNumberAddBooking;
-late String courseDateArAddBooking;
-late String courseDateEnAddBooking;
-late String courseTimeArAddBooking;
-late String courseTimeEnAddBooking;
+String bookNumberAddBooking = "";
+String courseDateArAddBooking = "";
+String courseDateEnAddBooking = "";
+String courseTimeArAddBooking = "";
+String courseTimeEnAddBooking = "";
 
 String remainingCountFailure = '';
 String courseTypeName = '';
@@ -133,6 +129,27 @@ String mobileToken = ""; // ✅ pas de late, initialisé par défaut
 void initState() {
   super.initState();
 
+  // Initialize booking data from widget parameters
+  remAttendanceCount = widget.remAttendanceCount;
+  churchRemarks = widget.churchRemarks;
+  courseRemarks = widget.courseRemarks;
+  courseDateAr = widget.courseDateAr;
+  courseDateEn = widget.courseDateEn;
+  courseTimeAr = widget.courseTimeAr;
+  courseTimeEn = widget.courseTimeEn;
+  churchNameAr = widget.churchNameAr;
+  churchNameEn = widget.churchNameEn;
+  courseID = widget.courseID;
+  courseTypeName = widget.courseTypeName;
+  attendanceTypeID = widget.attendanceTypeID;
+  attendanceTypeNameAr = widget.attendanceTypeNameAr;
+  attendanceTypeNameEn = widget.attendanceTypeNameEn;
+
+  // Initialize attendance type for booking
+  attendanceTypeIDAddBooking = widget.attendanceTypeID;
+  attendanceTypeNameArAddBooking = widget.attendanceTypeNameAr;
+  attendanceTypeNameEnAddBooking = widget.attendanceTypeNameEn;
+
   // On attend d'abord l'initialisation du token avant de charger les données
   Future.microtask(() async {
     await initToken();
@@ -203,7 +220,7 @@ Future<void> initToken() async {
     print("connectionResponse: $connectionResponse");
 
     if (connectionResponse == '1') {
-      myFamilyList = await getMyFamily() ?? [];
+      myFamilyList = await getMyFamily();
     } else {
       // 🔹 Navigation vers l'écran "No Internet"
       await Navigator.of(context).push(
@@ -213,7 +230,7 @@ Future<void> initToken() async {
       );
 
       // 🔹 Retenter après le retour de l'écran "No Internet"
-      myFamilyList = await getMyFamily() ?? [];
+      myFamilyList = await getMyFamily();
     }
 
     // 🔹 Affichage de la liste si les données sont prêtes
@@ -232,118 +249,113 @@ Future<void> initToken() async {
     _scrollController.dispose();
   }
 
- Widget buildBookButton() {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: primaryDarkColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-    ),
-    onPressed: bookingState == 1
-        ? null // Désactive le bouton pendant le chargement
-        : () {
-            // 🔹 Récupère les membres sélectionnés (optionnel)
-            final selectedMembers = listViewMyFamily
-                .where((member) => member['isChecked'] == true)
-                .toList();
-
-            // 🔹 Prépare les données de réservation
-            final bookingData = {
-  "governorate": governerateNameArAddBooking,
-  "church": selectedChurch ?? "",
-  "bookingType": courseTypeName,
-  "courseDate": selectedDate ?? "",
-  "courseTime": selectedTime ?? "",
-  "attendanceType": attendanceTypeIDAddBooking,
-  "members": listViewMyFamily
-      .where((member) => member['isChecked'] == true)
-      .toList(),
-};
-
-
-            Navigator.of(context).push(
-  MaterialPageRoute(
-    builder: (context) => BookingSuccessActivity(
-      bookNumber: bookNumberAddBooking,
-      courseDateAr: courseDateArAddBooking,
-      courseDateEn: courseDateEnAddBooking,
-      courseTimeAr: courseTimeArAddBooking,
-      courseTimeEn: courseTimeEnAddBooking,
-      churchRemarks: churchRemarksAddBooking,
-      courseRemarks: courseRemarksAddBooking,
-      churchNameAr: churchNameArAddBooking,
-      churchNameEn: churchNameEnAddBooking,
-      governerateNameAr: governerateNameArAddBooking,
-      governerateNameEn: governerateNameEnAddBooking,
-      myLanguage: myLanguage,
-      courseTypeName: courseTypeName,
-      attendanceTypeIDAddBooking: attendanceTypeIDAddBooking,
-      attendanceTypeNameArAddBooking: attendanceTypeNameArAddBooking,
-      attendanceTypeNameEnAddBooking: attendanceTypeNameEnAddBooking,
-      bookedPersonsList: bookedPersonsList,
-      bookingInfo: {
-        "governorate": governerateNameArAddBooking,
-        "church": selectedChurch ?? "",
-        "bookingType": courseTypeName,
-        "courseDate": selectedDate ?? "",
-        "courseTime": selectedTime ?? "",
-        "attendanceType": attendanceTypeIDAddBooking,
-        "members": listViewMyFamily
-            .where((member) => member['isChecked'] == true)
-            .toList(),
-      },
-    ),
-  ),
-);
-
-          },
-    child: bookingState == 1
-        ? const SizedBox(
-            width: 24.0,
-            height: 24.0,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          )
-        : Text(
-            AppLocalizations.of(context)?.confirmBooking ?? "Confirm Booking",
-            style: const TextStyle(
-              fontSize: 18.0,
-              fontFamily: 'cocon-next-arabic-regular',
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-  );
-}
-
-
 @override
 Widget build(BuildContext context) {
-  final size = MediaQuery.of(context).size;
-
   return Scaffold(
-    appBar: AppBar(
-      iconTheme: const IconThemeData(color: Colors.white),
-      title: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Text(
-          AppLocalizations.of(context)?.bookADate ?? "Book a Date",
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.normal,
+    backgroundColor: Colors.grey[50],
+    appBar: PreferredSize(
+      preferredSize: const Size.fromHeight(80),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              primaryDarkColor,
+              primaryColor,
+              logoBlue.withOpacity(0.8),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: primaryDarkColor.withOpacity(0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)?.bookADate ?? "Book a Date",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Text(
+                        "Select family members",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.people,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${listViewMyFamily.where((m) => m['isChecked'] == true).length}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      backgroundColor: primaryDarkColor,
-      systemOverlayStyle: SystemUiOverlayStyle.light,
     ),
-    body: buildChild(), // ✅ Contenu principal
-    bottomNavigationBar: SizedBox(
-      width: size.width,
-      height: 50.0,
-      child: bookbutton(), // ✅ Assure-toi que bookbutton() retourne bien un Widget
+    body: buildChild(),
+    bottomNavigationBar: Container(
+      color: Colors.transparent,
+      child: SafeArea(
+        child: bookbutton(),
+      ),
     ),
   );
 }
@@ -380,18 +392,100 @@ Widget build(BuildContext context) {
       listViewMyFamily[0]["isChecked"] = true;
       showSaveButton = true;
     }
+    
+    // Update button state after populating the list
+    chosenMemberCount();
   });
 }
 
 
   Widget bookbutton() {
-  return ElevatedButton(
-    onPressed: showSaveButton ? () async => book() : null,
-    style: ElevatedButton.styleFrom(
-      backgroundColor: showSaveButton ? Colors.green : greyColor,
-      foregroundColor: Colors.white,
+  return Container(
+    margin: const EdgeInsets.all(16),
+    child: Material(
+      elevation: 12,
+      shadowColor: primaryDarkColor.withOpacity(0.4),
+      borderRadius: BorderRadius.circular(25),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          gradient: showSaveButton
+              ? LinearGradient(
+                  colors: [primaryDarkColor, primaryDarkColor.withOpacity(0.8)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : LinearGradient(
+                  colors: [Colors.grey[400]!, Colors.grey[500]!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+        ),
+        child: ElevatedButton(
+          onPressed: showSaveButton ? () async => book() : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (bookingState == 1) ...[
+                const SizedBox(
+                  width: 24.0,
+                  height: 24.0,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  "Processing...",
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.event_available,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  AppLocalizations.of(context)?.confirmBooking ?? "Confirm Booking",
+                  style: const TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.arrow_forward,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     ),
-    child: buildBookButton(),
   );
 }
 
@@ -420,6 +514,11 @@ Widget build(BuildContext context) {
   bool showSaveButton = false;
 
   book() async {
+    print("🚀 Starting book() function");
+    print("attendanceTypeIDAddBooking $attendanceTypeIDAddBooking");
+    print("attendanceTypeNameArAddBooking $attendanceTypeNameArAddBooking");
+    print("attendanceTypeNameEnAddBooking $attendanceTypeNameEnAddBooking");
+    
     String chosenMembers = "";
     print("chosenMembers $chosenMembers");
 
@@ -642,15 +741,16 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
   }
 
   Future<String?> addBooking(String chosenMembers, String courseID) async {
-  final url = Uri.parse(
-    '$baseUrl/Booking/AddBooking/?listAccountMemberIDs=$chosenMembers'
-    '&CourseID=$courseID'
-    '&UserAccountID=$userID'
-    '&AttendanceTypeID=$attendanceTypeID'
-    '&Token=$mobileToken',
-  );
+  try {
+    final url = Uri.parse(
+      '$baseUrl/Booking/AddBooking/?listAccountMemberIDs=$chosenMembers'
+      '&CourseID=$courseID'
+      '&UserAccountID=$userID'
+      '&AttendanceTypeID=$attendanceTypeID'
+      '&Token=$mobileToken',
+    );
 
-  final response = await http.post(url);
+    final response = await http.post(url);
   print(url);
   print("response body: ${response.body}");
   print("response statusCode: ${response.statusCode}");
@@ -674,6 +774,7 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
     attendanceTypeIDAddBooking = myAddBookingDetailsObj.attendanceTypeID ?? 0;
     attendanceTypeNameEnAddBooking = myAddBookingDetailsObj.attendanceTypeNameEn ?? "";
     attendanceTypeNameArAddBooking = myAddBookingDetailsObj.attendanceTypeNameAr ?? "";
+    remainingCountFailure = myAddBookingDetailsObj.remAttendanceCount ?? "0";
 
     // 🔹 Gestion des messages d’erreur
     failureMessage = (myLanguage == "ar")
@@ -689,7 +790,13 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
 
     return myAddBookingDetailsObj.sucessCode;
   } else {
+    print("❗️HTTP Error: ${response.statusCode}");
     return "0"; // 🔹 Échec de la requête
+  }
+  } catch (e, stackTrace) {
+    print("❗️Caught error: $e");
+    print("Stack trace: $stackTrace");
+    return "0"; // 🔹 Échec en cas d'exception
   }
 }
 
@@ -956,55 +1063,91 @@ Widget availableSeatsLayout() {
   }
 
 Widget buildChild() {
-  // 0️⃣ Chargement : Skeleton
+  // 0️⃣ Chargement : Modern Skeleton with shimmer effect
   if (loadingState == 0) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.grey[50]!,
+            Colors.grey[100]!,
+          ],
+        ),
+      ),
       child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        physics: const BouncingScrollPhysics(),
-        itemCount: 10,
+        padding: const EdgeInsets.all(16.0),
+        itemCount: 6,
         itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            child: Card(
+              elevation: 8,
+              shadowColor: Colors.black.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Row(
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15.0, bottom: 5.0),
-                        child: SkeletonAnimation(
-                          child: Container(
-                            height: 15,
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.grey[300],
-                            ),
-                          ),
+              child: Container(
+                height: 80,
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    // Avatar skeleton
+                    SkeletonAnimation(
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          shape: BoxShape.circle,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15.0, bottom: 10),
-                        child: SkeletonAnimation(
-                          child: Container(
-                            width: 110,
-                            height: 13,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.grey[300],
+                    ),
+                    const SizedBox(width: 16),
+                    // Text skeletons
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SkeletonAnimation(
+                            child: Container(
+                              height: 16,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          SkeletonAnimation(
+                            child: Container(
+                              height: 12,
+                              width: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Checkbox skeleton
+                    SkeletonAnimation(
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -1013,79 +1156,526 @@ Widget buildChild() {
     );
   }
 
-  // 1️⃣ Liste des membres
+  // 1️⃣ Modern Family Members List
   if (loadingState == 1) {
     if (listViewMyFamily.isEmpty) {
-      return Center(
-        child: Text(
-          AppLocalizations.of(context)?.noMembersFound ?? "No members found",
-          style: const TextStyle(fontSize: 20.0, color: Colors.grey),
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              primaryDarkColor.withOpacity(0.1),
+              Colors.white,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.family_restroom,
+                  size: 64,
+                  color: Colors.grey[400],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                AppLocalizations.of(context)?.noMembersFound ?? "No family members found",
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Please add family members first",
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-  itemCount: listViewMyFamily.length,
-  itemBuilder: (context, index) {
-    final member = listViewMyFamily[index]; // Map<String,dynamic>
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            primaryDarkColor.withOpacity(0.05),
+            Colors.white,
+          ],
+        ),
       ),
-      child: CheckboxListTile(
-        value: member['isChecked'] ?? false,
-        onChanged: (bool? value) {
-          setState(() {
-            member['isChecked'] = value ?? false;
-          });
-        },
-        title: Text(
-          member['accountMemberNameAr'] ?? '',
-          style: const TextStyle(fontSize: 18),
-          textDirection: TextDirection.rtl,
-        ),
-        subtitle: Text(
-          member['personRelationNameAr'] ?? '',
-          textDirection: TextDirection.rtl,
-        ),
-        secondary: Icon(
-          (member['isDeacon'] ?? false) ? Icons.church : Icons.person,
-          color: (member['isDeacon'] ?? false)
-              ? Colors.blueAccent
-              : Colors.grey,
-        ),
+      child: Column(
+        children: [
+          // Header section with booking info
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [primaryDarkColor, primaryDarkColor.withOpacity(0.8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryDarkColor.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.church,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            myLanguage == "ar" ? churchNameAr : churchNameEn,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            myLanguage == "ar" ? courseDateAr : courseDateEn,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        myLanguage == "ar" ? courseTimeAr : courseTimeEn,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Section title
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: primaryDarkColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  "Select Family Members",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: primaryDarkColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Family members list
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: listViewMyFamily.length,
+              itemBuilder: (context, index) {
+                final member = listViewMyFamily[index];
+                final isChecked = member['isChecked'] ?? false;
+                final isDeacon = member['isDeacon'] ?? false;
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Material(
+                    elevation: isChecked ? 8 : 4,
+                    shadowColor: isChecked 
+                        ? primaryDarkColor.withOpacity(0.3)
+                        : Colors.black.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          member['isChecked'] = !isChecked;
+                        });
+                        chosenMemberCount();
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isChecked 
+                                ? primaryDarkColor
+                                : Colors.grey.withOpacity(0.3),
+                            width: isChecked ? 2 : 1,
+                          ),
+                          gradient: isChecked
+                              ? LinearGradient(
+                                  colors: [
+                                    primaryDarkColor.withOpacity(0.1),
+                                    primaryDarkColor.withOpacity(0.05),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                )
+                              : LinearGradient(
+                                  colors: [Colors.white, Colors.grey[50]!],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                        ),
+                        child: Row(
+                          children: [
+                            // Avatar with status
+                            Stack(
+                              children: [
+                                Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: isDeacon
+                                          ? [Colors.blue[400]!, Colors.blue[600]!]
+                                          : [Colors.grey[400]!, Colors.grey[600]!],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: (isDeacon ? Colors.blue : Colors.grey)
+                                            .withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    isDeacon ? Icons.church : Icons.person,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                ),
+                                if (isDeacon)
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.star,
+                                        color: Colors.white,
+                                        size: 12,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            
+                            const SizedBox(width: 16),
+                            
+                            // Member info
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    member['accountMemberNameAr'] ?? '',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: isChecked 
+                                          ? primaryDarkColor
+                                          : Colors.grey[800],
+                                    ),
+                                    textDirection: TextDirection.rtl,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: (isDeacon ? Colors.blue : Colors.grey)
+                                              .withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          member['personRelationNameAr'] ?? '',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: isDeacon ? Colors.blue[700] : Colors.grey[700],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          textDirection: TextDirection.rtl,
+                                        ),
+                                      ),
+                                      if (isDeacon) ...[
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            "Deacon",
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.amber[700],
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            // Modern checkbox
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: isChecked ? primaryDarkColor : Colors.transparent,
+                                border: Border.all(
+                                  color: isChecked ? primaryDarkColor : Colors.grey[400]!,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: isChecked
+                                  ? const Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 16,
+                                    )
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
-  },
-);
-
   }
 
-  // 2️⃣ Erreur de connexion
+  // 2️⃣ Modern Error State
   if (loadingState == 2) {
-    return Center(
-      child: Text(
-        AppLocalizations.of(context)?.errorConnectingWithServer ??
-            "Error connecting with server",
-        style: const TextStyle(fontSize: 20.0, color: Colors.grey),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.red[50]!,
+            Colors.white,
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.red[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red[400],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context)?.errorConnectingWithServer ??
+                  "Connection Error",
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w600,
+                color: Colors.red[700],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Please check your internet connection",
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.red[500],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // 3️⃣ Aucun membre trouvé
+  // 3️⃣ No members state
   if (loadingState == 3) {
-    return Center(
-      child: Text(
-        AppLocalizations.of(context)?.noMembersFound ?? "No members found",
-        style: const TextStyle(fontSize: 20.0, color: Colors.grey),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.orange[50]!,
+            Colors.white,
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.orange[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.person_search,
+                size: 64,
+                color: Colors.orange[400],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context)?.noMembersFound ?? "No Members Found",
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w600,
+                color: Colors.orange[700],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "No family members available for booking",
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.orange[500],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // 🔹 Loader par défaut
-  return const Center(child: CircularProgressIndicator());
+  // 🔹 Default loader
+  return Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          primaryDarkColor.withOpacity(0.1),
+          Colors.white,
+        ],
+      ),
+    ),
+    child: const Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
 }
 
 }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:egpycopsversion4/API/apiClient.dart';
 import 'package:egpycopsversion4/Booking/calendarOfBookings.dart';
@@ -10,7 +9,6 @@ import 'package:egpycopsversion4/Models/courseDetails.dart';
 import 'package:egpycopsversion4/Models/courses.dart';
 import 'package:egpycopsversion4/Models/governorates.dart';
 import 'package:egpycopsversion4/Translation/localizations.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -74,7 +72,6 @@ List<Course> coursesList = [];
 
   churchOfAttendanceDropDownData() async {
   print("[DEBUG] churchOfAttendanceDropDownData - start");
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
 
   listDropChurchOfAttendance.clear();
   print("[DEBUG] churchOfAttendanceList length: ${churchOfAttendanceList.length}");
@@ -391,7 +388,7 @@ Future<CourseDetails?> getCourseDetails(String courseID) async {
   print("[DEBUG] prefs loaded: myLanguage=$myLanguage, userID=$userID, accountType=$accountType");
 
   // Charge governorates (tu peux logger ici aussi)
-  governoratesList = await getGovernoratesByUserID() ?? [];
+  governoratesList = await getGovernoratesByUserID();
   print("[DEBUG] governoratesList length: ${governoratesList.length}");
 
   if (governoratesList.isNotEmpty) {
@@ -417,20 +414,81 @@ Widget build(BuildContext context) {
   print("[DEBUG] build() - buildChild() returned widget: ${childWidget.runtimeType}");
 
   return Scaffold(
-    appBar: AppBar(
-      iconTheme: IconThemeData(color: Colors.white),
-      title: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Text(
-          AppLocalizations.of(context)?.newBooking ?? "New Booking",
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.normal),
+    extendBodyBehindAppBar: true,
+    appBar: PreferredSize(
+      preferredSize: const Size.fromHeight(80),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              primaryDarkColor,
+              primaryColor,
+              logoBlue.withOpacity(0.8),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: primaryDarkColor.withOpacity(0.25),
+              offset: const Offset(0, 8),
+              blurRadius: 20,
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: primaryColor.withOpacity(0.1),
+              offset: const Offset(0, 4),
+              blurRadius: 12,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.white, size: 28),
+          title: Column(
+            children: [
+              const SizedBox(height: 25),
+              Text(
+                AppLocalizations.of(context)?.newBooking ?? "New Booking",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 22,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              Container(
+                height: 3,
+                width: 40,
+                margin: const EdgeInsets.only(top: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
+          ),
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
       ),
-      backgroundColor: primaryDarkColor,
-      systemOverlayStyle: SystemUiOverlayStyle.light,
     ),
-    bottomNavigationBar: null, // <-- bouton supprimé
-    body: childWidget,
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            primaryDarkColor.withOpacity(0.03),
+            Colors.white,
+            primaryColor.withOpacity(0.02),
+          ],
+        ),
+      ),
+      child: childWidget,
+    ),
   );
 }
 
@@ -441,80 +499,127 @@ Widget buildChild() {
 
   if (loadingState == 0) {
     print("[DEBUG] loadingState==0: Showing skeleton loader");
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        physics: const BouncingScrollPhysics(),
-        itemCount: 10,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15.0, bottom: 5.0),
-                        child: SkeletonAnimation(
-                          child: Container(
-                            height: 15,
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.grey[300],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15.0, right: 5.0),
-                        child: SkeletonAnimation(
-                          child: Container(
-                            width: 110,
-                            height: 13,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.grey[300],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+    return Container(
+      padding: const EdgeInsets.only(top: 100, left: 16, right: 16),
+      child: Column(
+        children: [
+          // Modern shimmer header
+          Container(
+            margin: const EdgeInsets.only(bottom: 32),
+            child: Column(
+              children: [
+                SkeletonAnimation(
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.grey[300],
+                    ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 16),
+                SkeletonAnimation(
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SkeletonAnimation(
+                  child: Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   } else if (loadingState == 1) {
     print("[DEBUG] loadingState==1: Showing main booking form");
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        height: double.infinity,
-        child: Form(
-          child: SingleChildScrollView(
+    return Container(
+      padding: const EdgeInsets.only(top: 100),
+      child: Form(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                // Welcome header
+                Container(
+                  margin: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        primaryDarkColor.withOpacity(0.1),
+                        accentColor.withOpacity(0.05),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: primaryDarkColor.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: primaryDarkColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.event_available,
+                          color: primaryDarkColor,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)?.newBooking ?? "New Booking",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: primaryDarkColor,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Book your Holy Liturgy attendance",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 showGovernoratesLayout(),
                 showChurchOfAttendanceLayout(context),
                 showCourses(context),
                 availableSeats(),
+                const SizedBox(height: 100), // Bottom padding
               ],
             ),
           ),
@@ -523,13 +628,58 @@ Widget buildChild() {
     );
   } else if (loadingState == 2) {
     print("[DEBUG] loadingState==2: Showing error message");
-    return Center(
-      child: Text(
-        AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting to server",
-        style: const TextStyle(
-          fontSize: 20.0,
-          fontFamily: 'cocon-next-arabic-regular',
-          color: Colors.grey,
+    return Container(
+      padding: const EdgeInsets.only(top: 120),
+      child: Center(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Colors.red.shade400,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting to server",
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  loadingState = 0;
+                });
+                getSharedData();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryDarkColor,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: const Text(
+                "Try Again",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -550,280 +700,493 @@ Widget buildChild() {
     print("[DEBUG] courseTimeAr = $courseTimeAr, courseTimeEn = $courseTimeEn");
     print("[DEBUG] courseRemarks = $courseRemarks, churchRemarks = $churchRemarks");
 
-    Widget seatInfo;
+    // Determine seat availability status
+    Color seatColor;
+    IconData seatIcon;
     if (seats > 10) {
-      print("[DEBUG] Case: seats > 10");
-      seatInfo = IntrinsicHeight(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              child: Text(AppLocalizations.of(context)?.thereAre ?? "There are",
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontFamily: 'cocon-next-arabic-regular',
-                  color: primaryDarkColor,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-              child: Text(
-                attendanceTypeIDNewBooking == 3 ? remAttendanceDeaconCount : remAttendanceCount,
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontFamily: 'cocon-next-arabic-regular',
-                  color: Colors.green,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text(AppLocalizations.of(context)?.availableSeat ?? "Available seat",
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontFamily: 'cocon-next-arabic-regular',
-                  color: primaryDarkColor,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      seatColor = Colors.green;
+      seatIcon = Icons.event_seat;
     } else if (seats > 1) {
-      print("[DEBUG] Case: 2 <= seats <= 10");
-      seatInfo = IntrinsicHeight(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(AppLocalizations.of(context)?.thereAre ?? "There are",
-              style: TextStyle(
-                fontSize: 18.0,
-                fontFamily: 'cocon-next-arabic-regular',
-                color: Colors.redAccent,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 5.0, right: 5.0),
-              child: Text(
-                attendanceTypeIDNewBooking == 3
-                    ? remAttendanceDeaconCount
-                    : remAttendanceCount,
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontFamily: 'cocon-next-arabic-regular',
-                  color: Colors.redAccent,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
-            Text(AppLocalizations.of(context)?.availableSeats ?? "Available Seats",
-              style: TextStyle(
-                fontSize: 18.0,
-                fontFamily: 'cocon-next-arabic-regular',
-                color: Colors.redAccent,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      );
+      seatColor = Colors.orange;
+      seatIcon = Icons.event_seat;
     } else {
-      print("[DEBUG] Case: seats <= 1");
-      seatInfo = IntrinsicHeight(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(AppLocalizations.of(context)?.thereIs ?? "There is",
-              style: TextStyle(
-                fontSize: 18.0,
-                fontFamily: 'cocon-next-arabic-regular',
-                color: Colors.redAccent,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 5.0, right: 5.0),
-              child: Text(
-                attendanceTypeIDNewBooking == 3
-                    ? remAttendanceDeaconCount
-                    : remAttendanceCount,
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontFamily: 'cocon-next-arabic-regular',
-                  color: Colors.redAccent,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
-            Text(AppLocalizations.of(context)?.availableSeatSingular ?? "Seat",
-              style: TextStyle(
-                fontSize: 18.0,
-                fontFamily: 'cocon-next-arabic-regular',
-                color: Colors.redAccent,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      );
+      seatColor = Colors.red;
+      seatIcon = Icons.event_busy;
     }
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(right: 10.0, left: 10.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // ... autres widgets inchangés ...
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20),
-              child: Container(
-                width: double.infinity,
-                child: Text(
-                  myLanguage == "ar" ? courseDateAr : courseDateEn,
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: 'cocon-next-arabic-regular',
-                    color: primaryDarkColor,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
+    Widget seatInfo = Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: seatColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: seatColor.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            seatIcon,
+            color: seatColor,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          if (seats > 10) ...[
+            Text(
+              AppLocalizations.of(context)?.thereAre ?? "There are",
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            attendanceTypeIDNewBooking == 0 ? Container() : Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Container(
-                width: double.infinity,
-                child: Text(
+            const SizedBox(width: 6),
+            Text(
+              attendanceTypeIDNewBooking == 3 ? remAttendanceDeaconCount : remAttendanceCount,
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              AppLocalizations.of(context)?.availableSeat ?? "Available seat",
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ] else if (seats > 1) ...[
+            Text(
+              AppLocalizations.of(context)?.thereAre ?? "There are",
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              attendanceTypeIDNewBooking == 3 ? remAttendanceDeaconCount : remAttendanceCount,
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              AppLocalizations.of(context)?.availableSeats ?? "Available Seats",
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ] else ...[
+            Text(
+              AppLocalizations.of(context)?.thereIs ?? "There is",
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              attendanceTypeIDNewBooking == 3 ? remAttendanceDeaconCount : remAttendanceCount,
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              AppLocalizations.of(context)?.availableSeatSingular ?? "Seat",
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: seatColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          // Date Section
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryDarkColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.calendar_today,
+                  color: primaryDarkColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                "Liturgy Details",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: primaryDarkColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // Date Info
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: primaryDarkColor.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              myLanguage == "ar" ? courseDateAr : courseDateEn,
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: primaryDarkColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          
+          // Attendance Type Section
+          if (attendanceTypeIDNewBooking != 0) ...[
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: accentColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    color: accentColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
                   AppLocalizations.of(context)?.attendanceType ?? "Attendance Type",
-                  style: const TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-            attendanceTypeIDNewBooking == 0 ? Container() : Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20),
-              child: Container(
-                width: double.infinity,
-                child: Text(
-                  myLanguage == "ar"
-                      ? attendanceTypeNameArNewBooking
-                      : attendanceTypeNameEnNewBooking,
                   style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: 'cocon-next-arabic-regular',
-                    color: attendanceTypeIDNewBooking == 3 ? accentColor : logoBlue,
-                    fontWeight: FontWeight.normal,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: primaryDarkColor,
                   ),
                 ),
-              ),
+              ],
             ),
+            const SizedBox(height: 12),
             Container(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: Text(
-                  AppLocalizations.of(context)?.time ?? "Time",
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.black,
-                  ),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: (attendanceTypeIDNewBooking == 3 ? accentColor : logoBlue).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: (attendanceTypeIDNewBooking == 3 ? accentColor : logoBlue).withOpacity(0.3),
+                ),
+              ),
+              child: Text(
+                myLanguage == "ar" ? attendanceTypeNameArNewBooking : attendanceTypeNameEnNewBooking,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'cocon-next-arabic-regular',
+                  color: attendanceTypeIDNewBooking == 3 ? accentColor : logoBlue,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            myLanguage == "en"
-                ? Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Container(
-                      width: double.infinity,
-                      child: Text(
-                        courseTimeEn,
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontFamily: 'cocon-next-arabic-regular',
-                          color: primaryDarkColor,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Container(
-                      width: double.infinity,
-                      child: Text(
-                        courseTimeAr,
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontFamily: 'cocon-next-arabic-regular',
-                          color: primaryDarkColor,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ),
+          ],
+          
+          // Time Section
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: logoBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.access_time,
+                  color: logoBlue,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                AppLocalizations.of(context)?.time ?? "Time",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: primaryDarkColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: logoBlue.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              myLanguage == "en" ? courseTimeEn : courseTimeAr,
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: primaryDarkColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          
+          // Seats Section
+          const SizedBox(height: 20),
+          seatInfo,
+          
+          // Remarks sections
+          if (courseRemarks.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.orange.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.orange,
+                    size: 20,
                   ),
-            seatInfo,
-            courseRemarks.isEmpty
-                ? Container()
-                : Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  const SizedBox(width: 12),
+                  Expanded(
                     child: Text(
                       courseRemarks,
-                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 18.0,
+                        fontSize: 14,
                         fontFamily: 'cocon-next-arabic-regular',
-                        color: Colors.redAccent,
-                        fontWeight: FontWeight.normal,
+                        color: Colors.orange.shade700,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-            churchRemarks.isEmpty
-                ? Container()
-                : Padding(
-                    padding: const EdgeInsets.all(8.0),
+                ],
+              ),
+            ),
+          ],
+          
+          if (churchRemarks.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: primaryDarkColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: primaryDarkColor.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: primaryDarkColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
                     child: Text(
                       churchRemarks,
-                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 18.0,
+                        fontSize: 14,
                         fontFamily: 'cocon-next-arabic-regular',
                         color: primaryDarkColor,
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
           ],
-        ),
+          
+          // Continue button
+          const SizedBox(height: 24),
+          Container(
+            width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.green,
+                  Colors.green.shade600,
+                  Colors.teal,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.green.withOpacity(0.3),
+                  offset: const Offset(0, 4),
+                  blurRadius: 12,
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChooseBookingFamilyMembersActivity(
+                        attendanceTypeIDNewBooking == 3 ? remAttendanceDeaconCount : remAttendanceCount,
+                        churchRemarks,
+                        courseRemarks,
+                        courseDateAr,
+                        courseDateEn,
+                        courseTimeAr,
+                        courseTimeEn,
+                        churchNameAr,
+                        churchNameEn,
+                        courseID,
+                        courseTypeName,
+                        attendanceTypeIDNewBooking,
+                        attendanceTypeNameArNewBooking,
+                        attendanceTypeNameEnNewBooking,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.people,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        "Continue to Family Selection",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   } else if (availableSeatsState == 2) {
     print("[DEBUG] availableSeatsState == 2: No seats available");
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 10.0, right: 20.0, left: 20.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.event_busy,
+                color: Colors.red,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)?.noSeatsAvailable ?? "No seats available",
               style: TextStyle(
-                fontSize: 18.0,
+                fontSize: 16,
                 fontFamily: 'cocon-next-arabic-regular',
-                color: Colors.redAccent,
-                fontWeight: FontWeight.normal,
+                color: Colors.red,
+                fontWeight: FontWeight.w600,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -831,8 +1194,39 @@ Widget buildChild() {
     );
   } else if (availableSeatsState == 3) {
     print("[DEBUG] availableSeatsState == 3: Loading spinner");
-    return Center(
-      child: CircularProgressIndicator(),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(primaryDarkColor),
+              strokeWidth: 3,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Loading booking details...",
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   } else {
     print("[DEBUG] availableSeatsState == $availableSeatsState: Empty Container");
@@ -858,84 +1252,157 @@ Widget buildChild() {
   print("[DEBUG] governorateID current = $governorateID");
 
   Widget buildDropdown(String nameKey) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 15.0, right: 15.0),
-      child: DropdownButton(
-        value: governorateID,
-        isExpanded: true,
-        items: listDropGovernorates.map((Map map) {
-          print("[DEBUG] DropdownMenuItem: id = ${map["id"]}, label = ${map[nameKey]}");
-          return DropdownMenuItem<String>(
-            value: map["id"].toString(),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(
-                      top: 10, left: 5.0, right: 5.0),
-                  child: MyBullet(),
-                ),
-                Expanded(
-                  child: Text(
-                    map[nameKey],
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: primaryDarkColor,
-                      fontSize: 20.0,
-                      fontFamily: 'cocon-next-arabic-regular',
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                ),
-              ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: governorateID != "0" 
+              ? primaryDarkColor.withOpacity(0.3)
+              : Colors.grey.shade300,
+          width: 1.5,
+        ),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            offset: const Offset(0, 2),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: DropdownButton(
+          value: governorateID,
+          isExpanded: true,
+          underline: const SizedBox(),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: primaryDarkColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-          );
-        }).toList(),
-        onChanged: (value) async {
-  print("[DEBUG] Dropdown changed, selected governorateID = $value");
-  setState(() {
-    governorateID = value!;
-    print("[DEBUG] setState: governorateID = $governorateID, reset fields");
-    availableSeatsState = 0;
-    dateState = 0;
-    churchOfAttendanceID = "0";
-    courseID = "0";
-    listDropCourses.clear();
-    listDropChurchOfAttendance.clear();
-    remAttendanceCount = "0";
-    remAttendanceDeaconCount = "0";
-    print("[DEBUG] After reset: availableSeatsState=$availableSeatsState, dateState=$dateState, churchOfAttendanceID=$churchOfAttendanceID, courseID=$courseID");
-  });
-  if (value != "0") {
-    print("[DEBUG] Awaiting getChurchWithGovernorateID() for governorateID = $governorateID");
-    await getChurchWithGovernorateID(); // <- ATTENDS la fin
-    print("[DEBUG] getChurchWithGovernorateID() terminé, churchOfAttendanceList = $churchOfAttendanceList");
-  }
-},
-
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              color: primaryDarkColor,
+              size: 20,
+            ),
+          ),
+          items: listDropGovernorates.map((Map map) {
+            print("[DEBUG] DropdownMenuItem: id = ${map["id"]}, label = ${map[nameKey]}");
+            return DropdownMenuItem<String>(
+              value: map["id"].toString(),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 8,
+                      height: 8,
+                      margin: const EdgeInsets.only(right: 12),
+                      decoration: BoxDecoration(
+                        color: map["id"].toString() == "0" 
+                            ? Colors.grey.shade400
+                            : primaryDarkColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        map[nameKey],
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: map["id"].toString() == "0" 
+                              ? Colors.grey.shade500
+                              : primaryDarkColor,
+                          fontSize: 16,
+                          fontFamily: 'cocon-next-arabic-regular',
+                          fontWeight: map["id"].toString() == "0" 
+                              ? FontWeight.w400
+                              : FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (value) async {
+            print("[DEBUG] Dropdown changed, selected governorateID = $value");
+            setState(() {
+              governorateID = value!;
+              print("[DEBUG] setState: governorateID = $governorateID, reset fields");
+              availableSeatsState = 0;
+              dateState = 0;
+              churchOfAttendanceID = "0";
+              courseID = "0";
+              listDropCourses.clear();
+              listDropChurchOfAttendance.clear();
+              remAttendanceCount = "0";
+              remAttendanceDeaconCount = "0";
+              print("[DEBUG] After reset: availableSeatsState=$availableSeatsState, dateState=$dateState, churchOfAttendanceID=$churchOfAttendanceID, courseID=$courseID");
+            });
+            if (value != "0") {
+              print("[DEBUG] Awaiting getChurchWithGovernorateID() for governorateID = $governorateID");
+              await getChurchWithGovernorateID();
+              print("[DEBUG] getChurchWithGovernorateID() terminé, churchOfAttendanceList = $churchOfAttendanceList");
+            }
+          },
+        ),
       ),
     );
   }
 
-  return Padding(
-    padding: const EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
-    child: Container(
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            AppLocalizations.of(context)?.governorate ?? "Governorate",
-            style: TextStyle(
-              fontSize: 20.0,
-              color: Colors.black,
+  return Container(
+    margin: const EdgeInsets.only(bottom: 20),
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          offset: const Offset(0, 4),
+          blurRadius: 12,
+          spreadRadius: 0,
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: primaryDarkColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.location_city,
+                color: primaryDarkColor,
+                size: 20,
+              ),
             ),
-          ),
-          myLanguage == "en"
-              ? buildDropdown("nameEn")
-              : buildDropdown("nameAr"),
-        ],
-      ),
+            const SizedBox(width: 12),
+            Text(
+              AppLocalizations.of(context)?.governorate ?? "Governorate",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: primaryDarkColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        myLanguage == "en"
+            ? buildDropdown("nameEn")
+            : buildDropdown("nameAr"),
+      ],
     ),
   );
 }
@@ -1011,99 +1478,175 @@ getCourseDetailsWithCourseID() async {
   print("[DEBUG] showChurchOfAttendanceLayout() called, myLanguage = $myLanguage");
   print("[DEBUG] listDropChurchOfAttendance = $listDropChurchOfAttendance");
   print("[DEBUG] churchOfAttendanceID current = $churchOfAttendanceID");
-  // principal widget
+  
+  // Don't show if no governorate is selected
+  if (governorateID == "0" || listDropChurchOfAttendance.isEmpty) {
+    return Container();
+  }
+
   Widget buildDropdown(String nameKey) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 15.0, right: 15.0),
-      child: DropdownButton(
-        value: churchOfAttendanceID,
-        isExpanded: true,
-        itemHeight: 95,
-        items: listDropChurchOfAttendance.map((Map map) {
-          print("[DEBUG] DropdownMenuItem: id = ${map["id"]}, label = ${map[nameKey]}");
-          return DropdownMenuItem<String>(
-            value: map["id"].toString(),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(
-                      top: 20, left: 5.0, right: 5.0),
-                  child: MyBullet(),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 5, bottom: 5),
-                    child: Text(
-                      map[nameKey],
-                      overflow: TextOverflow.visible,
-                      style: TextStyle(
-                        color: primaryDarkColor,
-                        fontSize: 20.0,
-                        fontFamily: 'cocon-next-arabic-regular',
-                        fontWeight: FontWeight.normal,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: churchOfAttendanceID != "0" 
+              ? primaryDarkColor.withOpacity(0.3)
+              : Colors.grey.shade300,
+          width: 1.5,
+        ),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            offset: const Offset(0, 2),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: DropdownButton(
+          value: churchOfAttendanceID,
+          isExpanded: true,
+          underline: const SizedBox(),
+          itemHeight: null,
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: primaryDarkColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              color: primaryDarkColor,
+              size: 20,
+            ),
+          ),
+          items: listDropChurchOfAttendance.map((Map map) {
+            print("[DEBUG] DropdownMenuItem: id = ${map["id"]}, label = ${map[nameKey]}");
+            return DropdownMenuItem<String>(
+              value: map["id"].toString(),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 8,
+                      height: 8,
+                      margin: const EdgeInsets.only(right: 12),
+                      decoration: BoxDecoration(
+                        color: map["id"].toString() == "0" 
+                            ? Colors.grey.shade400
+                            : accentColor,
+                        shape: BoxShape.circle,
                       ),
                     ),
-                  ),
+                    Expanded(
+                      child: Text(
+                        map[nameKey],
+                        overflow: TextOverflow.visible,
+                        style: TextStyle(
+                          color: map["id"].toString() == "0" 
+                              ? Colors.grey.shade500
+                              : primaryDarkColor,
+                          fontSize: 16,
+                          fontFamily: 'cocon-next-arabic-regular',
+                          fontWeight: map["id"].toString() == "0" 
+                              ? FontWeight.w400
+                              : FontWeight.w500,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        }).toList(),
-        onChanged: (value) async { // <- async ici !
-          print("[DEBUG] Dropdown changed, selected churchOfAttendanceID = $value");
-          setState(() {
-            churchOfAttendanceID = value!;
-            courseID = "0";
-            availableSeatsState = 0;
-            remAttendanceCount = "0";
-            remAttendanceDeaconCount = "0";
-          });
-
-          if (value != "0") {
-            print("[DEBUG] Non-zero selection: loading courses for church $churchOfAttendanceID");
+              ),
+            );
+          }).toList(),
+          onChanged: (value) async {
+            print("[DEBUG] Dropdown changed, selected churchOfAttendanceID = $value");
             setState(() {
-              dateState = 2; // show loading indicator
-              isDateChosen = false;
-              isChurchChosen = false;
-            });
-            await getCoursesWithChurchID();
-          } else {
-            print("[DEBUG] Zero selection: reset all related fields");
-            setState(() {
+              churchOfAttendanceID = value!;
+              courseID = "0";
+              availableSeatsState = 0;
               remAttendanceCount = "0";
               remAttendanceDeaconCount = "0";
-              isDateChosen = false;
-              isChurchChosen = false;
-              dateState = 0;
             });
-          }
-          print("[DEBUG] After change: churchOfAttendanceID=$churchOfAttendanceID, courseID=$courseID, availableSeatsState=$availableSeatsState, dateState=$dateState");
-        },
+
+            if (value != "0") {
+              print("[DEBUG] Non-zero selection: loading courses for church $churchOfAttendanceID");
+              setState(() {
+                dateState = 2;
+                isDateChosen = false;
+                isChurchChosen = false;
+              });
+              await getCoursesWithChurchID();
+            } else {
+              print("[DEBUG] Zero selection: reset all related fields");
+              setState(() {
+                remAttendanceCount = "0";
+                remAttendanceDeaconCount = "0";
+                isDateChosen = false;
+                isChurchChosen = false;
+                dateState = 0;
+              });
+            }
+            print("[DEBUG] After change: churchOfAttendanceID=$churchOfAttendanceID, courseID=$courseID, availableSeatsState=$availableSeatsState, dateState=$dateState");
+          },
+        ),
       ),
     );
   }
 
-  // Return principal (inchangé)
-  return Padding(
-    padding: const EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
-    child: Container(
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            AppLocalizations.of(context)?.church ?? "Church",
-            style: TextStyle(
-              fontSize: 20.0,
-              color: Colors.black,
+  return Container(
+    margin: const EdgeInsets.only(bottom: 20),
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          offset: const Offset(0, 4),
+          blurRadius: 12,
+          spreadRadius: 0,
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: accentColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.church,
+                color: accentColor,
+                size: 20,
+              ),
             ),
-          ),
-          myLanguage == "en"
-              ? buildDropdown("nameEn")
-              : buildDropdown("nameAr"),
-        ],
-      ),
+            const SizedBox(width: 12),
+            Text(
+              AppLocalizations.of(context)?.church ?? "Church",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: primaryDarkColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        myLanguage == "en"
+            ? buildDropdown("nameEn")
+            : buildDropdown("nameAr"),
+      ],
     ),
   );
 }
@@ -1111,170 +1654,292 @@ getCourseDetailsWithCourseID() async {
  Widget showCourses(BuildContext context) {
   print("[DEBUG] showCourses() called, dateState = $dateState, flagAddCourse = $flagAddCourse, courseID = $courseID");
 
+  // Don't show if no church is selected
+  if (churchOfAttendanceID == "0") {
+    return Container();
+  }
+
   if (dateState == 0) {
     print("[DEBUG] showCourses: dateState == 0, returning empty Container");
     return Container();
   } else if (dateState == 2) {
     print("[DEBUG] showCourses: dateState == 2, showing CircularProgressIndicator");
-    return Center(child: CircularProgressIndicator());
-  } else {
-    print("[DEBUG] showCourses: dateState != 0 && != 2, showing course selection UI");
-    return Padding(
-      padding: const EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
-      child: Container(
-        width: double.infinity,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                flagAddCourse
-                    ? Container()
-                    : Text(
-                        AppLocalizations.of(context)?.bookingType ?? "Booking Type",
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          color: Colors.black,
-                        ),
-                      ),
-                !flagAddCourse
-                    ? GestureDetector(
-                        onTap: () {
-                          print("[DEBUG] showCourses: Edit button tapped, navigating to CalendarOfBookingsActivity with churchOfAttendanceID = $churchOfAttendanceID, branchNameAr = $branchNameAr, branchNameEn = $branchNameEn");
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (BuildContext context) => CalendarOfBookingsActivity(
-  churchOfAttendanceID: churchOfAttendanceID,
-  churchNameAr: branchNameAr,
-  churchNameEn: branchNameEn,
-)
-
-                            ),
-                          ).then((value) {
-                            print("[DEBUG] showCourses: CalendarOfBookingsActivity returned, courseID = $courseID");
-                            if (courseID != "0") {
-                              print("[DEBUG] showCourses: courseID != 0, reloading course details");
-                              setState(() {
-                                availableSeatsState = 3;
-                                remAttendanceCount = "0";
-                                remAttendanceDeaconCount = "0";
-                              });
-                              getCourseDetailsWithCourseID();
-                            }
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: logoBlue),
-                            borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: Row(
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 5.0, right: 5.0),
-                                  child: Text(
-                                    AppLocalizations.of(context)?.modify ?? "Modify",
-                                    style: TextStyle(
-                                      fontSize: 20.0,
-                                      color: logoBlue,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 5.0, right: 5.0),
-                                  child: Icon(
-                                    Icons.edit,
-                                    color: logoBlue,
-                                    size: 17,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    : Container(),
-              ],
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(primaryDarkColor),
+              strokeWidth: 3,
             ),
-            flagAddCourse
-                ? Container()
-                : Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Text(
-                      courseTypeName ?? "",
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: primaryDarkColor,
-                      ),
-                    ),
-                  ),
-            flagAddCourse
-                ? Container()
-                : Text(
-                    AppLocalizations.of(context)?.holyLiturgyDate ?? "Holy Liturgy Date",
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      color: Colors.black,
-                    ),
-                  ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 10,
-                bottom: 0,
-              ),
-              child: Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width - 100,
-                  height: flagAddCourse ? 50.0 : 0,
-                  child: flagAddCourse
-                      ? ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryDarkColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          onPressed: () {
-                            print("[DEBUG] showCourses: Choose Holy Liturgy Date button tapped. Navigating to CalendarOfBookingsActivity.");
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => CalendarOfBookingsActivity(
-                                  churchOfAttendanceID: churchOfAttendanceID,
-                                  churchNameAr: branchNameAr,
-                                  churchNameEn: branchNameEn,
-                                ),
-                              ),
-                            ).then((value) {
-                              print("[DEBUG] showCourses: CalendarOfBookingsActivity returned, courseID = $courseID");
-                              if (courseID != "0") {
-                                print("[DEBUG] showCourses: courseID != 0, reloading course details");
-                                setState(() {
-                                  availableSeatsState = 3;
-                                  remAttendanceCount = "0";
-                                  remAttendanceDeaconCount = "0";
-                                });
-                                getCourseDetailsWithCourseID();
-                              }
-                            });
-                          },
-                          child: Text(
-                            AppLocalizations.of(context)?.chooseHolyLiturgyDate ?? "Choose Holy Liturgy Date",
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontFamily: 'cocon-next-arabic-regular',
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        )
-                      : Container(),
-                ),
+            const SizedBox(height: 16),
+            Text(
+              "Loading liturgy dates...",
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14,
               ),
             ),
           ],
         ),
+      ),
+    );
+  } else {
+    print("[DEBUG] showCourses: dateState != 0 && != 2, showing course selection UI");
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          // Header section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              if (!flagAddCourse) ...[
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: logoBlue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.event_note,
+                        color: logoBlue,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      AppLocalizations.of(context)?.bookingType ?? "Booking Type",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: primaryDarkColor,
+                      ),
+                    ),
+                  ],
+                ),
+                // Edit button
+                GestureDetector(
+                  onTap: () {
+                    print("[DEBUG] showCourses: Edit button tapped, navigating to CalendarOfBookingsActivity with churchOfAttendanceID = $churchOfAttendanceID, branchNameAr = $branchNameAr, branchNameEn = $branchNameEn");
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => CalendarOfBookingsActivity(
+                          churchOfAttendanceID: churchOfAttendanceID,
+                          churchNameAr: branchNameAr,
+                          churchNameEn: branchNameEn,
+                        ),
+                      ),
+                    ).then((value) {
+                      print("[DEBUG] showCourses: CalendarOfBookingsActivity returned, courseID = $courseID");
+                      if (courseID != "0") {
+                        print("[DEBUG] showCourses: courseID != 0, reloading course details");
+                        setState(() {
+                          availableSeatsState = 3;
+                          remAttendanceCount = "0";
+                          remAttendanceDeaconCount = "0";
+                        });
+                        getCourseDetailsWithCourseID();
+                      }
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: logoBlue.withOpacity(0.3)),
+                      borderRadius: BorderRadius.circular(12),
+                      color: logoBlue.withOpacity(0.05),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          AppLocalizations.of(context)?.modify ?? "Modify",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: logoBlue,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Icon(
+                          Icons.edit,
+                          color: logoBlue,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          
+          // Course type name (when not adding course)
+          if (!flagAddCourse) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: primaryDarkColor.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: primaryDarkColor.withOpacity(0.1),
+                ),
+              ),
+              child: Text(
+                courseTypeName,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: primaryDarkColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: accentColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.calendar_month,
+                    color: accentColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  AppLocalizations.of(context)?.holyLiturgyDate ?? "Holy Liturgy Date",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: primaryDarkColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // Choose Holy Liturgy Date Button
+          if (flagAddCourse) ...[
+            const SizedBox(height: 24),
+            Center(
+              child: Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      primaryDarkColor,
+                      primaryDarkColor.withOpacity(0.8),
+                      accentColor,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryDarkColor.withOpacity(0.3),
+                      offset: const Offset(0, 4),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      print("[DEBUG] showCourses: Choose Holy Liturgy Date button tapped. Navigating to CalendarOfBookingsActivity.");
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => CalendarOfBookingsActivity(
+                            churchOfAttendanceID: churchOfAttendanceID,
+                            churchNameAr: branchNameAr,
+                            churchNameEn: branchNameEn,
+                          ),
+                        ),
+                      ).then((value) {
+                        print("[DEBUG] showCourses: CalendarOfBookingsActivity returned, courseID = $courseID");
+                        if (courseID != "0") {
+                          print("[DEBUG] showCourses: courseID != 0, reloading course details");
+                          setState(() {
+                            availableSeatsState = 3;
+                            remAttendanceCount = "0";
+                            remAttendanceDeaconCount = "0";
+                          });
+                          getCourseDetailsWithCourseID();
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            AppLocalizations.of(context)?.chooseHolyLiturgyDate ?? "Choose Holy Liturgy Date",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'cocon-next-arabic-regular',
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 24),
+          ],
+        ],
       ),
     );
   }

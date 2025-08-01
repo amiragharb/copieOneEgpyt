@@ -9,15 +9,12 @@ import 'package:egpycopsversion4/Models/user.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
 import 'package:egpycopsversion4/Profile/completeRegistrationDataActivity.dart';
 import 'package:egpycopsversion4/Translation/localizations.dart';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Écrans annexes
 import 'package:egpycopsversion4/Login/forgotPassword.dart' as fp;
 import 'package:egpycopsversion4/Login/register.dart' as rg;
 
@@ -33,7 +30,7 @@ class LoginActivity extends StatefulWidget {
 class _LoginActivityState extends State<LoginActivity> with TickerProviderStateMixin {
   String myLanguage = "en";
   String mobileToken = "";
-  int loginState = 0; // 0=idle, 1=loading, 2=done
+  int loginState = 0;
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -74,63 +71,76 @@ class _LoginActivityState extends State<LoginActivity> with TickerProviderStateM
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      body: AuthScaffold(
-        backgroundColor: Colors.white,                  // fond blanc
-        topLogoAsset: 'images/logotransparents.png',    // logo en haut
-        child: LoginCard(
-          title: t?.loginUser ?? 'Login',
-          emailController: emailController,
-          passwordController: passwordController,
-          remember: rememberMe,
-          loading: (loginState == 1),
-          onRememberChanged: (v) async {
-            setState(() => rememberMe = v);
-            await _persistRemember(v);
-          },
-          onForgotPassword: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => fp.ForgotPasswordActivity()));
-          },
-          onRegister: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => rg.RegisterActivity()));
-          },
-          onSubmit: (email, pass, remember) async {
-            final net = await _checkInternetConnection();
-            if (net != '1') {
-              if (!mounted) return;
-              Navigator.push(context, MaterialPageRoute(builder: (_) => NoInternetConnectionActivity()));
-              return;
-            }
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: AuthScaffold(
+          backgroundColor: Colors.white,
+          topLogoAsset: 'images/logotransparents.png',
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: LoginCard(
+                      title: t?.loginUser ?? 'Login',
+                      emailController: emailController,
+                      passwordController: passwordController,
+                      remember: rememberMe,
+                      loading: (loginState == 1),
+                      onRememberChanged: (v) async {
+                        setState(() => rememberMe = v);
+                        await _persistRemember(v);
+                      },
+                      onForgotPassword: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => fp.ForgotPasswordActivity()));
+                      },
+                      onRegister: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => rg.RegisterActivity()));
+                      },
+                      onSubmit: (email, pass, remember) async {
+                        final net = await _checkInternetConnection();
+                        if (net != '1') {
+                          if (!mounted) return;
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => NoInternetConnectionActivity()));
+                          return;
+                        }
 
-            setState(() => loginState = 1);
+                        setState(() => loginState = 1);
+                        final code = await _login(email, pass);
+                        if (!mounted) return;
 
-            final code = await _login(email, pass);
-            if (!mounted) return;
+                        if (code == '1') {
+                          setState(() => loginState = 2);
+                          final prefs = await SharedPreferences.getInstance();
+                          final hasMainAccount = prefs.getBool('hasMainAccount') ?? false;
+                          final accountType = prefs.getString('accountType') ?? '';
 
-            if (code == '1') {
-              setState(() => loginState = 2);
-
-              final prefs = await SharedPreferences.getInstance();
-              final hasMainAccount = prefs.getBool('hasMainAccount') ?? false;
-              final accountType = prefs.getString('accountType') ?? '';
-
-              if (hasMainAccount) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => HomeActivity(false)),
-                  ModalRoute.withName('/Home'),
-                );
-              } else {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => CompleteRegistrationDataActivity(accountType)),
-                  ModalRoute.withName('/CompleteData'),
-                );
-              }
-            } else {
-              _handleLoginError(context, code ?? 'Error');
-              setState(() => loginState = 0);
-            }
-          },
+                          if (hasMainAccount) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (_) => HomeActivity(false)),
+                              ModalRoute.withName('/Home'),
+                            );
+                          } else {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (_) => CompleteRegistrationDataActivity(accountType)),
+                              ModalRoute.withName('/CompleteData'),
+                            );
+                          }
+                        } else {
+                          _handleLoginError(context, code ?? 'Error');
+                          setState(() => loginState = 0);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -141,7 +151,6 @@ class _LoginActivityState extends State<LoginActivity> with TickerProviderStateM
     return r == ConnectivityResult.none ? '0' : '1';
   }
 
-  // Adapte l’URL à ton API si besoin
   Future<String?> _login(String rawEmail, String rawPassword) async {
     final email = rawEmail.trim().toLowerCase();
     final password = rawPassword.trim();

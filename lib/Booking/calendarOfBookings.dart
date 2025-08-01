@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:egpycopsversion4/API/apiClient.dart';
-import 'package:egpycopsversion4/Booking/chooseBookingFamilyMembersActivity.dart';
 import 'package:egpycopsversion4/Booking/courses.dart';
 import 'package:egpycopsversion4/Colors/colors.dart';
 import 'package:egpycopsversion4/Models/calendarCourses.dart';
@@ -99,130 +97,318 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: Text(
-            AppLocalizations.of(context)?.chooseHolyLiturgyDate2 ?? "Choose Holy Liturgy Date",
-            style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.normal),
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                primaryDarkColor,
+                primaryColor,
+                logoBlue.withOpacity(0.8),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: primaryDarkColor.withOpacity(0.25),
+                offset: const Offset(0, 8),
+                blurRadius: 20,
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: primaryColor.withOpacity(0.1),
+                offset: const Offset(0, 4),
+                blurRadius: 12,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            iconTheme: const IconThemeData(color: Colors.white, size: 28),
+            title: Column(
+              children: [
+                const SizedBox(height: 25),
+                Text(
+                  AppLocalizations.of(context)?.chooseHolyLiturgyDate2 ?? "Choose Holy Liturgy Date",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 20,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Container(
+                  height: 3,
+                  width: 40,
+                  margin: const EdgeInsets.only(top: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ],
+            ),
+            systemOverlayStyle: SystemUiOverlayStyle.light,
           ),
         ),
-        backgroundColor: primaryDarkColor,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
-      body: buildChild(context),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              primaryDarkColor.withOpacity(0.03),
+              Colors.white,
+              primaryColor.withOpacity(0.02),
+            ],
+          ),
+        ),
+        child: buildChild(context),
+      ),
     );
   }
 
   Widget buildChild(BuildContext context) {
     if (loadingState == 0) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Loading calendar...",
+              style: TextStyle(
+                color: primaryDarkColor.withOpacity(0.7),
+                fontSize: 16,
+                fontFamily: 'cocon-next-arabic-regular',
+              ),
+            ),
+          ],
+        ),
+      );
     } else if (loadingState == 1) {
       return Form(
         key: _formKey,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                myLanguage == "en" ? widget.churchNameEn : widget.churchNameAr,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'cocon-next-arabic-regular',
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
+            // Church name header with modern styling
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 100, 16, 16),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: primaryColor.withOpacity(0.1),
+                  width: 1,
                 ),
-                textAlign: TextAlign.center,
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryDarkColor.withOpacity(0.1),
+                    offset: const Offset(0, 4),
+                    blurRadius: 12,
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: primaryDarkColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.church,
+                      color: primaryDarkColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      myLanguage == "en" ? widget.churchNameEn : widget.churchNameAr,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'cocon-next-arabic-regular',
+                        fontWeight: FontWeight.w600,
+                        color: primaryDarkColor,
+                      ),
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                ],
               ),
             ),
-            TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: _focusedDay,
-              calendarFormat: _calendarFormat,
-              eventLoader: (day) {
-                // 🔹 Normalisation du jour pour correspondre aux clés _events
-                final normalizedDay = DateTime.utc(day.year, day.month, day.day);
-                return _events[normalizedDay] ?? [];
-              },
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
-
-                  final normalizedDay = DateTime.utc(selectedDay.year, selectedDay.month, selectedDay.day);
-                  final events = _events[normalizedDay] ?? [];
-
-                  if (events.isNotEmpty) {
-                    final formatted = DateFormat('yyyy-MM-dd').format(selectedDay);
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(
-                            builder: (_) => CoursesActivity(
-                                  formatted,
-                                  widget.churchOfAttendanceID,
-                                  widget.churchNameEn,
-                                  widget.churchNameAr,
-                                )))
-                        .then((value) {
-                      // Action après retour (si besoin)
-                    });
-                  } else {
-                    Fluttertoast.showToast(
-                        msg: AppLocalizations.of(context)?.noSeatsAvailable ?? "No seats available",
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.white,
-                        textColor: Colors.red);
-                  }
-                });
-              },
-              calendarStyle: const CalendarStyle(
-                todayDecoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                selectedDecoration: BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
-                weekendTextStyle: TextStyle(color: Colors.red),
+            
+            // Calendar with modern styling
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: primaryColor.withOpacity(0.1),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryDarkColor.withOpacity(0.1),
+                    offset: const Offset(0, 4),
+                    blurRadius: 12,
+                    spreadRadius: 0,
+                  ),
+                ],
               ),
-              onFormatChanged: (format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
-              },
-              onPageChanged: (focusedDay) {
-                _focusedDay = focusedDay;
-                month = focusedDay.month.toString();
-                year = focusedDay.year.toString();
-                getSharedData();
-              },
-              calendarBuilders: CalendarBuilders(
-                markerBuilder: (context, date, events) {
-                  if (events.isNotEmpty) {
-                    return Positioned(
-                      bottom: 5,
-                      right: 7,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "${events.length}", // 🔹 Affiche le nombre réel d'événements
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
+              child: TableCalendar(
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2030, 12, 31),
+                focusedDay: _focusedDay,
+                calendarFormat: _calendarFormat,
+                eventLoader: (day) {
+                  // 🔹 Normalisation du jour pour correspondre aux clés _events
+                  final normalizedDay = DateTime.utc(day.year, day.month, day.day);
+                  return _events[normalizedDay] ?? [];
                 },
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+
+                    final normalizedDay = DateTime.utc(selectedDay.year, selectedDay.month, selectedDay.day);
+                    final events = _events[normalizedDay] ?? [];
+
+                    if (events.isNotEmpty) {
+                      final formatted = DateFormat('yyyy-MM-dd').format(selectedDay);
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(
+                              builder: (_) => CoursesActivity(
+                                    formatted,
+                                    widget.churchOfAttendanceID,
+                                    widget.churchNameEn,
+                                    widget.churchNameAr,
+                                  )))
+                          .then((value) {
+                        // Action après retour (si besoin)
+                      });
+                    } else {
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)?.noSeatsAvailable ?? "No seats available",
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.white,
+                          textColor: accentColor);
+                    }
+                  });
+                },
+                calendarStyle: CalendarStyle(
+                  // Today styling
+                  todayDecoration: BoxDecoration(
+                    color: logoBlue,
+                    shape: BoxShape.circle,
+                  ),
+                  todayTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  
+                  // Selected day styling
+                  selectedDecoration: BoxDecoration(
+                    color: primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                  selectedTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  
+                  // Weekend styling
+                  weekendTextStyle: TextStyle(color: primaryDarkColor.withOpacity(0.7)),
+                  
+                  // Default text styling
+                  defaultTextStyle: TextStyle(color: primaryDarkColor),
+                  
+                  // Outside days
+                  outsideTextStyle: TextStyle(color: primaryDarkColor.withOpacity(0.3)),
+                  
+                  // Disabled days
+                  disabledTextStyle: TextStyle(color: primaryDarkColor.withOpacity(0.2)),
+                  
+                  // Marker styling
+                  markerDecoration: BoxDecoration(
+                    color: primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                headerStyle: HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                  leftChevronIcon: Icon(
+                    Icons.chevron_left,
+                    color: primaryDarkColor,
+                  ),
+                  rightChevronIcon: Icon(
+                    Icons.chevron_right,
+                    color: primaryDarkColor,
+                  ),
+                  titleTextStyle: TextStyle(
+                    color: primaryDarkColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'cocon-next-arabic-regular',
+                  ),
+                ),
+                daysOfWeekStyle: DaysOfWeekStyle(
+                  weekdayStyle: TextStyle(
+                    color: primaryDarkColor.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  weekendStyle: TextStyle(
+                    color: primaryDarkColor.withOpacity(0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onFormatChanged: (format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                },
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
+                  month = focusedDay.month.toString();
+                  year = focusedDay.year.toString();
+                  getSharedData();
+                },
+                calendarBuilders: CalendarBuilders(
+                  markerBuilder: (context, date, events) {
+                    if (events.isNotEmpty) {
+                      return Positioned(
+                        bottom: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: logoBlue,
+                          ),
+                          width: 8.0,
+                          height: 8.0,
+                        ),
+                      );
+                    }
+                    return Container();
+                  },
+                ),
               ),
             ),
           ],
@@ -230,12 +416,51 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
       );
     } else {
       return Center(
-        child: Text(
-          AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
-          style: const TextStyle(
-              fontSize: 20,
-              fontFamily: 'cocon-next-arabic-regular',
-              color: Colors.grey),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: accentColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 48,
+                color: accentColor,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Error loading calendar",
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'cocon-next-arabic-regular',
+                color: primaryDarkColor.withOpacity(0.8),
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => getSharedData(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryDarkColor,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: const Text(
+                "Try Again",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }

@@ -6,7 +6,6 @@ import 'package:egpycopsversion4/Colors/colors.dart';
 import 'package:egpycopsversion4/Models/booking.dart';
 import 'package:egpycopsversion4/Models/editBookingDetails.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +14,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:egpycopsversion4/l10n/app_localizations.dart';
-import 'package:egpycopsversion4/Booking/newBookingActivity.dart';
 
 import '../Booking/editBooking.dart';
 
@@ -189,433 +187,827 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 50.0,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accentColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-               onPressed: () {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => NewBookingActivity(),
-    ),
-  );
-},
-
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add, color: Colors.white),
-                    const SizedBox(width: 8.0),
-                    Text(
-                      AppLocalizations.of(context)?.newBooking ?? "New Booking",
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                        fontFamily: 'cocon-next-arabic-regular',
-                        fontWeight: FontWeight.normal,
-                        color: Colors.white,
-                      ),
-                    ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              primaryDarkColor.withOpacity(0.03),
+              Colors.white,
+              primaryColor.withOpacity(0.02),
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            // Modern Header Section
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    primaryDarkColor,
+                    primaryColor,
+                    logoBlue.withOpacity(0.8),
                   ],
                 ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryDarkColor.withOpacity(0.25),
+                    offset: const Offset(0, 8),
+                    blurRadius: 20,
+                    spreadRadius: 0,
+                  ),
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.1),
+                    offset: const Offset(0, 4),
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Header title and icon
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(
+                          Icons.calendar_month,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)?.myBookings ?? "My Bookings",
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontFamily: 'cocon-next-arabic-regular',
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Manage your liturgy reservations",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.9),
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // New Booking Button
+                  Container(
+                    width: double.infinity,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          offset: const Offset(0, 4),
+                          blurRadius: 12,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => NewBookingActivity(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: logoBlue.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.add_circle_outline,
+                                  color: logoBlue,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                AppLocalizations.of(context)?.newBooking ?? "New Booking",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: 'cocon-next-arabic-regular',
+                                  fontWeight: FontWeight.w600,
+                                  color: primaryDarkColor,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                color: primaryDarkColor.withOpacity(0.6),
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              AppLocalizations.of(context)?.myBookings ?? "My Bookings",
-              style: TextStyle(
-                fontSize: 24,
-                fontFamily: 'cocon-next-arabic-regular',
-                fontWeight: FontWeight.normal,
-                color: primaryDarkColor,
-              ),
-              maxLines: 1,
-            ),
-          ),
-          Expanded(child: buildChild()),
-        ],
+            
+            // Bookings List Section
+            Expanded(child: buildChild()),
+          ],
+        ),
       ),
     );
   }
 
   Widget buildChild() {
     if (loadingState == 0) {
-      return ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Container(
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          itemCount: 6,
+          itemBuilder: (context, index) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  color: Colors.white70),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryDarkColor.withOpacity(0.08),
+                    offset: const Offset(0, 2),
+                    blurRadius: 8,
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Church name skeleton
+                  Row(
+                    children: [
+                      SkeletonAnimation(
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: primaryColor.withOpacity(0.2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SkeletonAnimation(
+                          child: Container(
+                            height: 20,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              color: primaryColor.withOpacity(0.2),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Booking details skeleton
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SkeletonAnimation(
+                              child: Container(
+                                width: 80,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  color: logoBlue.withOpacity(0.2),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SkeletonAnimation(
+                              child: Container(
+                                width: 120,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  color: logoBlue.withOpacity(0.2),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SkeletonAnimation(
+                        child: Container(
+                          width: 60,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: primaryDarkColor.withOpacity(0.2),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Date and time skeleton
+                  SkeletonAnimation(
+                    child: Container(
+                      width: double.infinity,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: primaryColor.withOpacity(0.2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    } else if (loadingState == 1) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ListView.builder(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          itemCount: listViewMyBookings.length,
+          itemBuilder: (context, index) {
+            if (index >= listViewMyBookings.length) return Container();
+            
+            final booking = listViewMyBookings[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: primaryColor.withOpacity(0.1),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryDarkColor.withOpacity(0.1),
+                    offset: const Offset(0, 4),
+                    blurRadius: 12,
+                    spreadRadius: 0,
+                  ),
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.05),
+                    offset: const Offset(0, 2),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () async {
+                    try {
+                      String connectionResponse = await _checkInternetConnection();
+                      if (connectionResponse == '1') {
+                        String response = await getBookingDetails(booking["coupleId"] ?? "");
+                        if (!mounted) return;
+                        if (response == '1') {
+                          if (!allowEdit) {
+                            Fluttertoast.showToast(
+                              msg: AppLocalizations.of(context)?.sorryYouCannotEditThisBooking ?? "Sorry, you cannot edit this booking",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.white,
+                              textColor: accentColor,
+                              fontSize: 16.0,
+                            );
+                          } else {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => EditBookingActivity(
+                                  remAttendanceCount.isEmpty ? "0" : remAttendanceCount,
+                                  churchRemarks,
+                                  courseRemarks,
+                                  courseDateAr,
+                                  courseDateEn,
+                                  courseTimeAr,
+                                  courseTimeEn,
+                                  churchNameAr,
+                                  churchNameEn,
+                                  coupleID,
+                                  myFamilyList,
+                                  registrationNumber,
+                                  courseTypeName,
+                                  attendanceTypeID,
+                                  attendanceTypeNameAr,
+                                  attendanceTypeNameEn,
+                                ),
+                              ),
+                            ).then((value) async {
+                              if (!mounted) return;
+                              loadingState = 0;
+                              myBookingsList.clear();
+                              listViewMyBookings.clear();
+                              myBookingsList = await getMyBookings();
+                              if (mounted && loadingState == 1 && myBookingsList.isNotEmpty) {
+                                myBookingsListViewData();
+                              }
+                            });
+                          }
+                        } else {
+                          Fluttertoast.showToast(
+                            msg: AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.white,
+                            textColor: accentColor,
+                            fontSize: 16.0,
+                          );
+                        }
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => NoInternetConnectionActivity(),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      debugPrint("Error in onTap: $e");
+                      if (mounted) {
+                        Fluttertoast.showToast(
+                          msg: "An error occurred",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.white,
+                          textColor: accentColor,
+                          fontSize: 16.0,
+                        );
+                      }
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SkeletonAnimation(
-                          child: Container(
-                            height: 15,
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.grey[300],
+                        // Header with church name and status
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: primaryDarkColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.church,
+                                color: primaryDarkColor,
+                                size: 20,
+                              ),
                             ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    myLanguage == "en"
+                                        ? (booking["churchNameEn"] ?? "")
+                                        : (booking["churchNameAr"] ?? ""),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontFamily: 'cocon-next-arabic-regular',
+                                      fontWeight: FontWeight.w600,
+                                      color: primaryDarkColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    booking["courseTypeName"] ?? "",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: logoBlue,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: primaryColor.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                "Active",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        const SizedBox(height: 16),
+                        
+                        // Booking number section
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: logoBlue.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: logoBlue.withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.confirmation_number_outlined,
+                                color: logoBlue,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                AppLocalizations.of(context)?.bookingNumber ?? "Booking Number",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'cocon-next-arabic-regular',
+                                  color: primaryDarkColor.withOpacity(0.7),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                ":",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: primaryDarkColor.withOpacity(0.7),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  booking["registrationNumber"] ?? "",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'cocon-next-arabic-regular',
+                                    fontWeight: FontWeight.w700,
+                                    color: logoBlue,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 5),
-                        SkeletonAnimation(
-                          child: Container(
-                            width: 110,
-                            height: 13,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.grey[300],
+                        
+                        const SizedBox(height: 16),
+
+                        // Attendance Type (if exists)
+                        (booking["attendanceTypeID"] == 0)
+                            ? Container()
+                            : Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: primaryColor.withOpacity(0.15),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.people_outline,
+                                      color: primaryColor,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      AppLocalizations.of(context)?.attendanceType ?? "Attendance Type",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: primaryDarkColor.withOpacity(0.7),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      ":",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: primaryDarkColor.withOpacity(0.7),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        myLanguage == "ar"
+                                            ? (booking["attendanceTypeNameAr"] ?? "")
+                                            : (booking["attendanceTypeNameEn"] ?? ""),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: 'cocon-next-arabic-regular',
+                                          fontWeight: FontWeight.w600,
+                                          color: (booking["attendanceTypeID"] == 1 || booking["attendanceTypeID"] == 2)
+                                              ? logoBlue
+                                              : primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                        
+                        // Date and time section
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: primaryColor.withOpacity(0.15),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today,
+                                          color: primaryColor,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          "Date",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: primaryDarkColor.withOpacity(0.6),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      myLanguage == "en"
+                                          ? (booking["courseDateEn"] ?? "")
+                                          : (booking["courseDateAr"] ?? ""),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: 'cocon-next-arabic-regular',
+                                        fontWeight: FontWeight.w600,
+                                        color: primaryDarkColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: logoBlue.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: logoBlue.withOpacity(0.15),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.access_time,
+                                          color: logoBlue,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          "Time",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: primaryDarkColor.withOpacity(0.6),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      myLanguage == "en"
+                                          ? (booking["courseTimeEn"] ?? "")
+                                          : (booking["courseTimeAr"] ?? ""),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: 'cocon-next-arabic-regular',
+                                        fontWeight: FontWeight.w600,
+                                        color: primaryDarkColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 5),
-                        SkeletonAnimation(
-                          child: Container(
-                            width: 80,
-                            height: 13,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.grey[300],
+                        
+                        const SizedBox(height: 16),
+                        
+                        // Footer with action hint
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Tap to view details",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: primaryColor.withOpacity(0.7),
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        SkeletonAnimation(
-                          child: Container(
-                            width: 80,
-                            height: 13,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.grey[300],
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: primaryColor.withOpacity(0.6),
+                              size: 12,
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      );
-    } else if (loadingState == 1) {
-      return ListView.builder(
-        controller: _scrollController,
-        itemCount: listViewMyBookings.length,
-        itemBuilder: (context, index) {
-          if (index >= listViewMyBookings.length) return Container();
-          
-          final booking = listViewMyBookings[index];
-          return GestureDetector(
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      myLanguage == "en"
-                          ? (booking["churchNameEn"] ?? "")
-                          : (booking["churchNameAr"] ?? ""),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'cocon-next-arabic-regular',
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)?.bookingNumber ?? "Booking Number",
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontFamily: 'cocon-next-arabic-regular',
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 5.0),
-                            child: Text(
-                              ":",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontFamily: 'cocon-next-arabic-regular',
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            booking["registrationNumber"] ?? "",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: 'cocon-next-arabic-regular',
-                              fontWeight: FontWeight.normal,
-                              color: logoBlue,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 5.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)?.bookingType ?? "Booking Type",
-                            style: const TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                          myLanguage == "en"
-                              ? const Padding(
-                                  padding: EdgeInsets.only(right: 5.0),
-                                  child: Text(
-                                    ":",
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                )
-                              : const Padding(
-                                  padding: EdgeInsets.only(left: 5.0),
-                                  child: Text(
-                                    ":",
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                          Expanded(
-                            child: Text(
-                              booking["courseTypeName"] ?? "",
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                color: logoBlue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    (booking["attendanceTypeID"] == 0)
-                        ? Container()
-                        : Padding(
-                            padding: const EdgeInsets.only(bottom: 5.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)?.attendanceType ?? "Attendance Type",
-                                  style: const TextStyle(
-                                    fontSize: 18.0,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                myLanguage == "en"
-                                    ? const Padding(
-                                        padding: EdgeInsets.only(right: 5.0),
-                                        child: Text(
-                                          ":",
-                                          style: TextStyle(
-                                            fontSize: 18.0,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      )
-                                    : const Padding(
-                                        padding: EdgeInsets.only(left: 5.0),
-                                        child: Text(
-                                          ":",
-                                          style: TextStyle(
-                                            fontSize: 18.0,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                Expanded(
-                                  child: Text(
-                                    myLanguage == "ar"
-                                        ? (booking["attendanceTypeNameAr"] ?? "")
-                                        : (booking["attendanceTypeNameEn"] ?? ""),
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      color: (booking["attendanceTypeID"] == 1 || booking["attendanceTypeID"] == 2)
-                                          ? logoBlue
-                                          : accentColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                    Text(
-                      myLanguage == "en"
-                          ? (booking["courseNameEn"] ?? "")
-                          : (booking["courseNameAr"] ?? ""),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'cocon-next-arabic-regular',
-                        color: Colors.grey,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            onTap: () async {
-              try {
-                String connectionResponse = await _checkInternetConnection();
-                if (connectionResponse == '1') {
-                  String response = await getBookingDetails(booking["coupleId"] ?? "");
-                  if (!mounted) return;
-                  if (response == '1') {
-                    if (!allowEdit) {
-                      Fluttertoast.showToast(
-                        msg: AppLocalizations.of(context)?.sorryYouCannotEditThisBooking ?? "Sorry, you cannot edit this booking",
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.white,
-                        textColor: Colors.red,
-                        fontSize: 16.0,
-                      );
-                    } else {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => EditBookingActivity(
-                            remAttendanceCount.isEmpty ? "0" : remAttendanceCount,
-                            churchRemarks,
-                            courseRemarks,
-                            courseDateAr,
-                            courseDateEn,
-                            courseTimeAr,
-                            courseTimeEn,
-                            churchNameAr,
-                            churchNameEn,
-                            coupleID,
-                            myFamilyList,
-                            registrationNumber,
-                            courseTypeName,
-                            attendanceTypeID,
-                            attendanceTypeNameAr,
-                            attendanceTypeNameEn,
-                          ),
-                        ),
-                      ).then((value) async {
-                        if (!mounted) return;
-                        loadingState = 0;
-                        myBookingsList.clear();
-                        listViewMyBookings.clear();
-                        myBookingsList = await getMyBookings();
-                        if (mounted && loadingState == 1 && myBookingsList.isNotEmpty) {
-                          myBookingsListViewData();
-                        }
-                      });
-                    }
-                  } else {
-                    Fluttertoast.showToast(
-                      msg: AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
-                      toastLength: Toast.LENGTH_LONG,
-                      gravity: ToastGravity.BOTTOM,
-                      backgroundColor: Colors.white,
-                      textColor: Colors.red,
-                      fontSize: 16.0,
-                    );
-                  }
-                } else {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => NoInternetConnectionActivity(),
-                    ),
-                  );
-                }
-              } catch (e) {
-                debugPrint("Error in onTap: $e");
-                if (mounted) {
-                  Fluttertoast.showToast(
-                    msg: "An error occurred",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.white,
-                    textColor: Colors.red,
-                    fontSize: 16.0,
-                  );
-                }
-              }
-            },
-          );
-        },
+            );
+          },
+        ),
       );
     } else if (loadingState == 2) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 30.0),
-          child: Text(
-            AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
-            style: const TextStyle(
-              fontSize: 20.0,
-              fontFamily: 'cocon-next-arabic-regular',
-              color: Colors.grey,
-            ),
+      return Container(
+        padding: const EdgeInsets.all(32),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: accentColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: accentColor,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting to server",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'cocon-next-arabic-regular',
+                  color: primaryDarkColor.withOpacity(0.8),
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => getDataFromShared(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryDarkColor,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                child: const Text(
+                  "Try Again",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );
     } else if (loadingState == 3) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Image(
-                image: const ExactAssetImage('images/online_booking.png'),
-                color: Colors.grey,
-                width: 60,
-                height: 60,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                AppLocalizations.of(context)?.noBookingFound ?? "No booking found",
-                style: const TextStyle(
-                  fontSize: 20.0,
-                  fontFamily: 'cocon-next-arabic-regular',
-                  color: Colors.grey,
+      return Container(
+        padding: const EdgeInsets.all(32),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: logoBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  Icons.event_busy,
+                  size: 48,
+                  color: logoBlue,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              Text(
+                AppLocalizations.of(context)?.noBookingFound ?? "No bookings found",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'cocon-next-arabic-regular',
+                  color: primaryDarkColor.withOpacity(0.8),
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Create your first booking to get started",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: primaryColor.withOpacity(0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     } else {

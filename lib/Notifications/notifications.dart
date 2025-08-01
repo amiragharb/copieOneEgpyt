@@ -122,23 +122,80 @@ class NotificationsActivityState extends State<NotificationsActivity>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: Text(
-            AppLocalizations.of(context)!.notifications,
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal),
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                primaryDarkColor,
+                primaryDarkColor.withOpacity(0.8),
+                accentColor.withOpacity(0.6),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                offset: const Offset(0, 4),
+                blurRadius: 12,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            iconTheme: const IconThemeData(color: Colors.white, size: 28),
+            title: Column(
+              children: [
+                const SizedBox(height: 25),
+                Text(
+                  AppLocalizations.of(context)!.notifications,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 22,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Container(
+                  height: 3,
+                  width: 40,
+                  margin: const EdgeInsets.only(top: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ],
+            ),
+            systemOverlayStyle: SystemUiOverlayStyle.light,
           ),
         ),
-        backgroundColor: primaryDarkColor, systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          buildChild(),
-        ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.grey.shade50,
+              Colors.white,
+              Colors.grey.shade50,
+            ],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            buildChild(),
+          ],
+        ),
       ),
     );
   }
