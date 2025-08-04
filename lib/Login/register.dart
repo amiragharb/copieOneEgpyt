@@ -1,4 +1,3 @@
-// lib/Login/register.dart
 import 'dart:convert';
 import 'dart:io' show Platform;
 
@@ -9,8 +8,9 @@ import 'package:egpycopsversion4/Models/Countries.dart' show Country, countryFro
 import 'package:egpycopsversion4/Models/user.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
 import 'package:egpycopsversion4/Profile/completeRegistrationDataActivity.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart';
+import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations;
 import 'package:egpycopsversion4/Utils/loader.dart' show Loader;
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -22,8 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Pour pouvoir revenir/aller au login
 import 'package:egpycopsversion4/Login/login.dart' as lg;
 
-import '../Home/homeActivity.dart';
-import 'needVerificationActivity.dart';
+import 'needVerificationActivity.dart' hide CompleteRegistrationDataPageActivity;
 
 /// ---------- Etat global minimal ----------
 String myLanguage = "en";
@@ -60,11 +59,7 @@ class RegisterActivityState extends State<RegisterActivity> with TickerProviderS
   final List<Map<String, dynamic>> listDropCountries = [];
   final List<Map<String, dynamic>> listDropAccountType = [];
   String countryID = "0";
-  String accountTypeID = "0";
-
-  // Divers (routing post-inscription)
-  bool hasMainAccount = false;
-  String? userAccountType;
+  String accountTypeID = "1"; // Fixe: "Personal"
 
   @override
   void initState() {
@@ -78,22 +73,15 @@ class RegisterActivityState extends State<RegisterActivity> with TickerProviderS
     _bootstrap();
   }
 
-  // Pré-charge l’asset de fond (même que le login) pour éviter un clignotement
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   Future<void> _bootstrap() async {
     final prefs = await SharedPreferences.getInstance();
     myLanguage = prefs.getString('language') ?? "en";
 
-    // Remplit "Account type"
     final t = AppLocalizations.of(context);
     listDropAccountType
       ..clear()
-      ..add({"id": "0", "name": t?.family ?? "Family"})
       ..add({"id": "1", "name": t?.personal ?? "Personal"});
+    accountTypeID = "1"; // Valeur sélectionnée par défaut
 
     // Ajoute l’option par défaut pour les pays (UI immédiate)
     listDropCountries
@@ -181,254 +169,250 @@ class RegisterActivityState extends State<RegisterActivity> with TickerProviderS
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    myLanguage = t?.localeName ?? Localizations.localeOf(context).languageCode;
 
-    // Libellés simples si clés manquantes
     final countryLabel =
         (myLanguage == 'ar') ? 'الدولة' : 'Country';
     final pleaseSelectCountryMsg =
         (myLanguage == 'ar') ? 'يرجى اختيار الدولة' : 'Please select a country';
 
-    return Scaffold(
-      body: AuthScaffold(
-        backgroundColor: Colors.white,                 // fond blanc
-        child: !_isReady
-            ? Center(child: Loader())
-            : GlassCard(
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          t?.createNewAccount ?? 'Create new account',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
+    final textDirection =
+        myLanguage == 'ar' ? TextDirection.rtl : TextDirection.ltr;
+
+    return Directionality(
+      textDirection: textDirection,
+      child: Scaffold(
+        body: AuthScaffold(
+          backgroundColor: Colors.white,
+          child: !_isReady
+              ? Center(child: Loader())
+              : GlassCard(
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            t?.createNewAccount ?? 'Create new account',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
-                        // Account type
-                        _AuthDropdown(
-                          label: t?.accountTypeWithAstric ?? 'Account Type *',
-                          value: accountTypeID,
-                          items: listDropAccountType
-                              .map((m) => DropdownMenuItem<String>(
-                                    value: m['id'].toString(),
-                                    child: Text(m['name'].toString()),
-                                  ))
-                              .toList(),
-                          onChanged: (v) => setState(() => accountTypeID = v ?? "0"),
-                        ),
-                        const SizedBox(height: 16),
+                          // Account type
+                          _AuthDropdown(
+                            label: t?.accountTypeWithAstric ?? 'Account Type *',
+                            value: accountTypeID,
+                            items: listDropAccountType
+                                .map((m) => DropdownMenuItem<String>(
+                                      value: m['id'].toString(),
+                                      child: Text(m['name'].toString()),
+                                    ))
+                                .toList(),
+                            onChanged: (_) {}, // Non modifiable
+                          ),
+                          const SizedBox(height: 16),
 
-                        // First / Last name
-                        AuthTextField(
-                          controller: firstNameController,
-                          hint: t?.firstNameWithAstric ?? 'First Name *',
-                          icon: Icons.person_outline,
-                          validator: (v) => (v == null || v.isEmpty)
-                              ? (t?.pleaseEnterYourFirstName ?? 'Please enter your first name')
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
-                        AuthTextField(
-                          controller: lastNameController,
-                          hint: t?.lastNameWithAstric ?? 'Last Name *',
-                          icon: Icons.badge_outlined,
-                          validator: (v) => (v == null || v.isEmpty)
-                              ? (t?.pleaseEnterYourLastName ?? 'Please enter your last name')
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
+                          // First / Last name
+                          AuthTextField(
+                            controller: firstNameController,
+                            hint: t?.firstNameWithAstric ?? 'First Name *',
+                            icon: Icons.person_outline,
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? (t?.pleaseEnterYourFirstName ?? 'Please enter your first name')
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+                          AuthTextField(
+                            controller: lastNameController,
+                            hint: t?.lastNameWithAstric ?? 'Last Name *',
+                            icon: Icons.badge_outlined,
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? (t?.pleaseEnterYourLastName ?? 'Please enter your last name')
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
 
-                        // Country (UI affichée même si API échoue)
-                        _AuthDropdown(
-                          label: countryLabel,
-                          value: countryID,
-                          items: listDropCountries
-                              .map((m) => DropdownMenuItem<String>(
-                                    value: m['id'].toString(),
-                                    child: Text(
-                                      (myLanguage == 'en' ? m['nameEn'] : m['nameAr']).toString(),
-                                    ),
-                                  ))
-                              .toList(),
-                          onChanged: (v) => setState(() => countryID = v ?? "0"),
-                        ),
-                        const SizedBox(height: 16),
+                          // Country (UI affichée même si API échoue)
+                          _AuthDropdown(
+                            label: countryLabel,
+                            value: countryID,
+                            items: listDropCountries
+                                .map((m) => DropdownMenuItem<String>(
+                                      value: m['id'].toString(),
+                                      child: Text(
+                                        (myLanguage == 'ar' ? m['nameAr'] : m['nameEn']).toString(),
+                                        textDirection: textDirection,
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (v) => setState(() => countryID = v ?? "0"),
+                          ),
+                          const SizedBox(height: 16),
 
-                        // Email / Password
-                        AuthTextField(
-                          controller: emailController,
-                          hint: t?.emailWithAstric ?? 'Email *',
-                          icon: Icons.mail_outline,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (v) => (v == null || v.isEmpty)
-                              ? (t?.pleaseEnterYourEmail ?? 'Please enter your email')
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
-                        AuthTextField(
-                          controller: passwordController,
-                          hint: t?.passwordWithAstric ?? 'Password *',
-                          icon: Icons.lock_outline,
-                          obscure: _obscure,
-                          onToggleObscure: () => setState(() => _obscure = !_obscure),
-                          validator: (v) {
-                            if (v == null || v.isEmpty) {
-                              return t?.pleaseEnterYourPassword ?? 'Please enter your password';
-                            } else if (v.length < 8) {
-                              return t?.passwordCannotBeLessThan8 ?? 'Password cannot be less than 8';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
+                          // Email / Password
+                          AuthTextField(
+                            controller: emailController,
+                            hint: t?.emailWithAstric ?? 'Email *',
+                            icon: Icons.mail_outline,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? (t?.pleaseEnterYourEmail ?? 'Please enter your email')
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+                          AuthTextField(
+                            controller: passwordController,
+                            hint: t?.passwordWithAstric ?? 'Password *',
+                            icon: Icons.lock_outline,
+                            obscure: _obscure,
+                            onToggleObscure: () => setState(() => _obscure = !_obscure),
+                            validator: (v) {
+                              if (v == null || v.isEmpty) {
+                                return t?.pleaseEnterYourPassword ?? 'Please enter your password';
+                              } else if (v.length < 8) {
+                                return t?.passwordCannotBeLessThan8 ?? 'Password cannot be less than 8';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
 
-                        // Register button
-                        AuthButton(
-                          text: t?.register ?? 'Register',
-                          loading: _loadingBtn,
-                          onPressed: () async {
-                            if (!(_formKey.currentState?.validate() ?? false)) return;
+                          // Register button
+                          AuthButton(
+                            text: t?.register ?? 'Register',
+                            loading: _loadingBtn,
+                            onPressed: () async {
+                              if (!(_formKey.currentState?.validate() ?? false)) return;
 
-                            if (countryID == "0") {
-                              Fluttertoast.showToast(
-                                msg: pleaseSelectCountryMsg,
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                backgroundColor: Colors.white,
-                                textColor: Colors.red,
-                                fontSize: 16.0,
-                              );
-                              return;
-                            }
+                              if (countryID == "0") {
+                                Fluttertoast.showToast(
+                                  msg: pleaseSelectCountryMsg,
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  backgroundColor: Colors.white,
+                                  textColor: Colors.red,
+                                  fontSize: 16.0,
+                                );
+                                return;
+                              }
 
-                            final net = await _checkInternetConnection();
-                            if (net != '1') {
-                              if (!mounted) return;
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => NoInternetConnectionActivity()),
-                              );
-                              return;
-                            }
+                              final net = await _checkInternetConnection();
+                              if (net != '1') {
+                                if (!mounted) return;
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => NoInternetConnectionActivity()),
+                                );
+                                return;
+                              }
 
-                            setState(() => _loadingBtn = true);
+                              setState(() => _loadingBtn = true);
 
-                            final email = emailController.text.trim();
-                            final checkEmailResponse = await _checkEmail(email);
-                            if (checkEmailResponse == "0") {
-                              final response = await _register(
-                                email,
-                                passwordController.text,
-                                firstNameController.text.trim(),
-                                lastNameController.text.trim(),
-                              );
+                              final email = emailController.text.trim();
+                              final checkEmailResponse = await _checkEmail(email);
+                              if (checkEmailResponse == "0") {
+                                final response = await _register(
+                                  email,
+                                  passwordController.text,
+                                  firstNameController.text.trim(),
+                                  lastNameController.text.trim(),
+                                );
 
-                              setState(() => _loadingBtn = false);
-                              if (!mounted) return;
+                                setState(() => _loadingBtn = false);
+                                if (!mounted) return;
 
-                              if (response == '1') {
-                                final prefs = await SharedPreferences.getInstance();
-                                hasMainAccount  = prefs.getBool('hasMainAccount') ?? false;
-                                userAccountType = prefs.getString('accountType');
-
-                                if (hasMainAccount) {
+                                if (response == '1') {
+                                  // On navigue TOUJOURS vers la complétion d'inscription
                                   Navigator.pushAndRemoveUntil(
                                     context,
-                                    MaterialPageRoute(builder: (_) => HomeActivity(false)),
-                                    ModalRoute.withName("/Home"),
-                                  );
-                                } else {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => CompleteRegistrationDataActivity(userAccountType ?? ''),
-                                    ),
+                                  MaterialPageRoute(
+  builder: (_) => const CompleteRegistrationDataPageActivity(title: 'Personal'),
+),
+
+
                                     ModalRoute.withName("/CompleteData"),
                                   );
+                                } else if (response == "2") {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => NeedVerificationActivity()),
+                                    ModalRoute.withName("/NeedVerification"),
+                                  );
+                                  Fluttertoast.showToast(
+                                    msg: t?.accountCreatedSuccessfully ?? 'Account created successfully.',
+                                    toastLength: Toast.LENGTH_LONG,
+                                    gravity: ToastGravity.BOTTOM,
+                                    backgroundColor: Colors.white,
+                                    textColor: Colors.green,
+                                    fontSize: 16.0,
+                                  );
+                                } else {
+                                  if (response == "\"Duplicate email\"") {
+                                    Fluttertoast.showToast(
+                                      msg: t?.sorryThisEmailIsUsedBefore ?? 'This email is already used.',
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      backgroundColor: Colors.white,
+                                      textColor: Colors.red,
+                                      fontSize: 16.0,
+                                    );
+                                  } else {
+                                    Fluttertoast.showToast(
+                                      msg: t?.errorConnectingWithServer ?? 'Error connecting with server',
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      backgroundColor: Colors.white,
+                                      textColor: Colors.red,
+                                      fontSize: 16.0,
+                                    );
+                                  }
                                 }
-                              } else if (response == "2") {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => NeedVerificationActivity()),
-                                  ModalRoute.withName("/NeedVerification"),
-                                );
+                              } else {
+                                setState(() => _loadingBtn = false);
                                 Fluttertoast.showToast(
-                                  msg: t?.accountCreatedSuccessfully ?? 'Account created successfully.',
+                                  msg: t?.sorryThisEmailIsUsedBefore ?? 'This email is already used.',
                                   toastLength: Toast.LENGTH_LONG,
                                   gravity: ToastGravity.BOTTOM,
                                   backgroundColor: Colors.white,
-                                  textColor: Colors.green,
+                                  textColor: Colors.red,
                                   fontSize: 16.0,
                                 );
-                              } else {
-                                if (response == "\"Duplicate email\"") {
-                                  Fluttertoast.showToast(
-                                    msg: t?.sorryThisEmailIsUsedBefore ?? 'This email is already used.',
-                                    toastLength: Toast.LENGTH_LONG,
-                                    gravity: ToastGravity.BOTTOM,
-                                    backgroundColor: Colors.white,
-                                    textColor: Colors.red,
-                                    fontSize: 16.0,
-                                  );
-                                } else {
-                                  Fluttertoast.showToast(
-                                    msg: t?.errorConnectingWithServer ?? 'Error connecting with server',
-                                    toastLength: Toast.LENGTH_LONG,
-                                    gravity: ToastGravity.BOTTOM,
-                                    backgroundColor: Colors.white,
-                                    textColor: Colors.red,
-                                    fontSize: 16.0,
-                                  );
-                                }
                               }
-                            } else {
-                              setState(() => _loadingBtn = false);
-                              Fluttertoast.showToast(
-                                msg: t?.sorryThisEmailIsUsedBefore ?? 'This email is already used.',
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.BOTTOM,
-                                backgroundColor: Colors.white,
-                                textColor: Colors.red,
-                                fontSize: 16.0,
-                              );
-                            }
-                          },
-                        ),
+                            },
+                          ),
 
-                        // ---- Lien vers le Login ----
-                        const SizedBox(height: 12),
-                        Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    Text(
-      t!.donNotHaveAccount,
-      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
-    ),
-  ],
-),
+                          // ---- Lien vers le Login ----
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                t?.donNotHaveAccount ?? 'Don’t have an account?',
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
+                              ),
+                            ],
+                          ),
 
-
-                        TextButton(
-  onPressed: _goToLogin,
-  child: Text(
-    t?.login ?? 'Login',                             // ← ici on utilise la traduction
-    style: const TextStyle(
-      color: Colors.white,
-      fontWeight: FontWeight.w700,
-    ),
-  ),
-),
-
-                      ],
+                          TextButton(
+                            onPressed: _goToLogin,
+                            child: Text(
+                              t?.login ?? 'Login',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+        ),
       ),
     );
   }
@@ -447,7 +431,7 @@ class RegisterActivityState extends State<RegisterActivity> with TickerProviderS
   Future<String> _register(String email, String password, String firstName, String lastName) async {
     final languageID = myLanguage == "en" ? "2" : "1";
     final deviceTypeID = Platform.isIOS ? "3" : "2";
-    final accountID = accountTypeID == "0" ? "1" : "2";
+    final accountID = "2"; // Fixe: Personal = 2
     final encodedPassword = Uri.encodeComponent(password);
 
     final uri = Uri.parse(
@@ -478,9 +462,6 @@ class RegisterActivityState extends State<RegisterActivity> with TickerProviderS
       await prefs.setString("sucessCode",    loginData.sucessCode ?? "");
       await prefs.setInt   ("governateID",   loginData.governateID ?? 0);
       await prefs.setInt   ("branchID",      loginData.branchID ?? 0);
-
-      hasMainAccount  = loginData.hasMainAccount ?? false;
-      userAccountType = loginData.accountType;
 
       return loginData.sucessCode ?? "Error";
     } catch (e) {
@@ -534,5 +515,5 @@ class _AuthDropdown extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
-    }
+  }
 }

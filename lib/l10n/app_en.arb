@@ -11,11 +11,7 @@
     "type": "text",
     "placeholders": {}
   },
-  "login": "Login",
-  "@login": {
-    "type": "text",
-    "placeholders": {}
-  },
+ 
   "forgotYourPassword": "Forgot your Password?",
   "@forgotYourPassword": {
     "type": "text",
@@ -781,6 +777,13 @@
     "type": "text",
     "placeholders": {}
   },
+  "login": "Login",
+"@login": {
+  "type": "text",
+   "placeholders": {}
+
+}
+,
   "by": "By:",
   "@by": {
     "type": "text",
@@ -925,5 +928,15 @@
         "example": "5"
       }
     }
+  },
+
+  "required": "Required",
+"@required": {
+  "type": "text",
+  "placeholders": {}
+}, "back": "Back",
+  "@back": {
+    "type": "text"
   }
+
 }

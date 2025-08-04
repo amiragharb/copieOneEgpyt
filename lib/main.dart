@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Profile/completeRegistrationDataActivity.dart';
 import 'Login/login.dart';
-import 'Login/needVerificationActivity.dart';
+import 'Login/needVerificationActivity.dart' hide CompleteRegistrationDataPageActivity;
 import 'Language/language.dart';
 import 'Home/homeActivity.dart';
 
@@ -73,9 +73,11 @@ class _MyAppState extends State<MyApp> {
     final validated = prefs.getBool('isValidate') ?? false;
 
     if (validated) {
-      _defaultHome = hasMain
-          ? HomeActivity(false)
-          : CompleteRegistrationDataActivity(acctType);
+     _defaultHome = hasMain
+    ? HomeActivity(false)
+    : CompleteRegistrationDataPageActivity(title: acctType)
+; // ✅
+
     } else {
       _defaultHome = const NeedVerificationActivity();
     }

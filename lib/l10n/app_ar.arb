@@ -12,10 +12,12 @@
     "placeholders": {}
   },
   "login": "تسجيل الدخول",
-  "@login": {
-    "type": "text",
-    "placeholders": {}
-  },
+"@login": {
+  "type": "text",
+  "placeholders": {}
+
+},
+
   "forgotYourPassword": "نسيت كلمة السر؟",
   "@forgotYourPassword": {
     "type": "text",
@@ -522,7 +524,7 @@
     "placeholders": {}
   },
   "pleaseWait": "برجاء الإنتظار",
-  "@pleaseWait": {
+  "@pleaseWait": { 
     "type": "text",
     "placeholders": {}
   },
@@ -905,9 +907,17 @@
       "type": "String"
     }
   }
-}
+},
 
-
+"required": "إجباري",
+"@required": {
+  "type": "text",
+  "placeholders": {}
+},
+"back": "رجوع",
+  "@back": {
+    "type": "text"
+  }
 }
 
 

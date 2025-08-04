@@ -320,7 +320,10 @@ class _CompleteRegistrationDataPageActivityState
               } else {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => CompleteRegistrationDataActivity(accountType ?? "")),
+                 MaterialPageRoute(
+  builder: (_) => const CompleteRegistrationDataPageActivity(title: 'Personal'),
+),
+
                   ModalRoute.withName("/CompleteData"),
                 );
               }

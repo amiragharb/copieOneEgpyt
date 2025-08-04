@@ -15,9 +15,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
-  String get login => 'Login';
-
-  @override
   String get forgotYourPassword => 'Forgot your Password?';
 
   @override
@@ -481,6 +478,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNewsFound => 'No news found';
 
   @override
+  String get login => 'Login';
+
+  @override
   String get by => 'By:';
 
   @override
@@ -553,4 +553,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String availableSeatsMessage(String count) {
     return 'There are $count available seats';
   }
+
+  @override
+  String get required => 'Required';
+
+  @override
+  String get back => 'Back';
 }

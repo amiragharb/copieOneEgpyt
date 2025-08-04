@@ -15,9 +15,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get password => 'كلمة السر';
 
   @override
-  String get login => 'تسجيل الدخول';
-
-  @override
   String get forgotYourPassword => 'نسيت كلمة السر؟';
 
   @override
@@ -481,6 +478,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noNewsFound => 'لا يوجد أخبار';
 
   @override
+  String get login => 'تسجيل الدخول';
+
+  @override
   String get by => 'بواسطة:';
 
   @override
@@ -553,4 +553,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String availableSeatsMessage(String count) {
     return 'المقاعد المتاحة $count';
   }
+
+  @override
+  String get required => 'إجباري';
+
+  @override
+  String get back => 'رجوع';
 }

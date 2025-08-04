@@ -107,12 +107,6 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get password;
 
-  /// No description provided for @login.
-  ///
-  /// In en, this message translates to:
-  /// **'Login'**
-  String get login;
-
   /// No description provided for @forgotYourPassword.
   ///
   /// In en, this message translates to:
@@ -1031,6 +1025,12 @@ abstract class AppLocalizations {
   /// **'No news found'**
   String get noNewsFound;
 
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
   /// No description provided for @by.
   ///
   /// In en, this message translates to:
@@ -1174,6 +1174,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There are {count} available seats'**
   String availableSeatsMessage(String count);
+
+  /// No description provided for @required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

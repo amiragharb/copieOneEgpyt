@@ -1,6 +1,9 @@
-// lib/Login/auth_ui.dart
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations; // Ajoute cette ligne pour utiliser AppLocalizations
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
+import 'package:flutter/widgets.dart';
 
 /// -------- Palette bleue + effets ----------
 class AuthColors {
@@ -23,25 +26,13 @@ class AuthColors {
 /// -------- Scaffold générique d’auth ----------
 class AuthScaffold extends StatelessWidget {
   final Widget child;
-
-  /// Image de fond (ex: 'images/login_bg.jpg'). Laisse null si tu veux un uni.
   final String? backgroundAsset;
-
-  /// Couleur de fond quand aucune image. Ex: Colors.white (si tu veux un fond blanc).
   final Color? backgroundColor;
-
-  /// Active/Désactive la teinte bleue + halo. (ON par défaut)
   final bool useBlueTint;
-
-  /// Logo en haut.
   final String? topLogoAsset;
   final double topLogoHeight;
   final EdgeInsets topLogoPadding;
-
-  /// Teinte du logo (utile si logo monochrome).
   final Color? topLogoTint;
-
-  /// Petit fond arrondi derrière le logo.
   final Color? topLogoBackdrop;
 
   const AuthScaffold({
@@ -62,15 +53,12 @@ class AuthScaffold extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // --- Couche de base
         if (backgroundColor != null)
           Container(color: backgroundColor)
         else if (backgroundAsset != null)
           Image.asset(backgroundAsset!, fit: BoxFit.cover)
         else
           Container(color: const Color(0xFF0B1E34)),
-
-        // --- Teinte bleue optionnelle
         if (useBlueTint)
           const DecoratedBox(
             decoration: BoxDecoration(
@@ -81,11 +69,7 @@ class AuthScaffold extends StatelessWidget {
               ),
             ),
           ),
-
-        // --- Halo chaud optionnel
         if (useBlueTint) const _LampGlow(),
-
-        // --- Logo
         if (topLogoAsset != null)
           SafeArea(
             child: Align(
@@ -114,8 +98,6 @@ class AuthScaffold extends StatelessWidget {
               ),
             ),
           ),
-
-        // --- Contenu centré
         Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
@@ -339,6 +321,8 @@ class _LoginCardState extends State<LoginCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+
     return GlassCard(
       child: Form(
         key: _formKey,
@@ -356,18 +340,22 @@ class _LoginCardState extends State<LoginCard> {
             const SizedBox(height: 28),
             AuthTextField(
               controller: widget.emailController,
-              hint: 'Username',
+              hint: t?.username ?? 'Username',
               icon: Icons.person_outline,
               keyboardType: TextInputType.emailAddress,
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              validator: (v) => (v == null || v.trim().isEmpty)
+                  ? (t?.required ?? 'Required')
+                  : null,
             ),
             const SizedBox(height: 16),
             AuthTextField(
               controller: widget.passwordController,
-              hint: 'Password',
+              hint: t?.password ?? 'Password',
               icon: Icons.lock_outline,
               obscure: _obscure,
-              validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+              validator: (v) => (v == null || v.isEmpty)
+                  ? (t?.required ?? 'Required')
+                  : null,
               onToggleObscure: () => setState(() => _obscure = !_obscure),
             ),
             const SizedBox(height: 12),
@@ -383,17 +371,23 @@ class _LoginCardState extends State<LoginCard> {
                   checkColor: const Color(0xFF0F2027),
                   activeColor: Colors.white,
                 ),
-                const Text('Remember me', style: TextStyle(color: Colors.white)),
+                Text(
+                  t?.rememberMe ?? 'Remember me',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 const Spacer(),
                 TextButton(
                   onPressed: widget.onForgotPassword,
-                  child: const Text('Forgot password?', style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    t?.forgotPassword ?? 'Forgot password?',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             AuthButton(
-              text: 'Login',
+              text: t?.login ?? 'Login',
               loading: widget.loading,
               onPressed: () async {
                 if (_formKey.currentState?.validate() ?? false) {
@@ -409,15 +403,15 @@ class _LoginCardState extends State<LoginCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "Don't have an account? ",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
+                Text(
+                  t?.donNotHaveAccount ?? "Don't have an account? ",
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
                 ),
                 TextButton(
                   onPressed: widget.onRegister,
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                  child: Text(
+                    t?.register ?? 'Register',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
