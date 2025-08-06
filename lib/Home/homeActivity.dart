@@ -14,6 +14,7 @@ import 'package:egpycopsversion4/Firebase/FirebaseMessageWrapper.dart';
 import 'package:egpycopsversion4/Home/homeFragment.dart';
 import 'package:egpycopsversion4/Home/myBookingsFragment.dart';
 import 'package:egpycopsversion4/Home/youtubeLiveFragment.dart';
+import 'package:egpycopsversion4/Settings/settingsActivity.dart';
 import 'package:egpycopsversion4/Translation/LocaleHelper.dart';
 import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
@@ -59,12 +60,6 @@ class HomeActivityState extends State<HomeActivity> {
   int selectedBottomItem = 0;
 
   Locale _appLocale = Locale(languageHome ?? 'en');
-
-  // Contrôleurs personnalisés pour le drawer
-  MyCustomControllerDrawerName customControllerDrawerName =
-      MyCustomControllerDrawerName(drawerNameController: TextEditingController());
-  MyCustomControllerDrawerEmail customControllerDrawerEmail =
-      MyCustomControllerDrawerEmail(drawerEmailController: TextEditingController());
 
   @override
   void initState() {
@@ -579,176 +574,151 @@ class HomeActivityState extends State<HomeActivity> {
       userEmail = prefs.getString("email") ?? "";
       accountType = prefs.getString("accountType") ?? "";
       fragment = fragment ?? "MyBookings";
-
-      customControllerDrawerName.drawerNameController.text = userName;
-      customControllerDrawerEmail.drawerEmailController.text = userEmail;
     });
   }
 
   Drawer buildDrawer() {
     return Drawer(
-      child: Column(
-        children: <Widget>[
-          // Header section
-          Container(
-            color: primaryColor,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: <Widget>[
-                    // Logo
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.1),
-                        border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Image.asset('images/logotransparents.png', fit: BoxFit.contain),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    // User name
-                    MyCustomDrawerName(customController: customControllerDrawerName),
-                    const SizedBox(height: 5),
-                    // User email
-                    MyCustomDrawerEmail(customController: customControllerDrawerEmail),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              primaryDarkColor,
+              primaryColor,
+              primaryColor.withOpacity(0.9),
+            ],
           ),
-          
-          // Menu items section
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              children: [
-                // Language selection section
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        ),
+        child: Column(
+          children: <Widget>[
+            // Enhanced Header Section
+            Container(
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)?.language ?? "Language",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                          fontFamily: 'cocon-next-arabic-regular',
-                        ),
-                      ),
-                      const SizedBox(height: 10),
+                    children: <Widget>[
+                      // Profile Card
                       Container(
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.grey[100],
-                          border: Border.all(color: Colors.grey[300]!, width: 1),
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
-                        child: Row(
+                        child: Column(
                           children: [
-                            Expanded(
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () => _changeLanguage('en'),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(12),
-                                    bottomLeft: Radius.circular(12),
+                            // Enhanced Logo with glassmorphism effect
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white.withOpacity(0.4),
+                                    Colors.white.withOpacity(0.2),
+                                  ],
+                                ),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.5),
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 5),
                                   ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                    decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(12),
-                                        bottomLeft: Radius.circular(12),
-                                      ),
-                                      gradient: _appLocale.languageCode == 'en'
-                                          ? LinearGradient(
-                                              colors: [primaryColor, primaryColor.withOpacity(0.8)],
-                                            )
-                                          : null,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "🇺🇸",
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "English",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: _appLocale.languageCode == 'en'
-                                                ? Colors.white
-                                                : Colors.grey[700],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                ],
+                              ),
+                              child: ClipOval(
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Image.asset(
+                                    'images/logotransparents.png',
+                                    fit: BoxFit.contain,
                                   ),
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 16),
+                            
+                            // Enhanced User Name
                             Container(
-                              width: 1,
-                              height: 40,
-                              color: Colors.grey[300],
-                            ),
-                            Expanded(
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () => _changeLanguage('ar'),
-                                  borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(12),
-                                    bottomRight: Radius.circular(12),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                    decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.only(
-                                        topRight: Radius.circular(12),
-                                        bottomRight: Radius.circular(12),
-                                      ),
-                                      gradient: _appLocale.languageCode == 'ar'
-                                          ? LinearGradient(
-                                              colors: [primaryColor, primaryColor.withOpacity(0.8)],
-                                            )
-                                          : null,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "🇪🇬",
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "العربية",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: _appLocale.languageCode == 'ar'
-                                                ? Colors.white
-                                                : Colors.grey[700],
-                                            fontFamily: 'cocon-next-arabic-regular',
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1,
                                 ),
+                              ),
+                              child: Text(
+                                userName.isNotEmpty ? userName : "User",
+                                style: const TextStyle(
+                                  fontSize: 18.0,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'cocon-next-arabic-regular',
+                                  letterSpacing: 0.5,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            
+                            // Enhanced Email with better styling
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.email_outlined,
+                                    color: Colors.white.withOpacity(0.9),
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      userEmail.isNotEmpty ? userEmail : "user@example.com",
+                                      style: const TextStyle(
+                                        fontSize: 13.0,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'cocon-next-arabic-regular',
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -757,133 +727,346 @@ class HomeActivityState extends State<HomeActivity> {
                     ],
                   ),
                 ),
-                
-                const SizedBox(height: 20),
-                Divider(color: Colors.grey[300], thickness: 1),
-                const SizedBox(height: 10),
-                
-                // Logout button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _logout,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.red[400]!,
-                              Colors.red[500]!,
-                            ],
+              ),
+            ),
+            
+            // Enhanced Menu Items Section
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    // Handle indicator
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        children: [
+                          // Enhanced Language Selection
+                          _buildSectionTitle("Language / اللغة"),
+                          const SizedBox(height: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              gradient: LinearGradient(
+                                colors: [
+                                  primaryColor.withOpacity(0.1),
+                                  primaryColor.withOpacity(0.05),
+                                ],
+                              ),
+                              border: Border.all(
+                                color: primaryColor.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _buildLanguageOption(
+                                    isSelected: _appLocale.languageCode == 'en',
+                                    flag: "🇺🇸",
+                                    language: "English",
+                                    onTap: () => _changeLanguage('en'),
+                                    isLeft: true,
+                                  ),
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 50,
+                                  color: primaryColor.withOpacity(0.2),
+                                ),
+                                Expanded(
+                                  child: _buildLanguageOption(
+                                    isSelected: _appLocale.languageCode == 'ar',
+                                    flag: "🇪🇬",
+                                    language: "العربية",
+                                    onTap: () => _changeLanguage('ar'),
+                                    isLeft: false,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.red.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                          
+                          const SizedBox(height: 32),
+                          
+                          // Settings Menu Items
+                          _buildSectionTitle("Settings"),
+                          const SizedBox(height: 16),
+                          
+                          _buildMenuItem(
+                            icon: Icons.settings_outlined,
+                            title: AppLocalizations.of(context)?.settings ?? "App Settings",
+                            subtitle: _appLocale.languageCode == 'ar' ? "التفضيلات والإعدادات" : "Preferences & Configuration",
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const SettingsActivity()),
+                              );
+                            },
+                          ),
+                          
+                          _buildMenuItem(
+                            icon: Icons.info_outline,
+                            title: _appLocale.languageCode == 'ar' ? "حول التطبيق" : "About",
+                            subtitle: _appLocale.languageCode == 'ar' ? "إصدار التطبيق والمعلومات" : "App version & information",
+                            onTap: () {
+                              // Add about page navigation
+                            },
+                          ),
+                          
+                          _buildMenuItem(
+                            icon: Icons.help_outline,
+                            title: _appLocale.languageCode == 'ar' ? "المساعدة والدعم" : "Help & Support",
+                            subtitle: _appLocale.languageCode == 'ar' ? "احصل على المساعدة وتواصل معنا" : "Get help and contact us",
+                            onTap: () {
+                              // Add help page navigation
+                            },
+                          ),
+                          
+                          const SizedBox(height: 32),
+                          
+                          // Enhanced Logout Button
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.red[400]!,
+                                  Colors.red[500]!,
+                                ],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.red.withOpacity(0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.logout,
-                              color: Colors.white,
-                              size: 22,
-                            ),
-                            const SizedBox(width: 15),
-                            Expanded(
-                              child: Text(
-                                AppLocalizations.of(context)?.logout ?? "Logout",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                  fontFamily: 'cocon-next-arabic-regular',
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: _logout,
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                          Icons.logout_rounded,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          AppLocalizations.of(context)?.logout ?? "Logout",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontFamily: 'cocon-next-arabic-regular',
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        color: Colors.white.withOpacity(0.7),
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.white.withOpacity(0.7),
-                              size: 16,
-                            ),
-                          ],
-                        ),
+                          ),
+                          
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: primaryDarkColor,
+        fontFamily: 'cocon-next-arabic-regular',
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption({
+    required bool isSelected,
+    required String flag,
+    required String language,
+    required VoidCallback onTap,
+    required bool isLeft,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(isLeft ? 16 : 0),
+          bottomLeft: Radius.circular(isLeft ? 16 : 0),
+          topRight: Radius.circular(isLeft ? 0 : 16),
+          bottomRight: Radius.circular(isLeft ? 0 : 16),
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(isLeft ? 16 : 0),
+              bottomLeft: Radius.circular(isLeft ? 16 : 0),
+              topRight: Radius.circular(isLeft ? 0 : 16),
+              bottomRight: Radius.circular(isLeft ? 0 : 16),
+            ),
+            gradient: isSelected
+                ? LinearGradient(
+                    colors: [primaryDarkColor, primaryColor],
+                  )
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                flag,
+                style: const TextStyle(fontSize: 20),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                language,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? Colors.white : primaryDarkColor,
+                  fontFamily: 'cocon-next-arabic-regular',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey[50],
+        border: Border.all(
+          color: Colors.grey[200]!,
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  child: Icon(
+                    icon,
+                    color: primaryDarkColor,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: primaryDarkColor,
+                          fontFamily: 'cocon-next-arabic-regular',
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                          fontFamily: 'cocon-next-arabic-regular',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.grey[400],
+                  size: 16,
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-// === Classes des contrôleurs et widgets personnalisés ===
-
-class MyCustomControllerDrawerName {
-  final TextEditingController drawerNameController;
-  bool enable;
-  MyCustomControllerDrawerName({required this.drawerNameController, this.enable = true});
-}
-
-class MyCustomDrawerName extends StatelessWidget {
-  final MyCustomControllerDrawerName customController;
-  const MyCustomDrawerName({Key? key, required this.customController}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      userName.isNotEmpty ? userName : "User",
-      style: const TextStyle(
-        fontSize: 18.0,
-        color: Colors.white,
-        fontWeight: FontWeight.w600,
-        fontFamily: 'cocon-next-arabic-regular',
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
-}
-
-class MyCustomControllerDrawerEmail {
-  final TextEditingController drawerEmailController;
-  bool enable;
-  MyCustomControllerDrawerEmail({required this.drawerEmailController, this.enable = true});
-}
-
-class MyCustomDrawerEmail extends StatelessWidget {
-  final MyCustomControllerDrawerEmail customController;
-  const MyCustomDrawerEmail({Key? key, required this.customController}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withOpacity(0.2)),
-      ),
-      child: Text(
-        userEmail.isNotEmpty ? userEmail : "user@example.com",
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 14.0,
-          color: Colors.white,
-          fontWeight: FontWeight.w400,
-          fontFamily: 'cocon-next-arabic-regular',
         ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
       ),
     );
   }

@@ -7,13 +7,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:egpycopsversion4/API/apiClient.dart';
 import 'package:egpycopsversion4/Login/auth_ui.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 void _log(String msg) {
   if (kDebugMode) debugPrint('[FORGOT] $msg');
@@ -79,8 +77,8 @@ class ForgotPasswordActivityState extends State<ForgotPasswordActivity> with Tic
               children: [
                 Text(
                   t?.forgotPassword ?? 'Forgot password',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Colors.black87, // Dark text for visibility on white card
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
                   ),
@@ -139,12 +137,19 @@ class ForgotPasswordActivityState extends State<ForgotPasswordActivity> with Tic
                     }
                   },
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 24),
                 TextButton(
                   onPressed: () => Navigator.maybePop(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
                   child: Text(
-                    t?.back ?? 'Back',
-                    style: const TextStyle(color: Colors.white),
+                    myLanguage == 'ar' ? 'رجوع' : (t?.back ?? 'Back'),
+                    style: TextStyle(
+                      color: Color(0xFF2196F3), // Blue color for visibility and consistency
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

@@ -1,109 +1,194 @@
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations; // Ajoute cette ligne pour utiliser AppLocalizations
 import 'package:egpycopsversion4/l10n/app_localizations.dart';
+import 'package:egpycopsversion4/Colors/colors.dart';
 import 'package:flutter/widgets.dart';
 
-/// -------- Palette bleue + effets ----------
+/// -------- Modern Color Palette with your primary colors ----------
 class AuthColors {
-  // Teinte globale “nuit bleue”
-  static const bgTintTop = Color(0xB30D2138);
-  static const bgTintBot = Color(0xB30A1C31);
-
-  // Halo chaud façon lampe
-  static const lampWarm = Color(0xFFFFE2A3);
-
-  // Carte verre bleutée
-  static const cardTop = Color(0xCC2A4566);
-  static const cardBot = Color(0xCC0F2749);
-
-  // Formulaire
-  static const cardBorder = Color(0x33FFFFFF);
-  static const fieldFill  = Color(0x1FFFFFFF); // ~12% blanc
+  // Main background gradients using your primary colors
+  static final bgGradientTop = primaryDarkColor.withOpacity(0.95);
+  static final bgGradientBottom = primaryColor.withOpacity(0.9);
+  
+  // Accent highlights
+  static final accentGlow = logoBlue.withOpacity(0.3);
+  static final accentBright = logoBlue;
+  
+  // Card design
+  static const cardBackground = Color(0xFFFFFFFF);
+  static const cardShadow = Color(0x1A000000);
+  
+  // Form fields
+  static final fieldBorder = primaryColor.withOpacity(0.2);
+  static final fieldFocused = primaryDarkColor;
+  static final fieldFill = primaryColor.withOpacity(0.05);
+  
+  // Text colors
+  static final textPrimary = primaryDarkColor;
+  static final textSecondary = greyColor;
+  static const textWhite = Colors.white;
 }
 
-/// -------- Scaffold générique d’auth ----------
+/// -------- Modern Auth Scaffold ----------
 class AuthScaffold extends StatelessWidget {
   final Widget child;
   final String? backgroundAsset;
   final Color? backgroundColor;
-  final bool useBlueTint;
   final String? topLogoAsset;
   final double topLogoHeight;
   final EdgeInsets topLogoPadding;
-  final Color? topLogoTint;
-  final Color? topLogoBackdrop;
 
   const AuthScaffold({
     Key? key,
     required this.child,
     this.backgroundAsset,
     this.backgroundColor,
-    this.useBlueTint = true,
     this.topLogoAsset,
-    this.topLogoHeight = 110,
-    this.topLogoPadding = const EdgeInsets.only(top: 28),
-    this.topLogoTint,
-    this.topLogoBackdrop,
+    this.topLogoHeight = 120,
+    this.topLogoPadding = const EdgeInsets.only(top: 40),
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        if (backgroundColor != null)
-          Container(color: backgroundColor)
-        else if (backgroundAsset != null)
-          Image.asset(backgroundAsset!, fit: BoxFit.cover)
-        else
-          Container(color: const Color(0xFF0B1E34)),
-        if (useBlueTint)
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AuthColors.bgTintTop, AuthColors.bgTintBot],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AuthColors.bgGradientTop,
+              AuthColors.bgGradientBottom,
+              primaryColor.withOpacity(0.8),
+            ],
+            stops: const [0.0, 0.7, 1.0],
           ),
-        if (useBlueTint) const _LampGlow(),
-        if (topLogoAsset != null)
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: topLogoPadding,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: topLogoBackdrop,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+        ),
+        child: Stack(
+          children: [
+            // Floating circles decoration
+            const _FloatingCircles(),
+            
+            // Logo at top
+            if (topLogoAsset != null)
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: topLogoBackdrop == null ? 0 : 12,
-                      vertical: topLogoBackdrop == null ? 0 : 6,
-                    ),
-                    child: Image.asset(
-                      topLogoAsset!,
-                      height: topLogoHeight,
-                      color: topLogoTint,
-                      colorBlendMode:
-                          topLogoTint == null ? BlendMode.srcOver : BlendMode.srcIn,
+                    padding: topLogoPadding,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Image.asset(
+                        topLogoAsset!,
+                        height: topLogoHeight,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
               ),
+            
+            // Main content
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: child,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Floating decorative circles
+class _FloatingCircles extends StatelessWidget {
+  const _FloatingCircles();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Top right circle
+        Positioned(
+          top: -50,
+          right: -50,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  logoBlue.withOpacity(0.3),
+                  logoBlue.withOpacity(0.1),
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 0.7, 1.0],
+              ),
             ),
           ),
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              child: child,
+        ),
+        
+        // Bottom left circle
+        Positioned(
+          bottom: -80,
+          left: -80,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  primaryColor.withOpacity(0.2),
+                  primaryColor.withOpacity(0.05),
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 0.6, 1.0],
+              ),
+            ),
+          ),
+        ),
+        
+        // Middle right small circle
+        Positioned(
+          top: MediaQuery.of(context).size.height * 0.4,
+          right: -30,
+          child: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  Colors.white.withOpacity(0.1),
+                  Colors.white.withOpacity(0.05),
+                  Colors.transparent,
+                ],
+              ),
             ),
           ),
         ),
@@ -112,84 +197,39 @@ class AuthScaffold extends StatelessWidget {
   }
 }
 
-/// Halo radial chaud en haut (simule la lumière de la maquette)
-class _LampGlow extends StatelessWidget {
-  const _LampGlow();
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      ignoring: true,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: const Alignment(0, -1.05),
-            radius: 1.15,
-            colors: [
-              const Color.fromARGB(255, 30, 64, 201).withOpacity(0.45),
-              Colors.transparent,
-            ],
-            stops: const [0.0, 1.0],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// -------- Carte “verre” dégradée bleue ----------
+/// -------- Modern Glass Card ----------
 class GlassCard extends StatelessWidget {
   final Widget child;
   const GlassCard({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(24);
-    return ClipRRect(
-      borderRadius: radius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Material( // ✅ Ajout du Material ici
-          color: Colors.transparent, // Transparence pour garder l'effet Glass
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(28, 32, 28, 26),
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              gradient: const LinearGradient(
-                colors: [AuthColors.cardTop, AuthColors.cardBot],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              border: Border.all(color: AuthColors.cardBorder),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.38),
-                  blurRadius: 28,
-                  offset: const Offset(0, 12),
-                ),
-              ],
-            ),
-            // léger reflet chaud en haut
-            foregroundDecoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(0, -1.15),
-                radius: 1.25,
-                colors: [
-                  AuthColors.lampWarm.withOpacity(0.12),
-                  Colors.transparent,
-                ],
-                stops: const [0.0, 1.0],
-              ),
-            ),
-            child: child,
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AuthColors.cardBackground,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: 0,
           ),
-        ),
+          BoxShadow(
+            color: primaryColor.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+            spreadRadius: 2,
+          ),
+        ],
       ),
+      child: child,
     );
   }
 }
 
-/// -------- Champ arrondi ----------
+/// -------- Modern Text Field ----------
 class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
@@ -212,44 +252,88 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseSide = BorderSide(color: Colors.white.withOpacity(0.28));
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(28),
-      borderSide: baseSide,
-    );
-
-    return TextFormField(
-      controller: controller,
-      obscureText: obscure,
-      keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
-      validator: validator,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: AuthColors.fieldFill,
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.85)),
-        prefixIcon: Icon(icon, color: Colors.white),
-        suffixIcon: onToggleObscure == null
-            ? null
-            : IconButton(
-                onPressed: onToggleObscure,
-                icon: Icon(
-                  obscure ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.white,
-                ),
-              ),
-        enabledBorder: border,
-        focusedBorder: border.copyWith(
-          borderSide: const BorderSide(color: Colors.white),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        keyboardType: keyboardType,
+        style: TextStyle(
+          color: Colors.black87, // Dark text for perfect visibility
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        validator: validator,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white, // Solid white background for visibility
+          hintText: hint,
+          hintStyle: TextStyle(
+            color: Colors.grey[600], // Darker hint text for visibility
+            fontSize: 16,
+          ),
+          prefixIcon: Container(
+            margin: const EdgeInsets.only(left: 16, right: 12),
+            child: Icon(
+              icon,
+              color: primaryColor,
+              size: 22,
+            ),
+          ),
+          suffixIcon: onToggleObscure == null
+              ? null
+              : IconButton(
+                  onPressed: onToggleObscure,
+                  icon: Icon(
+                    obscure ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey[600], // Darker icon for visibility
+                  ),
+                ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: Colors.grey.withOpacity(0.3), // Light grey border
+              width: 1.5,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: primaryDarkColor, // Your primary color for focus
+              width: 2,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: accentColor,
+              width: 1.5,
+            ),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: accentColor,
+              width: 2,
+            ),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        ),
       ),
     );
   }
 }
 
-/// -------- Bouton principal ----------
+/// -------- Modern Primary Button ----------
 class AuthButton extends StatelessWidget {
   final String text;
   final bool loading;
@@ -264,25 +348,58 @@ class AuthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 54,
+    return Container(
+      height: 56,
       width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [primaryDarkColor, primaryColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.4),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         onPressed: loading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: const Color.fromARGB(255, 53, 83, 255),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
         ),
         child: loading
-            ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2))
-            : Text(text, style: const TextStyle(fontWeight: FontWeight.w700)),
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
       ),
     );
   }
 }
 
-/// -------- Carte Login réutilisable ----------
+/// -------- Modern Login Card ----------
 class LoginCard extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
@@ -331,64 +448,125 @@ class _LoginCardState extends State<LoginCard> {
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Welcome text
             Text(
-              widget.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
+              'Welcome Back',
+              style: TextStyle(
+                color: AuthColors.textSecondary,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 8),
+            
+            // Title
+            Text(
+              widget.title,
+              style: TextStyle(
+                color: AuthColors.textPrimary,
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            
+            // Email field
             AuthTextField(
               controller: widget.emailController,
-              hint: t?.username ?? 'Username',
-              icon: Icons.person_outline,
+              hint: t?.username ?? 'Username or Email',
+              icon: Icons.person_outline_rounded,
               keyboardType: TextInputType.emailAddress,
               validator: (v) => (v == null || v.trim().isEmpty)
                   ? (t?.required ?? 'Required')
                   : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            
+            // Password field
             AuthTextField(
               controller: widget.passwordController,
               hint: t?.password ?? 'Password',
-              icon: Icons.lock_outline,
+              icon: Icons.lock_outline_rounded,
               obscure: _obscure,
               validator: (v) => (v == null || v.isEmpty)
                   ? (t?.required ?? 'Required')
                   : null,
               onToggleObscure: () => setState(() => _obscure = !_obscure),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+            
+            // Remember me and forgot password row
             Row(
               children: [
-                Checkbox(
-                  value: _remember,
-                  onChanged: (v) {
-                    setState(() => _remember = v ?? false);
-                    widget.onRememberChanged?.call(_remember);
-                  },
-                  side: const BorderSide(color: Colors.white),
-                  checkColor: const Color(0xFF0F2027),
-                  activeColor: Colors.white,
-                ),
-                Text(
-                  t?.rememberMe ?? 'Remember me',
-                  style: const TextStyle(color: Colors.white),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() => _remember = !_remember);
+                      widget.onRememberChanged?.call(_remember);
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: _remember ? primaryColor : AuthColors.fieldBorder,
+                                width: 2,
+                              ),
+                              color: _remember ? primaryColor : Colors.transparent,
+                            ),
+                            child: _remember
+                                ? const Icon(
+                                    Icons.check,
+                                    size: 14,
+                                    color: Colors.white,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            t?.rememberMe ?? 'Remember me',
+                            style: TextStyle(
+                              color: AuthColors.textSecondary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
                 const Spacer(),
                 TextButton(
                   onPressed: widget.onForgotPassword,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  ),
                   child: Text(
                     t?.forgotPassword ?? 'Forgot password?',
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 24),
+            
+            // Login button
             AuthButton(
               text: t?.login ?? 'Login',
               loading: widget.loading,
@@ -402,19 +580,61 @@ class _LoginCardState extends State<LoginCard> {
                 }
               },
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 24),
+            
+            // Divider
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color: AuthColors.fieldBorder,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'or',
+                    style: TextStyle(
+                      color: AuthColors.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color: AuthColors.fieldBorder,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            
+            // Register link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   t?.donNotHaveAccount ?? "Don't have an account? ",
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                    color: AuthColors.textSecondary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 TextButton(
                   onPressed: widget.onRegister,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
                   child: Text(
                     t?.register ?? 'Register',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],

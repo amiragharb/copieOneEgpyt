@@ -569,27 +569,59 @@ Future<void> getDataFromShared() async {
 // Load user's profile data from the API
 Future<void> _loadUserProfileData() async {
   try {
+    // Ensure we have a token before making the API call
+    if (mobileToken == null) {
+      debugPrint('⚠️ No Firebase token available, getting token first...');
+      String? token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        mobileToken = token;
+        debugPrint('✅ Firebase token retrieved: ${token.substring(0, 20)}...');
+      } else {
+        debugPrint('❌ Failed to get Firebase token');
+        return;
+      }
+    }
+    
     final url = '$baseUrl/Family/GetFamilyMembers/?UserID=$userID&Token=$mobileToken';
+    debugPrint('🔍 Loading profile from: $url');
     var response = await http.get(Uri.parse(url));
+    
+    debugPrint('📱 Profile API Status: ${response.statusCode}');
+    debugPrint('📱 Profile API Response: ${response.body}');
     
     if (response.statusCode == 200 && response.body.isNotEmpty) {
       var familyMembers = familyMemberFromJson(response.body.toString());
+      debugPrint('👥 Total family members found: ${familyMembers.length}');
       
       // Find the main person (user's profile)
       FamilyMember? userProfile;
       for (var member in familyMembers) {
+        debugPrint('👤 Member: ${member.accountMemberNameAr}, IsMain: ${member.isMainPerson}');
+        debugPrint('   📞 Mobile: ${member.mobile}');
+        debugPrint('   🆔 NationalID: ${member.nationalIdNumber}');
+        debugPrint('   🏠 Address: ${member.address}');
+        debugPrint('   ⚧ Gender: ${member.genderTypeId}');
+        debugPrint('   ⛪ Church: ${member.churchOfAttendance}');
+        
         if (member.isMainPerson == true) {
           userProfile = member;
+          debugPrint('✅ Found main person profile!');
           break;
         }
       }
       
       if (userProfile != null) {
+        debugPrint('🔄 Setting profile data...');
         setState(() {
           name = userProfile!.accountMemberNameAr ?? "";
           nationalID = userProfile.nationalIdNumber ?? "";
           mobile = userProfile.mobile ?? "";
           address = userProfile.address ?? "";
+          
+          debugPrint('📝 Set name: $name');
+          debugPrint('📝 Set nationalID: $nationalID');
+          debugPrint('📝 Set mobile: $mobile');
+          debugPrint('📝 Set address: $address');
           
           // Convert bool to int for isDeacon (0 for false, 1 for true)
           selectedDeaconRadioTile = (userProfile.isDeacon == true) ? 1 : 0;

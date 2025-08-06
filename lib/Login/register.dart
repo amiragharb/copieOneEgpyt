@@ -3,13 +3,11 @@ import 'dart:io' show Platform;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:egpycopsversion4/API/apiClient.dart';
-import 'package:egpycopsversion4/Home/homeActivity.dart';
 import 'package:egpycopsversion4/Login/auth_ui.dart';
 import 'package:egpycopsversion4/Models/Countries.dart' show Country, countryFromJson;
 import 'package:egpycopsversion4/Models/user.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
 import 'package:egpycopsversion4/Profile/completeRegistrationDataActivity.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations;
 import 'package:egpycopsversion4/Utils/loader.dart' show Loader;
 import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
@@ -176,8 +174,6 @@ class RegisterActivityState extends State<RegisterActivity>
     myLanguage = t?.localeName ?? Localizations.localeOf(context).languageCode;
 
     final countryLabel = (myLanguage == 'ar') ? 'الدولة' : 'Country';
-    final pleaseSelectCountryMsg =
-        (myLanguage == 'ar') ? 'يرجى اختيار الدولة' : 'Please select a country';
 
     final textDirection =
         myLanguage == 'ar' ? TextDirection.rtl : TextDirection.ltr;
@@ -198,8 +194,8 @@ class RegisterActivityState extends State<RegisterActivity>
                         children: [
                           Text(
                             t?.createNewAccount ?? 'Create new account',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Colors.black87, // Dark text for visibility on white card
                               fontSize: 28,
                               fontWeight: FontWeight.w800,
                             ),
@@ -306,28 +302,37 @@ class RegisterActivityState extends State<RegisterActivity>
                             onPressed: _onRegisterPressed,
                           ),
 
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 24),
+                          
+                          // Back to login section
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                t?.donNotHaveAccount ??
-                                    'Don’t have an account?',
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400),
+                                myLanguage == 'ar' 
+                                    ? 'هل لديك حساب بالفعل؟' 
+                                    : 'Already have an account?',
+                                style: TextStyle(
+                                  color: Colors.black54, // Dark text for visibility
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: _goToLogin,
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                ),
+                                child: Text(
+                                  t?.login ?? (myLanguage == 'ar' ? 'تسجيل الدخول' : 'Login'),
+                                  style: TextStyle(
+                                    color: Color(0xFF2196F3), // Consistent blue color
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ],
-                          ),
-                          TextButton(
-                            onPressed: _goToLogin,
-                            child: Text(
-                              t?.login ?? 'Login',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -520,26 +525,55 @@ class _AuthDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      items: items,
-      onChanged: onChanged,
-      style: const TextStyle(color: Colors.white),
-      dropdownColor: const Color(0xFF203A43),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: AuthColors.fieldFill,
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.white),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
-          borderSide: BorderSide(color: Colors.white24),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        items: items,
+        onChanged: onChanged,
+        style: TextStyle(
+          color: Colors.black87, // Dark text for visibility
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
-          borderSide: const BorderSide(color: Colors.white),
+        dropdownColor: Colors.white, // White dropdown background
+        icon: Icon(
+          Icons.keyboard_arrow_down,
+          color: Colors.black54,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white, // White background for the field
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.black54, // Dark label for visibility
+            fontSize: 16,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: Colors.grey.withOpacity(0.3),
+              width: 1.5,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: Color(0xFF2196F3), // Using a blue color since primaryColor import has issues
+              width: 2,
+            ),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        ),
       ),
     );
   }

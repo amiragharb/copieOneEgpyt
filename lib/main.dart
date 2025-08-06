@@ -3,12 +3,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'Profile/completeRegistrationDataActivity.dart';
 import 'Login/login.dart';
 import 'Login/needVerificationActivity.dart' hide CompleteRegistrationDataPageActivity;
 import 'Language/language.dart';
 import 'Home/homeActivity.dart';
+import 'API/apiClient.dart';
 
 // Locale contrôlée par un ValueNotifier
 final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('en'));
@@ -87,16 +90,27 @@ class _MyAppState extends State<MyApp> {
       // ✅ Compte Personnel → Home direct
       _defaultHome = HomeActivity(false);
     } else {
-      // ✅ Compte Famille
-      _defaultHome = hasMain
-          ? HomeActivity(false)
-          : CompleteRegistrationDataPageActivity(
-              title: acctType.isEmpty ? 'Family' : acctType,
-              userID: userID,
-              email: email,
-              firstName: firstName,
-              lastName: lastName,
-            );
+      // ✅ Compte Famille - Check if user already has profile data
+      if (!hasMain) {
+        // Check if user already has profile data in API
+        final bool hasExistingProfile = await _checkForExistingProfile(userID);
+        if (hasExistingProfile) {
+          // User has profile data, set the flag and go to home
+          await prefs.setBool('hasMainAccount', true);
+          _defaultHome = HomeActivity(false);
+        } else {
+          // User needs to complete registration
+          _defaultHome = CompleteRegistrationDataPageActivity(
+            title: acctType.isEmpty ? 'Family' : acctType,
+            userID: userID,
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+          );
+        }
+      } else {
+        _defaultHome = HomeActivity(false);
+      }
     }
   } else {
     // 3️⃣ Compte non validé → Vérification email
@@ -145,5 +159,32 @@ class _MyAppState extends State<MyApp> {
         );
       },
     );
+  }
+
+  /// Check if user already has profile data in the API
+  Future<bool> _checkForExistingProfile(String userID) async {
+    try {
+      String baseUrl = BaseUrl().BASE_URL;
+      final prefs = await SharedPreferences.getInstance();
+      String? mobileToken = prefs.getString('mobileToken');
+      
+      // If no token, try to get it
+      if (mobileToken == null || mobileToken.isEmpty) {
+        return false; // Can't check without token
+      }
+      
+      final url = '$baseUrl/Family/GetFamilyMembers/?UserID=$userID&Token=$mobileToken';
+      final response = await http.get(Uri.parse(url));
+      
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
+        final List<dynamic> data = json.decode(response.body);
+        // If we have any family member data, user has already completed registration
+        return data.isNotEmpty;
+      }
+      return false;
+    } catch (e) {
+      print('Error checking existing profile: $e');
+      return false;
+    }
   }
 }

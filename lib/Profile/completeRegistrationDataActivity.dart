@@ -73,6 +73,7 @@ bool isEditMode = false;            // true si modification, false si ajout
 String existingAccountMemberID = ""; // rempli uniquement en mode édition
 
   bool relationshipState = true;
+  bool isFixingProfile = false; // ✅ Add loading state for profile fix
 
   List<Map<String, dynamic>> listDropRelationship = [];
   Color primaryDarkColor = Colors.blue;
@@ -107,6 +108,7 @@ void initState() {
   isFamilyAccount = false;
   showRelationShipState = false;
   showDeaconRadioButtonState = false;
+  isEditMode = false; // ✅ Ensure we're in ADD mode, not EDIT mode
 
   userID = widget.userID;
   customControllerFullName.fullNameController.text =
@@ -116,6 +118,9 @@ void initState() {
   // customControllerID.iDController.text = widget.userID;
 
   _init();
+  
+  // Check if user already has profile data and fix IsMainPerson if needed
+  _checkAndFixExistingProfile();
 }
 
 
@@ -150,6 +155,166 @@ Future<void> _init() async {
   await getGovernorates();
 
   debugPrint("✅ Initialisation terminée (FullName + NationalID) !");
+}
+
+/// 🔹 Check if user already has profile data and fix IsMainPerson flag if needed
+Future<void> _checkAndFixExistingProfile() async {
+  try {
+    // Wait a bit for mobileToken to be available
+    await Future.delayed(const Duration(seconds: 2));
+    
+    if (mobileToken.isEmpty) {
+      debugPrint("⚠️ No mobile token available for profile check");
+      return;
+    }
+    
+    setState(() {
+      isFixingProfile = true; // ✅ Show loading during fix
+    });
+    
+    final url = '$baseUrl/Family/GetFamilyMembers/?UserID=${widget.userID}&Token=$mobileToken';
+    debugPrint('🔍 Checking existing profile: $url');
+    
+    final response = await http.get(Uri.parse(url));
+    debugPrint('📱 Profile check status: ${response.statusCode}');
+    
+    if (response.statusCode == 200 && response.body.isNotEmpty) {
+      final List<dynamic> data = json.decode(response.body);
+      if (data.isNotEmpty) {
+        // User has existing profile data
+        final profile = data.first;
+        final isMainPerson = profile['IsMainPerson'] ?? false;
+        final userAccountMemberID = profile['UserAccountMemberID']?.toString() ?? '';
+        
+        debugPrint('👤 Found existing profile: IsMainPerson=$isMainPerson');
+        
+        if (!isMainPerson && userAccountMemberID.isNotEmpty) {
+          // Need to fix the IsMainPerson flag
+          debugPrint('🔧 Fixing IsMainPerson flag for existing profile...');
+          await _fixIsMainPersonFlag(userAccountMemberID);
+          return; // Exit early since _fixIsMainPersonFlag handles navigation
+        } else if (isMainPerson) {
+          // Profile is already correct, set the flag and go to home
+          debugPrint('✅ Profile already has IsMainPerson=true, going to home...');
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('hasMainAccount', true);
+          
+          if (mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => HomeActivity(false)),
+              (route) => false,
+            );
+          }
+          return;
+        }
+      }
+    }
+    
+    // No existing profile or fix not needed, hide loading
+    setState(() {
+      isFixingProfile = false;
+    });
+  } catch (e) {
+    debugPrint('❌ Error checking existing profile: $e');
+    setState(() {
+      isFixingProfile = false;
+    });
+  }
+}
+
+/// 🔹 Fix IsMainPerson flag for existing profile
+Future<void> _fixIsMainPersonFlag(String userAccountMemberID) async {
+  try {
+    // Get the existing profile data first
+    final url = '$baseUrl/Family/GetFamilyMembers/?UserID=${widget.userID}&Token=$mobileToken';
+    final response = await http.get(Uri.parse(url));
+    
+    if (response.statusCode != 200) {
+      debugPrint('❌ Failed to get existing profile data');
+      return;
+    }
+    
+    final List<dynamic> data = json.decode(response.body);
+    if (data.isEmpty) {
+      debugPrint('❌ No profile data found');
+      return;
+    }
+    
+    final profile = data.first;
+    
+    final fixData = {
+      "Name": profile['AccountMemberNameAr'] ?? "${widget.firstName} ${widget.lastName}",
+      "relationID": profile['PersonRelationID'] ?? "0",
+      "Deacon": (profile['IsDeacon'] ?? false).toString(),
+      "NationalID": profile['NationalIDNumber'] ?? "",
+      "Mobile": profile['Mobile'] ?? "",
+      "UserAccountID": widget.userID,
+      "GenderID": profile['GenderTypeID'] ?? "1",
+      "Ismain": "1", // ✅ Fix the main issue - set to main person
+      "churchOfAttendance": profile['churchOfAttendance'] ?? "",
+      "Address": profile['Address'] ?? "",
+      "BranchID": profile['branchID'] ?? "",
+      "GovernerateID": profile['GovernorateID'] ?? "0",
+      "flag": "2", // Edit mode
+      "AccountMemberID": userAccountMemberID,
+      "Token": mobileToken,
+    };
+    
+    final uri = Uri.parse('$baseUrl/Family/AddEditFamilyMember')
+        .replace(queryParameters: fixData.map((k, v) => MapEntry(k, v.toString())));
+    
+    debugPrint('🔧 Fixing profile with: $uri');
+    final fixResponse = await http.post(uri);
+    
+    debugPrint('📱 Fix response status: ${fixResponse.statusCode}');
+    debugPrint('📱 Fix response body: ${fixResponse.body}');
+    
+    if (fixResponse.statusCode == 200) {
+      final responseJson = json.decode(fixResponse.body);
+      final code = responseJson['Code']?.toString() ?? '0';
+      
+      if (code == '1') {
+        debugPrint('✅ Successfully fixed IsMainPerson flag');
+        
+        // Set the hasMainAccount flag and go to home
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('hasMainAccount', true);
+        
+        Fluttertoast.showToast(
+          msg: "Profile updated successfully!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+        
+        // Small delay to ensure toast is shown
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => HomeActivity(false)),
+            (route) => false,
+          );
+        }
+      } else {
+        debugPrint('❌ Failed to fix IsMainPerson flag: code=$code');
+        setState(() {
+          isFixingProfile = false;
+        });
+      }
+    } else {
+      debugPrint('❌ Fix API call failed with status: ${fixResponse.statusCode}');
+      setState(() {
+        isFixingProfile = false;
+      });
+    }
+  } catch (e) {
+    debugPrint('❌ Error fixing IsMainPerson flag: $e');
+    setState(() {
+      isFixingProfile = false;
+    });
+  }
 }
 
 
@@ -275,6 +440,40 @@ Widget showRelationshipLayout(BuildContext context) {
   /// 🔹 Build principal
   @override
 Widget build(BuildContext context) {
+  // ✅ Show loading screen while fixing profile
+  if (isFixingProfile) {
+    return AuthScaffold(
+      backgroundColor: Colors.white,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(primaryDarkColor),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Setting up your account...",
+              style: TextStyle(
+                fontSize: 18,
+                color: primaryDarkColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Please wait while we prepare your profile",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   return AuthScaffold(
     backgroundColor: Colors.white,
     child: SingleChildScrollView(
@@ -296,13 +495,54 @@ Widget build(BuildContext context) {
             GlassCard(
               child: Column(
                 children: [
-                  MyCustomTextFieldFullName(customController: customControllerFullName),
+                  AuthTextField(
+                    controller: customControllerFullName.fullNameController,
+                    hint: AppLocalizations.of(context)?.fullNameWithAstric ?? "Full Name *",
+                    icon: Icons.person_outline,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context)?.pleaseEnterYourFullName ?? "Please enter your full name";
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 20),
-                  MyCustomTextFieldID(customController: customControllerID),
+                  AuthTextField(
+                    controller: customControllerID.iDController,
+                    hint: AppLocalizations.of(context)?.nationalIdWithAstric ?? "National ID *",
+                    icon: Icons.badge_outlined,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context)?.pleaseEnterYourNationalId ?? "Please enter your national ID";
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 20),
-                  MyCustomTextFieldMobile(customController: customControllerMobile),
+                  AuthTextField(
+                    controller: customControllerMobile.mobileController,
+                    hint: AppLocalizations.of(context)?.mobileWithAstric ?? "Mobile *",
+                    icon: Icons.phone_outlined,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context)?.pleaseEnterYourMobile ?? "Please enter your mobile";
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 20),
-                  MyCustomTextFieldAddress(customController: customControllerAddress),
+                  AuthTextField(
+                    controller: customControllerAddress.addressController,
+                    hint: AppLocalizations.of(context)?.addressWithAstric ?? "Address *",
+                    icon: Icons.location_on_outlined,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context)?.pleaseEnterYourAddress ?? "Please enter your address";
+                      }
+                      return null;
+                    },
+                  ),
                 ],
               ),
             ),
@@ -384,8 +624,7 @@ Widget _buildSectionHeader(String title, IconData icon) {
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-              color: Colors.white, // ✅ Couleur blanche
-
+          color: Colors.black87, // ✅ Dark text for visibility on white background
         ),
       ),
     ],
@@ -534,6 +773,7 @@ Widget _buildSectionHeader(String title, IconData icon) {
 
   /// 🔹 Handle Registration Process
   Future<void> _handleRegistration() async {
+  debugPrint('🚀 _handleRegistration called in completeRegistrationDataActivity');
   setState(() {
     errorMessage = "";
   });
@@ -568,8 +808,12 @@ Widget _buildSectionHeader(String title, IconData icon) {
 bool _validateForm() {
   bool isValid = true;
 
+  debugPrint('🔍 Validating form fields...');
+
   // Validate Name
-  if (customControllerFullName.fullNameController.text.trim().isEmpty) {
+  final name = customControllerFullName.fullNameController.text.trim();
+  debugPrint('📝 Name: "$name"');
+  if (name.isEmpty) {
     Fluttertoast.showToast(
       msg: myLanguage == "ar"
           ? "الرجاء إدخال الاسم بالكامل"
@@ -577,22 +821,23 @@ bool _validateForm() {
     );
     isValid = false;
   }
-// Validation robuste pour National ID : exactement 14 chiffres
 
+  // Validation robuste pour National ID : exactement 14 chiffres
   final nationalID = customControllerID.iDController.text.trim();
-if (!isNationalIDValid(nationalID)) {
-  Fluttertoast.showToast(
-    msg: myLanguage == "ar"
-        ? "الرجاء إدخال رقم قومي صحيح"
-        : "Please enter a valid National ID",
-  );
-  isValid = false;
-}
-
-
+  debugPrint('🆔 National ID: "$nationalID"');
+  if (!isNationalIDValid(nationalID)) {
+    Fluttertoast.showToast(
+      msg: myLanguage == "ar"
+          ? "الرجاء إدخال رقم قومي صحيح"
+          : "Please enter a valid National ID",
+    );
+    isValid = false;
+  }
 
   // Validate Mobile
-  if (customControllerMobile.mobileController.text.trim().isEmpty) {
+  final mobile = customControllerMobile.mobileController.text.trim();
+  debugPrint('📞 Mobile: "$mobile"');
+  if (mobile.isEmpty) {
     Fluttertoast.showToast(
       msg: myLanguage == "ar"
           ? "الرجاء إدخال رقم الهاتف"
@@ -602,6 +847,7 @@ if (!isNationalIDValid(nationalID)) {
   }
 
   // Validate Gender
+  debugPrint('⚧ Gender ID: $selectedGenderRadioTile');
   if (selectedGenderRadioTile == 0) {
     Fluttertoast.showToast(
       msg: myLanguage == "ar"
@@ -612,6 +858,7 @@ if (!isNationalIDValid(nationalID)) {
   }
 
   // Validate Governorate
+  debugPrint('🏛️ Governorate ID: "$governorateID"');
   if (governorateID == "0") {
     Fluttertoast.showToast(
       msg: myLanguage == "ar"
@@ -622,6 +869,7 @@ if (!isNationalIDValid(nationalID)) {
   }
 
   // Validate Church
+  debugPrint('⛪ Church ID: "$churchOfAttendanceID"');
   if (churchOfAttendanceID == "0") {
     Fluttertoast.showToast(
       msg: myLanguage == "ar"
@@ -629,10 +877,23 @@ if (!isNationalIDValid(nationalID)) {
           : "Please select a church",
     );
     isValid = false;
+  } else if (churchOfAttendanceID == "-1") {
+    final churchOthers = customControllerChurchOfAttendance.churchOfAttendanceController.text.trim();
+    debugPrint('⛪ Church Others: "$churchOthers"');
+    if (churchOthers.isEmpty) {
+      Fluttertoast.showToast(
+        msg: myLanguage == "ar"
+            ? "الرجاء إدخال اسم الكنيسة"
+            : "Please enter church name",
+      );
+      isValid = false;
+    }
   }
 
   // Validate Address
-  if (customControllerAddress.addressController.text.trim().isEmpty) {
+  final address = customControllerAddress.addressController.text.trim();
+  debugPrint('🏠 Address: "$address"');
+  if (address.isEmpty) {
     Fluttertoast.showToast(
       msg: myLanguage == "ar"
           ? "الرجاء إدخال العنوان"
@@ -641,6 +902,7 @@ if (!isNationalIDValid(nationalID)) {
     isValid = false;
   }
 
+  debugPrint('✅ Form validation result: $isValid');
   return isValid;
 }
 
@@ -667,9 +929,11 @@ if (!isNationalIDValid(nationalID)) {
     "Mobile": customControllerMobile.mobileController.text.trim(),
     "UserAccountID": widget.userID,  
     "GenderID": selectedGenderRadioTile.toString(),
-    "Ismain": isFamilyAccount ? "1" : "0",
+    "Ismain": "1", // ✅ Always 1 for user's own profile during registration
     "churchOfAttendance":
-        churchOfAttendanceID == "-1" ? "" : churchOfAttendanceID,
+        churchOfAttendanceID == "-1" 
+            ? customControllerChurchOfAttendance.churchOfAttendanceController.text.trim()
+            : churchOfAttendanceID,
     "Address": customControllerAddress.addressController.text.trim(),
     "BranchID": branchID,
     "GovernerateID": governorateID,
@@ -691,6 +955,11 @@ Future<void> _submitRegistration(Map<String, dynamic> data) async {
     data["flag"] = isEditMode ? "2" : "1";
     data["AccountMemberID"] = isEditMode ? existingAccountMemberID : "";
 
+    debugPrint('📤 Registration data being sent:');
+    data.forEach((key, value) {
+      debugPrint('   $key: $value');
+    });
+
     // Créer l'URI avec les paramètres GET (query)
     final uri = Uri.parse('$baseUrl/Family/AddEditFamilyMember')
         .replace(queryParameters: data.map((k, v) => MapEntry(k, v.toString())));
@@ -699,33 +968,71 @@ Future<void> _submitRegistration(Map<String, dynamic> data) async {
 
     final response = await http.post(uri);
 
-    debugPrint('Status: ${response.statusCode}');
-    debugPrint('Body: ${response.body}');
+    debugPrint('📱 Registration Status: ${response.statusCode}');
+    debugPrint('📱 Registration Body: ${response.body}');
 
     setState(() => registerState = 0);
 
     if (response.statusCode == 200) {
-      // ✅ 1️⃣ Rafraîchir les champs après un ajout réussi
-      debugPrint("✅ Ajout réussi, rafraîchissement des champs...");
-      _refreshFields();
+      // Parse the response to check if it was successful
+      try {
+        final responseJson = json.decode(response.body);
+        final code = responseJson['Code']?.toString() ?? '0';
+        
+        debugPrint('📱 API Response Code: $code');
+        
+        if (code == '1') {
+          // ✅ Success
+          debugPrint("✅ Registration successful, refreshing fields...");
+          _refreshFields();
 
-      // ✅ 2️⃣ Afficher un toast de succès
-      Fluttertoast.showToast(
-        msg: "Registration completed successfully!",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.white,
-        textColor: Colors.green,
-        fontSize: 16.0,
-      );
+          // ✅ Set hasMainAccount flag to prevent showing registration screen again
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('hasMainAccount', true);
+          debugPrint("✅ hasMainAccount flag set to true");
 
-      // ✅ 3️⃣ Naviguer vers la HomePage et vider la pile
-      if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => HomeActivity(false)),
-        ModalRoute.withName('/Home'),
-      );
+          // ✅ 2️⃣ Afficher un toast de succès
+          Fluttertoast.showToast(
+            msg: "Registration completed successfully!",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.white,
+            textColor: Colors.green,
+            fontSize: 16.0,
+          );
+
+          // ✅ 3️⃣ Naviguer vers la HomePage et vider la pile
+          if (!mounted) return;
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => HomeActivity(false)),
+            ModalRoute.withName('/Home'),
+          );
+        } else {
+          // ❌ API returned error
+          final nameEn = responseJson['NameEn']?.toString() ?? '';
+          final nameAr = responseJson['NameAr']?.toString() ?? '';
+          
+          String errorMsg = 'Registration failed';
+          if (nameEn.isNotEmpty || nameAr.isNotEmpty) {
+            errorMsg = myLanguage == "ar" ? nameAr : nameEn;
+          }
+          
+          debugPrint('❌ Registration failed with code: $code, message: $errorMsg');
+          
+          Fluttertoast.showToast(
+            msg: errorMsg,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.white,
+            textColor: Colors.red,
+            fontSize: 16.0,
+          );
+        }
+      } catch (e) {
+        debugPrint('❌ Error parsing API response: $e');
+        throw Exception('Failed to parse server response');
+      }
     } else {
       throw Exception('Server returned status ${response.statusCode}');
     }
@@ -1144,12 +1451,17 @@ Future<void> churchOfAttendanceDropDownData() async {
   if (!showChurchOfAttendanceOthersState) return Container();
 
   return Padding(
-    padding: const EdgeInsets.only(top: 10.0, right: 20.0, left: 20.0),
-    child: SizedBox(
-      width: double.infinity,
-      child: MyCustomTextFieldChurchOfAttendance(
-        customController: customControllerChurchOfAttendance,
-      ),
+    padding: const EdgeInsets.only(top: 10.0),
+    child: AuthTextField(
+      controller: customControllerChurchOfAttendance.churchOfAttendanceController,
+      hint: AppLocalizations.of(context)?.churchOfAttendanceWithAstric ?? "Church of Attendance *",
+      icon: Icons.church_outlined,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return AppLocalizations.of(context)?.pleaseEnterYourChurchOfAttendance ?? "Please enter your church of attendance";
+        }
+        return null;
+      },
     ),
   );
 }
