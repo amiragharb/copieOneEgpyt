@@ -501,6 +501,11 @@ Future<void> getDataFromShared() async {
     return;
   }
 
+  // Load user's profile data if this is being used as profile page
+  if (isMain == 1 && !isAdd) {
+    await _loadUserProfileData();
+  }
+
   if (isPersonal) {
     myFamilyList = (await getMyFamily()) ?? [];
     if (myFamilyList.isNotEmpty) {
@@ -558,6 +563,68 @@ Future<void> getDataFromShared() async {
     setState(() {
       loadingState = 1; // Set loaded state
     });
+  }
+}
+
+// Load user's profile data from the API
+Future<void> _loadUserProfileData() async {
+  try {
+    final url = '$baseUrl/Family/GetFamilyMembers/?UserID=$userID&Token=$mobileToken';
+    var response = await http.get(Uri.parse(url));
+    
+    if (response.statusCode == 200 && response.body.isNotEmpty) {
+      var familyMembers = familyMemberFromJson(response.body.toString());
+      
+      // Find the main person (user's profile)
+      FamilyMember? userProfile;
+      for (var member in familyMembers) {
+        if (member.isMainPerson == true) {
+          userProfile = member;
+          break;
+        }
+      }
+      
+      if (userProfile != null) {
+        setState(() {
+          name = userProfile!.accountMemberNameAr ?? "";
+          nationalID = userProfile.nationalIdNumber ?? "";
+          mobile = userProfile.mobile ?? "";
+          address = userProfile.address ?? "";
+          
+          // Convert bool to int for isDeacon (0 for false, 1 for true)
+          selectedDeaconRadioTile = (userProfile.isDeacon == true) ? 1 : 0;
+          
+          // Convert String genderTypeId to int
+          if (userProfile.genderTypeId != null) {
+            selectedGenderRadioTile = int.tryParse(userProfile.genderTypeId!) ?? 0;
+          } else {
+            selectedGenderRadioTile = 0;
+          }
+          
+          // Set the relationship ID if available
+          if (userProfile.personRelationId != null) {
+            relationshipID = userProfile.personRelationId!;
+          }
+          
+          // Set governorate ID if available
+          if (userProfile.governorateID != null) {
+            governorateID = userProfile.governorateID!;
+          }
+          
+          // Set church of attendance if available
+          if (userProfile.churchOfAttendance != null) {
+            churchOfAttendance = userProfile.churchOfAttendance!;
+          }
+          
+          // Update the member ID for editing
+          memberID = userProfile.userAccountMemberId ?? "";
+        });
+        
+        print("Loaded user profile: $name, $nationalID, $mobile");
+      }
+    }
+  } catch (e) {
+    print("Error loading user profile data: $e");
   }
 }
 

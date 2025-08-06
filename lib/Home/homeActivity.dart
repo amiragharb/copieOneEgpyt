@@ -1,12 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:egpycopsversion4/API/apiClient.dart';
@@ -17,13 +14,7 @@ import 'package:egpycopsversion4/Firebase/FirebaseMessageWrapper.dart';
 import 'package:egpycopsversion4/Home/homeFragment.dart';
 import 'package:egpycopsversion4/Home/myBookingsFragment.dart';
 import 'package:egpycopsversion4/Home/youtubeLiveFragment.dart';
-import 'package:egpycopsversion4/Login/login.dart';
-import 'package:egpycopsversion4/Models/user.dart';
-import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
-import 'package:egpycopsversion4/Settings/settingsActivity.dart';
-import 'package:egpycopsversion4/Settings/changePasswordActivity.dart';
 import 'package:egpycopsversion4/Translation/LocaleHelper.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations; // <-- plus de hide
 import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 import '../main.dart' show languageHome, setAppLocale;
@@ -126,6 +117,92 @@ class HomeActivityState extends State<HomeActivity> {
     onLocaleChange(Locale(langCode));
   }
 
+  // Logout method to clear all user data and return to login
+  Future<void> _logout() async {
+    // Show confirmation dialog
+    bool? shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          AppLocalizations.of(context)?.logout ?? "Logout",
+          style: const TextStyle(fontFamily: 'cocon-next-arabic-regular'),
+        ),
+        content: Text(
+          "Are you sure you want to logout?",
+          style: const TextStyle(fontFamily: 'cocon-next-arabic-regular'),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)?.no ?? "Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              AppLocalizations.of(context)?.logout ?? "Logout",
+              style: TextStyle(color: Colors.red[600]),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true) {
+      try {
+        // Clear SharedPreferences
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        
+        // Clear Firebase token if possible
+        try {
+          await FirebaseMessaging.instance.deleteToken();
+        } catch (e) {
+          print("Error clearing Firebase token: $e");
+        }
+        
+        // Clear global variables
+        userID = "";
+        accountType = "";
+        userName = "";
+        userEmail = "";
+        fragment = null;
+        mobileToken = null;
+        loginUsername = "";
+        sucessCode = "";
+        name = "";
+        email = "";
+        address = "";
+        hasMainAccount = false;
+        defaultGovernateID = 0;
+        defaultBranchID = 0;
+        
+        // Show success message
+        Fluttertoast.showToast(
+          msg: "Logged out successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        
+        // Navigate back to main app (which will show login screen)
+        Navigator.of(context).pushReplacementNamed('/');
+        
+      } catch (e) {
+        print("Error during logout: $e");
+        Fluttertoast.showToast(
+          msg: "Error during logout",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+    }
+  }
+
   void onBottomNavTap(int index) {
     setState(() {
       selectedBottomItem = index;
@@ -144,18 +221,37 @@ class HomeActivityState extends State<HomeActivity> {
           {
             fragment = "Profile";
           } else {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => AddFamilyMemberActivity(
-                  false, "", "0", 0, "", "", "", "", "", "", "", 1, true),
-            )).then((_) {
-              setState(() {
-                selectedBottomItem = 0;
-                fragment = "MyBookings";
-              });
-            });
+            // For personal accounts, navigate to AddFamilyMemberActivity with profile data
+            _openProfilePage();
           }
           break;
       }
+    });
+  }
+
+  // Open profile page for personal accounts
+  void _openProfilePage() async {
+    // Navigate to AddFamilyMemberActivity with user's profile data
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => AddFamilyMemberActivity(
+          false, // isAdd = false (editing profile)
+          userName, // fullName
+          "0", // relationshipId (not applicable for main person)
+          0, // deacon (will be loaded from API)
+          "", // nationalId (will be loaded from API)
+          "", // mobileNumber (will be loaded from API)
+          "", // accountMemberID (will be loaded from API)
+          "", // addressConstructor (will be loaded from API)
+          "", // branchIDConstructor (will be loaded from API)
+          "", // governorateIDConstructor (will be loaded from API)
+          "", // churchOfAttendancConstructore (will be loaded from API)
+          1, // mainAccount = 1 (this is the main person)
+          true), // personalAccount = true
+    )).then((_) {
+      setState(() {
+        selectedBottomItem = 0;
+        fragment = "MyBookings";
+      });
     });
   }
 
@@ -491,43 +587,235 @@ class HomeActivityState extends State<HomeActivity> {
 
   Drawer buildDrawer() {
     return Drawer(
-      child: ListView(
+      child: Column(
         children: <Widget>[
+          // Header section
           Container(
             color: primaryColor,
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
-                  child: SizedBox(
-                    width: 140,
-                    height: 110,
-                    child: Image.asset('images/logotransparents.png', fit: BoxFit.cover),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 5.0),
-                  child: MyCustomDrawerName(customController: customControllerDrawerName),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: MyCustomDrawerEmail(customController: customControllerDrawerEmail),
-                ),
-                // Exemple : bouton switch langue
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton(
-                        onPressed: () => _changeLanguage('en'),
-                        child: const Text("English"),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: <Widget>[
+                    // Logo
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.1),
+                        border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
                       ),
-                      TextButton(
-                        onPressed: () => _changeLanguage('ar'),
-                        child: const Text("العربية"),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Image.asset('images/logotransparents.png', fit: BoxFit.contain),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    // User name
+                    MyCustomDrawerName(customController: customControllerDrawerName),
+                    const SizedBox(height: 5),
+                    // User email
+                    MyCustomDrawerEmail(customController: customControllerDrawerEmail),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          // Menu items section
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              children: [
+                // Language selection section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)?.language ?? "Language",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
+                          fontFamily: 'cocon-next-arabic-regular',
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[100],
+                          border: Border.all(color: Colors.grey[300]!, width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () => _changeLanguage('en'),
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    bottomLeft: Radius.circular(12),
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(12),
+                                        bottomLeft: Radius.circular(12),
+                                      ),
+                                      gradient: _appLocale.languageCode == 'en'
+                                          ? LinearGradient(
+                                              colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                                            )
+                                          : null,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "🇺🇸",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "English",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: _appLocale.languageCode == 'en'
+                                                ? Colors.white
+                                                : Colors.grey[700],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: Colors.grey[300],
+                            ),
+                            Expanded(
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () => _changeLanguage('ar'),
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(12),
+                                    bottomRight: Radius.circular(12),
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.only(
+                                        topRight: Radius.circular(12),
+                                        bottomRight: Radius.circular(12),
+                                      ),
+                                      gradient: _appLocale.languageCode == 'ar'
+                                          ? LinearGradient(
+                                              colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                                            )
+                                          : null,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "🇪🇬",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "العربية",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: _appLocale.languageCode == 'ar'
+                                                ? Colors.white
+                                                : Colors.grey[700],
+                                            fontFamily: 'cocon-next-arabic-regular',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                Divider(color: Colors.grey[300], thickness: 1),
+                const SizedBox(height: 10),
+                
+                // Logout button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _logout,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.red[400]!,
+                              Colors.red[500]!,
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.logout,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Text(
+                                AppLocalizations.of(context)?.logout ?? "Logout",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  fontFamily: 'cocon-next-arabic-regular',
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.white.withOpacity(0.7),
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -554,8 +842,14 @@ class MyCustomDrawerName extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      userName,
-      style: const TextStyle(fontSize: 20.0, color: Colors.white),
+      userName.isNotEmpty ? userName : "User",
+      style: const TextStyle(
+        fontSize: 18.0,
+        color: Colors.white,
+        fontWeight: FontWeight.w600,
+        fontFamily: 'cocon-next-arabic-regular',
+      ),
+      textAlign: TextAlign.center,
     );
   }
 }
@@ -572,11 +866,24 @@ class MyCustomDrawerEmail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+      ),
       child: Text(
-        userEmail,
+        userEmail.isNotEmpty ? userEmail : "user@example.com",
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 18.0, color: Colors.white),
+        style: const TextStyle(
+          fontSize: 14.0,
+          color: Colors.white,
+          fontWeight: FontWeight.w400,
+          fontFamily: 'cocon-next-arabic-regular',
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
