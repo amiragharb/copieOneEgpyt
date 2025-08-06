@@ -186,8 +186,8 @@ class HomeActivityState extends State<HomeActivity> {
           fontSize: 16.0,
         );
         
-        // Navigate back to main app (which will show login screen)
-        Navigator.of(context).pushReplacementNamed('/');
+        // Navigate to login screen and clear navigation stack completely
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
         
       } catch (e) {
         print("Error during logout: $e");
