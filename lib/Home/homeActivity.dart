@@ -26,7 +26,7 @@ import 'package:egpycopsversion4/Translation/LocaleHelper.dart';
 import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations; // <-- plus de hide
 import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
-import '../main.dart' show languageHome;
+import '../main.dart' show languageHome, setAppLocale;
 
 typedef LocaleChangeCallback = void Function(Locale locale);
 
@@ -118,6 +118,11 @@ class HomeActivityState extends State<HomeActivity> {
   Future<void> _changeLanguage(String langCode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language', langCode);
+    
+    // Use the global setAppLocale to ensure proper language switching
+    await setAppLocale(langCode);
+    
+    // Also update local state
     onLocaleChange(Locale(langCode));
   }
 
