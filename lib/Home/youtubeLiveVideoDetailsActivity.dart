@@ -2,13 +2,14 @@ import 'package:egpycopsversion4/API/apiClient.dart';
 import 'package:egpycopsversion4/Home/youtubeLiveVideo.dart';
 import 'package:egpycopsversion4/Models/liveVideoDetails.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart';
+import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:skeleton_text/skeleton_text.dart';
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 BaseUrl BASE_URL = BaseUrl();
 String baseUrl = BASE_URL.BASE_URL;
@@ -110,7 +111,7 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
     if (loadingState == 0) {
       return _buildLoadingState();
     } else if (loadingState == 1) {
-      return _buildContentState();
+      return _buildContentState(localizations);
     } else if (loadingState == 2) {
       return _buildErrorState(localizations);
     } else {
@@ -121,7 +122,6 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
   Widget _buildLoadingState() {
     return CustomScrollView(
       slivers: [
-        // Modern App Bar
         SliverAppBar(
           expandedHeight: 300,
           floating: false,
@@ -156,15 +156,12 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
             ),
           ),
         ),
-        
-        // Content Skeleton
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title skeleton
                 SkeletonAnimation(
                   child: Container(
                     height: 32,
@@ -187,8 +184,6 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                   ),
                 ),
                 const SizedBox(height: 24),
-                
-                // Course info skeleton
                 SkeletonAnimation(
                   child: Container(
                     height: 100,
@@ -207,13 +202,12 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
     );
   }
 
-  Widget _buildContentState() {
+  Widget _buildContentState(AppLocalizations? localizations) {
     final title = myLanguage == "en" ? liveDescriptionEn : liveDescriptionAr;
     final courseName = myLanguage == "en" ? nameEn : nameAr;
-    
+
     return CustomScrollView(
       slivers: [
-        // Modern Video Header
         SliverAppBar(
           expandedHeight: 300,
           floating: false,
@@ -224,7 +218,6 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
             background: Stack(
               fit: StackFit.expand,
               children: [
-                // Video Player Background
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -234,14 +227,11 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                     ),
                   ),
                 ),
-                
-                // Video Player
                 if (liveUrl.isNotEmpty)
                   AspectRatio(
                     aspectRatio: 16 / 9,
                     child: YoutubeLiveVideo(liveUrl, isLive, true),
                   )
-
                 else
                   Center(
                     child: Icon(
@@ -250,8 +240,6 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                       color: Colors.white.withOpacity(0.8),
                     ),
                   ),
-                
-                // Gradient Overlay
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -266,8 +254,6 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                     ),
                   ),
                 ),
-                
-                // Live Badge
                 if (isLive == "1")
                   Positioned(
                     top: 60,
@@ -301,9 +287,9 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                             ),
                           ),
                           const SizedBox(width: 6),
-                          const Text(
-                            'LIVE',
-                            style: TextStyle(
+                          Text(
+                            localizations?.liveBadge ?? "LIVE",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -343,8 +329,6 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
             ),
           ],
         ),
-        
-        // Content Section
         SliverToBoxAdapter(
           child: Container(
             decoration: BoxDecoration(
@@ -358,14 +342,11 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 24),
-                
-                // Title Section
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Main Title
                       Text(
                         title.isNotEmpty ? title : courseName,
                         style: const TextStyle(
@@ -376,10 +357,7 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                           height: 1.3,
                         ),
                       ),
-                      
                       const SizedBox(height: 16),
-                      
-                      // Course Name Chip
                       if (courseName.isNotEmpty && title.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -411,10 +389,7 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                     ],
                   ),
                 ),
-                
                 const SizedBox(height: 24),
-                
-                // Video Info Card
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Container(
@@ -433,7 +408,6 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                     ),
                     child: Column(
                       children: [
-                        // Date Row
                         if (date.isNotEmpty)
                           Row(
                             children: [
@@ -455,8 +429,8 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Date & Time',
-                                      style: TextStyle(
+                                      localizations?.dateTime ?? "Date & Time",
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         color: Color(0xFF6B7280),
                                         fontWeight: FontWeight.w500,
@@ -476,26 +450,23 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                               ),
                             ],
                           ),
-                        
                         if (date.isNotEmpty)
                           const SizedBox(height: 20),
-                        
-                        // Status Row
                         Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: isLive == "1" 
-                                  ? Color(0xFFDCFDF7)
-                                  : Color(0xFFF3F4F6),
+                                color: isLive == "1"
+                                    ? Color(0xFFDCFDF7)
+                                    : Color(0xFFF3F4F6),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
                                 isLive == "1" ? Icons.circle : Icons.play_circle,
-                                color: isLive == "1" 
-                                  ? Color(0xFF059669)
-                                  : Color(0xFF6B7280),
+                                color: isLive == "1"
+                                    ? Color(0xFF059669)
+                                    : Color(0xFF6B7280),
                                 size: 20,
                               ),
                             ),
@@ -505,20 +476,22 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Status',
-                                    style: TextStyle(
+                                    localizations?.status ?? "Status",
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       color: Color(0xFF6B7280),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   Text(
-                                    isLive == "1" ? 'LIVE STREAMING' : 'RECORDED VIDEO',
+                                    isLive == "1"
+                                        ? (localizations?.liveStreaming ?? "LIVE STREAMING")
+                                        : (localizations?.recordedVideo ?? "RECORDED VIDEO"),
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color: isLive == "1" 
-                                        ? Color(0xFF059669)
-                                        : Color(0xFF6B7280),
+                                      color: isLive == "1"
+                                          ? Color(0xFF059669)
+                                          : Color(0xFF6B7280),
                                       fontWeight: FontWeight.w600,
                                       fontFamily: 'cocon-next-arabic-regular',
                                     ),
@@ -529,19 +502,21 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: isLive == "1" 
-                                  ? Color(0xFFDCFDF7)
-                                  : Color(0xFFF3F4F6),
+                                color: isLive == "1"
+                                    ? Color(0xFFDCFDF7)
+                                    : Color(0xFFF3F4F6),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                isLive == "1" ? 'LIVE' : 'RECORDED',
+                                isLive == "1"
+                                    ? (localizations?.live ?? "LIVE")
+                                    : (localizations?.recorded ?? "RECORDED"),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: isLive == "1" 
-                                    ? Color(0xFF059669)
-                                    : Color(0xFF6B7280),
+                                  color: isLive == "1"
+                                      ? Color(0xFF059669)
+                                      : Color(0xFF6B7280),
                                 ),
                               ),
                             ),
@@ -551,10 +526,7 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                     ),
                   ),
                 ),
-                
                 const SizedBox(height: 32),
-                
-                // Action Buttons
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
@@ -565,7 +537,7 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                             // Add to favorites functionality
                           },
                           icon: const Icon(Icons.favorite_border, size: 20),
-                          label: const Text('Add to Favorites'),
+                          label: Text(localizations?.addToFavorites ?? 'Add to Favorites'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Color(0xFF3B82F6),
@@ -587,7 +559,7 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                             // Download or watch later functionality
                           },
                           icon: const Icon(Icons.download, size: 20),
-                          label: const Text('Download'),
+                          label: Text(localizations?.download ?? 'Download'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF3B82F6),
                             foregroundColor: Colors.white,
@@ -602,7 +574,6 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                     ],
                   ),
                 ),
-                
                 const SizedBox(height: 40),
               ],
             ),
@@ -647,9 +618,9 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                "Connection Error",
-                style: TextStyle(
+              Text(
+                localizations?.connectionError ?? "Connection Error",
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1F2937),
@@ -658,8 +629,8 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
               ),
               const SizedBox(height: 12),
               Text(
-                localizations?.errorConnectingWithServer ?? 
-                  "Unable to load video details.\nPlease check your internet connection and try again.",
+                localizations?.errorConnectingWithServer ??
+                    "Unable to load video details.\nPlease check your internet connection and try again.",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16,
@@ -671,7 +642,7 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
               ElevatedButton.icon(
                 onPressed: () => _getYoutubeLiveVideoDetails(),
                 icon: const Icon(Icons.refresh, size: 20),
-                label: const Text('Try Again'),
+                label: Text(localizations?.tryAgain ?? 'Try Again'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF3B82F6),
                   foregroundColor: Colors.white,
@@ -724,9 +695,9 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                "Video Not Found",
-                style: TextStyle(
+              Text(
+                localizations?.videoNotFound ?? "Video Not Found",
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1F2937),
@@ -735,8 +706,8 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
               ),
               const SizedBox(height: 12),
               Text(
-                localizations?.noVideosFound ?? 
-                  "The video you're looking for doesn't exist or has been removed.\nPlease check back later or try another video.",
+                localizations?.noVideosFound ??
+                    "The video you're looking for doesn't exist or has been removed.\nPlease check back later or try another video.",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16,
@@ -748,7 +719,7 @@ class _YoutubeLiveVideoDetailsActivityState extends State<YoutubeLiveVideoDetail
               ElevatedButton.icon(
                 onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(Icons.arrow_back, size: 20),
-                label: const Text('Go Back'),
+                label: Text(localizations?.goBack ?? 'Go Back'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF10B981),
                   foregroundColor: Colors.white,

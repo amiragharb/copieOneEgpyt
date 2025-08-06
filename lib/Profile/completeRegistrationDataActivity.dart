@@ -1,30 +1,44 @@
 import 'package:egpycopsversion4/API/apiClient.dart';
 import 'package:egpycopsversion4/Colors/colors.dart';
+import 'package:egpycopsversion4/Home/homeActivity.dart';
+import 'package:egpycopsversion4/Login/auth_ui.dart';
 import 'package:egpycopsversion4/Models/churchs.dart';
 import 'package:egpycopsversion4/Models/governorates.dart';
 import 'package:egpycopsversion4/Models/personRelation.dart';
 import 'package:egpycopsversion4/l10n/app_localizations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 // Base URL API
 String baseUrl = BaseUrl().BASE_URL;
 
 class CompleteRegistrationDataPageActivity extends StatefulWidget {
   final String title;
+  final String userID;
+  final String email;
+  final String firstName;
+  final String lastName;
 
   const CompleteRegistrationDataPageActivity({
     Key? key,
     required this.title,
+    required this.userID,
+    required this.email,
+    required this.firstName,
+    required this.lastName,
   }) : super(key: key);
 
   @override
   State<CompleteRegistrationDataPageActivity> createState() =>
       _CompleteRegistrationDataPageActivityState();
 }
+
 
 
 
@@ -52,13 +66,17 @@ class _CompleteRegistrationDataPageActivityState
   bool showChurchOfAttendanceOthersState = false;
   bool governorateState = true;
   bool churchState = true;
+  // 🔹 Variables liées à l'API
+String userAccountID = "";          // ID utilisateur connecté
+String branchID = "";               // ID de la branche, à récupérer ou laisser vide
+bool isEditMode = false;            // true si modification, false si ajout
+String existingAccountMemberID = ""; // rempli uniquement en mode édition
 
   bool relationshipState = true;
 
   List<Map<String, dynamic>> listDropRelationship = [];
   Color primaryDarkColor = Colors.blue;
   Color red700 = Colors.red[700]!;
-
   // 🔹 Listes de données
   List<Churchs> churchOfAttendanceList = [];
   List<Governorates> governoratesList = [];
@@ -82,39 +100,94 @@ class _CompleteRegistrationDataPageActivityState
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
+@override
+void initState() {
+  super.initState();
 
-  /// 🔹 Initialisation des données et du token
-  Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
+  isFamilyAccount = false;
+  showRelationShipState = false;
+  showDeaconRadioButtonState = false;
 
-    myLanguage = prefs.getString('language') ?? "en";
-    final accountType = prefs.getString("accountType");
-    isFamilyAccount = accountType == "1";
+  userID = widget.userID;
+  customControllerFullName.fullNameController.text =
+      "${widget.firstName} ${widget.lastName}";
 
-    FirebaseMessaging.instance.getToken().then((String? token) {
-      if (token != null) {
-        setState(() {
-          mobileToken = token;
-        });
-      }
-    });
+  // ❌ Ne jamais remplir avec userID
+  // customControllerID.iDController.text = widget.userID;
 
-    // Initialize form states
-    setState(() {
-      showRelationShipState = isFamilyAccount;
-      showGenderState = true;
-      governorateState = true;
-      churchState = true;
-    });
+  _init();
+}
 
-    await getDataFromShared();
-    await getGovernorates(); // Load governorates for all account types
-  }
+
+
+/// 🔹 Initialisation complète et rafraîchissement de l'écran
+Future<void> _init() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  myLanguage = prefs.getString('language') ?? "en";
+
+  debugPrint("🔹 FullName pré-rempli: ${customControllerFullName.fullNameController.text}");
+
+  // Token Firebase
+  FirebaseMessaging.instance.getToken().then((String? token) {
+    if (token != null && mounted) {
+      setState(() => mobileToken = token);
+      debugPrint("🔹 FCM Token récupéré: $token");
+    }
+  });
+
+  // ✅ UI Personal uniquement
+  setState(() {
+    showRelationShipState = false;
+    showDeaconRadioButtonState = false;
+    showGenderState = true;
+    governorateState = true;
+    churchState = true;
+  });
+
+  // ✅ Charge juste les données supplémentaires nécessaires
+  await getDataFromShared();
+  await getGovernorates();
+
+  debugPrint("✅ Initialisation terminée (FullName + NationalID) !");
+}
+
+
+/// 🔹 Fonction pour forcer le rafraîchissement des champs
+void _refreshFields() {
+  setState(() {
+    userID = widget.userID;
+    customControllerFullName.fullNameController.text =
+        "${widget.firstName} ${widget.lastName}";
+
+    // ❌ Supprime cette ligne :
+    // customControllerID.iDController.text = widget.userID;
+
+    // ✅ Laisse vide pour saisie manuelle
+    // ou tu peux le remplir seulement si l’utilisateur l’a déjà saisi
+    if (customControllerID.iDController.text.isEmpty) {
+      customControllerID.iDController.text = "";
+    }
+
+    showRelationShipState = false;
+    showDeaconRadioButtonState = false;
+    showGenderState = true;
+    governorateState = true;
+    churchState = true;
+  });
+
+  debugPrint("🔄 FullName rafraîchi, NationalID laissé vide !");
+}
+
+
+/// 🔹 Relationship masqué pour Personal
+
+
+
+/// 🔹 Relationship masqué pour Personal
+Widget showRelationshipLayout(BuildContext context) {
+  return const SizedBox.shrink(); // Jamais affiché
+}
 
   Future<void> getDataFromShared() async {
     final prefs = await SharedPreferences.getInstance();
@@ -201,114 +274,126 @@ class _CompleteRegistrationDataPageActivityState
 
   /// 🔹 Build principal
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
-          AppLocalizations.of(context)?.completeInformation ?? "Complete Information",
-          style: const TextStyle(
-            color: Colors.white, 
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
-        ),
-        backgroundColor: primaryDarkColor,
-        centerTitle: true,
-      ),
-      body: Form(
+Widget build(BuildContext context) {
+  return AuthScaffold(
+    backgroundColor: Colors.white,
+    child: SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+      child: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Section
-              _buildSectionHeader("Personal Information", Icons.person_outline),
-              const SizedBox(height: 16),
-              
-              // Personal Info Card
-              _buildCard([
-                MyCustomTextFieldFullName(customController: customControllerFullName),
-                const SizedBox(height: 20),
-                MyCustomTextFieldID(customController: customControllerID),
-                const SizedBox(height: 20),
-                MyCustomTextFieldMobile(customController: customControllerMobile),
-                const SizedBox(height: 20),
-                MyCustomTextFieldAddress(customController: customControllerAddress),
-              ]),
-              
-              const SizedBox(height: 24),
-              
-              // Additional Information Section
-              _buildSectionHeader("Additional Information", Icons.info_outline),
-              const SizedBox(height: 16),
-              
-              // Additional Info Card
-              _buildCard([
-                showGenderLayout(),
-                const SizedBox(height: 20),
-                showRelationshipLayout(context),
-                const SizedBox(height: 20),
-                showDeaconCheckboxLayout(),
-              ]),
-              
-              const SizedBox(height: 24),
-              
-              // Location Information Section
-              _buildSectionHeader("Location Information", Icons.location_on_outlined),
-              const SizedBox(height: 16),
-              
-              // Location Info Card
-              _buildCard([
-                showGovernoratesLayout(context),
-                const SizedBox(height: 20),
-                showChurchOfAttendanceLayout(),
-                const SizedBox(height: 10),
-                showChurchOfAttendanceOthers(),
-              ]),
-              
-              const SizedBox(height: 32),
-              
-              // Register Button
-              buildRegisterButtonWidget(),
-              const SizedBox(height: 24),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            /// ---------- SECTION 1 : Personal Info ----------
+            _buildSectionHeader(
+              AppLocalizations.of(context)?.personalInformation ?? "Personal Information",
+              Icons.person_outline,
+            ),
+            const SizedBox(height: 16),
+
+            GlassCard(
+              child: Column(
+                children: [
+                  MyCustomTextFieldFullName(customController: customControllerFullName),
+                  const SizedBox(height: 20),
+                  MyCustomTextFieldID(customController: customControllerID),
+                  const SizedBox(height: 20),
+                  MyCustomTextFieldMobile(customController: customControllerMobile),
+                  const SizedBox(height: 20),
+                  MyCustomTextFieldAddress(customController: customControllerAddress),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            /// ---------- SECTION 2 : Additional Info ----------
+            _buildSectionHeader(
+              AppLocalizations.of(context)?.additionalInformation ?? "Additional Information",
+              Icons.info_outline,
+            ),
+            const SizedBox(height: 16),
+
+            GlassCard(
+              child: Column(
+                children: [
+                  showGenderLayout(),
+                  const SizedBox(height: 20),
+                  showRelationshipLayout(context),
+                  const SizedBox(height: 20),
+                  showDeaconCheckboxLayout(),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            /// ---------- SECTION 3 : Location Info ----------
+            _buildSectionHeader(
+              AppLocalizations.of(context)?.locationInformation ?? "Location Information",
+              Icons.location_on_outlined,
+            ),
+            const SizedBox(height: 16),
+
+            GlassCard(
+              child: Column(
+                children: [
+                  showGovernoratesLayout(context),
+                  const SizedBox(height: 20),
+                  showChurchOfAttendanceLayout(),
+                  const SizedBox(height: 10),
+                  showChurchOfAttendanceOthers(),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 36),
+
+            /// ---------- REGISTER BUTTON ----------
+            AuthButton(
+              text: AppLocalizations.of(context)?.save ?? "Save",
+              loading: registerState == 1,
+              onPressed: () => _handleRegistration(),
+            ),
+
+            const SizedBox(height: 24),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+/// ---------- Header des sections ----------
+Widget _buildSectionHeader(String title, IconData icon) {
+  return Row(
+    children: [
+      Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: primaryDarkColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: primaryDarkColor, size: 20),
+      ),
+      const SizedBox(width: 12),
+      Text(
+        title,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+              color: Colors.white, // ✅ Couleur blanche
+
+        ),
+      ),
+    ],
+  );
+}
+
   
-  Widget _buildSectionHeader(String title, IconData icon) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: primaryDarkColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: primaryDarkColor,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[800],
-          ),
-        ),
-      ],
-    );
-  }
+
   
   Widget _buildCard(List<Widget> children) {
     return Container(
@@ -331,72 +416,8 @@ class _CompleteRegistrationDataPageActivityState
     );
   }
 
-  /// 🔹 Dropdown Relationship
-  Widget showRelationshipLayout(BuildContext context) {
-    if (!showRelationShipState) return Container();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)?.relationshipWithAstric ?? "Relationship *",
-          style: const TextStyle(
-            fontSize: 16.0, 
-            color: Colors.black87,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.grey[50],
-          ),
-          child: DropdownButton<String>(
-            value: relationshipID,
-            isExpanded: true,
-            underline: Container(),
-            icon: Icon(Icons.keyboard_arrow_down, color: primaryDarkColor),
-            items: listDropRelationship.map((map) {
-              return DropdownMenuItem<String>(
-                value: map["id"].toString(),
-                child: Text(
-                  myLanguage == "ar" ? map["nameAr"] : map["nameEn"],
-                  style: TextStyle(
-                    color: primaryDarkColor,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              );
-            }).toList(),
-            onChanged: (String? value) {
-              setState(() {
-                relationshipID = value ?? "0";
-                final selectedItem = listDropRelationship.firstWhere(
-                  (item) => item["id"].toString() == relationshipID,
-                  orElse: () => {},
-                );
-                showDeaconRadioButtonState = (selectedItem["genderTypeID"] == 1);
-              });
-            },
-          ),
-        ),
-        if (!relationshipState)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              AppLocalizations.of(context)?.pleaseChooseRelationship ??
-                  "Please choose a relationship",
-              style: TextStyle(fontSize: 12.0, color: red700),
-            ),
-          ),
-      ],
-    );
-  }
-
+  /// 🔹 Dropdown Relationship1
+ 
   /// 🔹 Deacon Radio Buttons
   Widget showDeaconCheckboxLayout() {
     if (!showDeaconRadioButtonState) return Container();
@@ -513,171 +534,216 @@ class _CompleteRegistrationDataPageActivityState
 
   /// 🔹 Handle Registration Process
   Future<void> _handleRegistration() async {
-    // Reset error message
-    setState(() {
-      errorMessage = "";
-    });
+  setState(() {
+    errorMessage = "";
+  });
 
-    // Validate form fields
-    if (!_validateForm()) {
-      return;
-    }
-
-    // Set loading state
-    setState(() {
-      registerState = 1;
-    });
-
-    try {
-      // Prepare registration data
-      final registrationData = _prepareRegistrationData();
-      
-      // Call registration API
-      await _submitRegistration(registrationData);
-      
-    } catch (e) {
-      setState(() {
-        errorMessage = "Registration failed: ${e.toString()}";
-        registerState = 0;
-      });
-      
-      // Show error to user
-      _showErrorDialog(errorMessage);
-    }
+  // 🔹 Validate form fields
+  if (!_validateForm()) {
+    return; // ⛔ Stop si le formulaire est invalide
   }
 
-  /// 🔹 Validate all form fields
-  bool _validateForm() {
-    bool isValid = true;
-    
-    // Validate form using GlobalKey
-    if (!_formKey.currentState!.validate()) {
-      isValid = false;
-    }
-
-    // Validate gender selection
-    if (selectedGenderRadioTile == 0) {
-      setState(() {
-        // Add gender validation error handling if needed
-      });
-      isValid = false;
-    }
-
-    // Validate relationship for family accounts
-    if (isFamilyAccount && relationshipID == "0") {
-      setState(() {
-        relationshipState = false;
-      });
-      isValid = false;
-    } else {
-      setState(() {
-        relationshipState = true;
-      });
-    }
-
-    // Validate deacon selection if required
-    if (showDeaconRadioButtonState && selectedDeaconRadioTile == 0) {
-      setState(() {
-        deaconState = false;
-      });
-      isValid = false;
-    } else {
-      setState(() {
-        deaconState = true;
-      });
-    }
-
-    // Validate governorate selection
-    if (governorateID == "0") {
-      setState(() {
-        governorateState = false;
-      });
-      isValid = false;
-    } else {
-      setState(() {
-        governorateState = true;
-      });
-    }
-
-    // Validate church selection
-    if (churchOfAttendanceID == "0") {
-      setState(() {
-        churchState = false;
-      });
-      isValid = false;
-    } else {
-      setState(() {
-        churchState = true;
-      });
-    }
-
-    // If "Others" is selected for church, validate the text field
-    if (churchOfAttendanceID == "-1" && 
-        customControllerChurchOfAttendance.churchOfAttendanceController.text.isEmpty) {
-      setState(() {
-        churchState = false;
-      });
-      isValid = false;
-    }
-
-    return isValid;
+  // 🔹 Préparer les données
+  final registrationData = _prepareRegistrationData();
+  if (registrationData == null) {
+    // ⛔ Stop si le NationalID est invalide
+    return;
   }
+
+  setState(() {
+    registerState = 1; // Loading
+  });
+
+  try {
+    await _submitRegistration(registrationData);
+  } catch (e) {
+    setState(() {
+      errorMessage = "Registration failed: ${e.toString()}";
+      registerState = 0;
+    });
+    _showErrorDialog(errorMessage);
+  }
+}
+/// 🔹 Validate all form fields
+bool _validateForm() {
+  bool isValid = true;
+
+  // Validate Name
+  if (customControllerFullName.fullNameController.text.trim().isEmpty) {
+    Fluttertoast.showToast(
+      msg: myLanguage == "ar"
+          ? "الرجاء إدخال الاسم بالكامل"
+          : "Please enter your full name",
+    );
+    isValid = false;
+  }
+// Validation robuste pour National ID : exactement 14 chiffres
+
+  final nationalID = customControllerID.iDController.text.trim();
+if (!isNationalIDValid(nationalID)) {
+  Fluttertoast.showToast(
+    msg: myLanguage == "ar"
+        ? "الرجاء إدخال رقم قومي صحيح"
+        : "Please enter a valid National ID",
+  );
+  isValid = false;
+}
+
+
+
+  // Validate Mobile
+  if (customControllerMobile.mobileController.text.trim().isEmpty) {
+    Fluttertoast.showToast(
+      msg: myLanguage == "ar"
+          ? "الرجاء إدخال رقم الهاتف"
+          : "Please enter your mobile number",
+    );
+    isValid = false;
+  }
+
+  // Validate Gender
+  if (selectedGenderRadioTile == 0) {
+    Fluttertoast.showToast(
+      msg: myLanguage == "ar"
+          ? "الرجاء اختيار النوع"
+          : "Please select gender",
+    );
+    isValid = false;
+  }
+
+  // Validate Governorate
+  if (governorateID == "0") {
+    Fluttertoast.showToast(
+      msg: myLanguage == "ar"
+          ? "الرجاء اختيار المحافظة"
+          : "Please select a governorate",
+    );
+    isValid = false;
+  }
+
+  // Validate Church
+  if (churchOfAttendanceID == "0") {
+    Fluttertoast.showToast(
+      msg: myLanguage == "ar"
+          ? "الرجاء اختيار الكنيسة"
+          : "Please select a church",
+    );
+    isValid = false;
+  }
+
+  // Validate Address
+  if (customControllerAddress.addressController.text.trim().isEmpty) {
+    Fluttertoast.showToast(
+      msg: myLanguage == "ar"
+          ? "الرجاء إدخال العنوان"
+          : "Please enter your address",
+    );
+    isValid = false;
+  }
+
+  return isValid;
+}
+
 
   /// 🔹 Prepare registration data for API call
-  Map<String, dynamic> _prepareRegistrationData() {
-    return {
-      "fullName": customControllerFullName.fullNameController.text.trim(),
-      "nationalId": customControllerID.iDController.text.trim(),
-      "mobile": customControllerMobile.mobileController.text.trim(),
-      "address": customControllerAddress.addressController.text.trim(),
-      "genderTypeId": selectedGenderRadioTile,
-      "relationshipId": isFamilyAccount ? relationshipID : "0",
-      "isDeacon": showDeaconRadioButtonState ? (selectedDeaconRadioTile == 1) : false,
-      "governorateId": governorateID,
-      "churchId": churchOfAttendanceID == "-1" ? "0" : churchOfAttendanceID,
-      "customChurch": churchOfAttendanceID == "-1" 
-          ? customControllerChurchOfAttendance.churchOfAttendanceController.text.trim() 
-          : "",
-      "mobileToken": mobileToken,
-      "language": myLanguage,
-    };
-  }
+  Map<String, dynamic>? _prepareRegistrationData() {
+  final nationalID = customControllerID.iDController.text.trim();
+
+if (!isNationalIDValid(nationalID)) {
+  Fluttertoast.showToast(
+    msg: myLanguage == "ar"
+        ? "الرجاء إدخال رقم قومي صحيح"
+        : "Please enter a valid National ID",
+  );
+  return null;
+}
+
+
+  return {
+    "Name": customControllerFullName.fullNameController.text.trim(),
+    "relationID": isFamilyAccount ? relationshipID : "0",
+    "Deacon": showDeaconRadioButtonState && selectedDeaconRadioTile == 1,
+    "NationalID": nationalID,
+    "Mobile": customControllerMobile.mobileController.text.trim(),
+    "UserAccountID": widget.userID,  
+    "GenderID": selectedGenderRadioTile.toString(),
+    "Ismain": isFamilyAccount ? "1" : "0",
+    "churchOfAttendance":
+        churchOfAttendanceID == "-1" ? "" : churchOfAttendanceID,
+    "Address": customControllerAddress.addressController.text.trim(),
+    "BranchID": branchID,
+    "GovernerateID": governorateID,
+    "flag": isEditMode ? "2" : "1",
+    "AccountMemberID": isEditMode ? existingAccountMemberID : "",
+    "Token": mobileToken,
+  };
+}
+
+
+
+
 
   /// 🔹 Submit registration to API
-  Future<void> _submitRegistration(Map<String, dynamic> data) async {
-    try {
-      final uri = Uri.parse('$baseUrl/User/CompleteRegistration');
-      print('Submitting registration to: $uri');
-      print('Registration data: $data');
+  /// 🔹 Envoie des données d’enregistrement à l’API
+Future<void> _submitRegistration(Map<String, dynamic> data) async {
+  try {
+    // 🔹 Flag : 1 = Add, 2 = Edit
+    data["flag"] = isEditMode ? "2" : "1";
+    data["AccountMemberID"] = isEditMode ? existingAccountMemberID : "";
 
-      final response = await http.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(data),
+    // Créer l'URI avec les paramètres GET (query)
+    final uri = Uri.parse('$baseUrl/Family/AddEditFamilyMember')
+        .replace(queryParameters: data.map((k, v) => MapEntry(k, v.toString())));
+
+    debugPrint('📤 Submitting registration to: $uri');
+
+    final response = await http.post(uri);
+
+    debugPrint('Status: ${response.statusCode}');
+    debugPrint('Body: ${response.body}');
+
+    setState(() => registerState = 0);
+
+    if (response.statusCode == 200) {
+      // ✅ 1️⃣ Rafraîchir les champs après un ajout réussi
+      debugPrint("✅ Ajout réussi, rafraîchissement des champs...");
+      _refreshFields();
+
+      // ✅ 2️⃣ Afficher un toast de succès
+      Fluttertoast.showToast(
+        msg: "Registration completed successfully!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.white,
+        textColor: Colors.green,
+        fontSize: 16.0,
       );
 
-      print('Registration response status: ${response.statusCode}');
-      print('Registration response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        // Registration successful
-        setState(() {
-          registerState = 0;
-        });
-        
-        _showSuccessDialog();
-      } else {
-        throw Exception('Server returned status ${response.statusCode}');
-      }
-    } catch (e) {
-      setState(() {
-        registerState = 0;
-      });
-      throw e;
+      // ✅ 3️⃣ Naviguer vers la HomePage et vider la pile
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => HomeActivity(false)),
+        ModalRoute.withName('/Home'),
+      );
+    } else {
+      throw Exception('Server returned status ${response.statusCode}');
     }
+  } catch (e) {
+    setState(() => registerState = 0);
+    debugPrint('❌ Error in _submitRegistration: $e');
+
+    Fluttertoast.showToast(
+      msg: "Error submitting registration. Please try again.",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.white,
+      textColor: Colors.red,
+      fontSize: 16.0,
+    );
   }
+}
+
 
   /// 🔹 Show success dialog
   void _showSuccessDialog() {
@@ -1190,45 +1256,64 @@ class MyCustomTextFieldLastName extends StatelessWidget {
 
 
 
-
 class MyCustomTextFieldFullName extends StatelessWidget {
   final MyCustomControllerFullName customController;
 
-  const MyCustomTextFieldFullName({
-    Key? key,
-    required this.customController,
-  }) : super(key: key);
+  const MyCustomTextFieldFullName({Key? key, required this.customController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: customController.fullNameController,
       enabled: customController.enable,
-      textCapitalization: TextCapitalization.sentences,
-      decoration: InputDecoration(
-        labelText: AppLocalizations.of(context)?.fullNameWithAstric ?? "Full Name *",
-        labelStyle: const TextStyle(color: Colors.black),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: accentColor),
-        ),
+      style: const TextStyle(
+        color: Colors.white, // ✅ Texte blanc
+        fontSize: 18.0,
+        fontWeight: FontWeight.w500,
       ),
-      validator: (String? valueFullName) {
-        if (valueFullName == null || valueFullName.isEmpty) {
-          return AppLocalizations.of(context)?.pleaseEnterYourFullName ??
-              "Please enter your full name";
+      cursorColor: Colors.blueAccent,
+      decoration: glassFieldDecoration(
+        context,
+        AppLocalizations.of(context)?.fullNameWithAstric ?? "Full Name *",
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return AppLocalizations.of(context)?.pleaseEnterYourFullName ?? "Please enter your full name";
         }
         return null;
       },
-      cursorColor: accentColor,
-      keyboardType: TextInputType.text,
-      style: TextStyle(
-        color: primaryDarkColor,
-        fontSize: 20.0,
-        fontFamily: 'cocon-next-arabic-regular',
-      ),
     );
   }
 }
+
+InputDecoration glassFieldDecoration(BuildContext context, String label) {
+  return InputDecoration(
+    labelText: label,
+    labelStyle: const TextStyle(
+      color: Colors.white, // ✅ Blanc pour la visibilité
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+    ),
+    filled: true,
+    fillColor: Colors.white.withOpacity(0.15), // ✅ Fond blanc translucide
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: BorderSide(color: Colors.white.withOpacity(0.6)),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(color: Colors.red, width: 1.5),
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+  );
+}
+
+
+
 
 class MyCustomControllerFullName {
   final TextEditingController fullNameController;
@@ -1241,45 +1326,66 @@ class MyCustomControllerFullName {
 class MyCustomTextFieldID extends StatelessWidget {
   final MyCustomControllerID customController;
 
-  const MyCustomTextFieldID({
-    Key? key, // ✅ Clé optionnelle
-    required this.customController,
-  }) : super(key: key);
+  const MyCustomTextFieldID({Key? key, required this.customController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: customController.iDController,
       enabled: customController.enable,
-      textCapitalization: TextCapitalization.sentences,
-      decoration: InputDecoration(
-        labelText:
-            AppLocalizations.of(context)?.nationalIdWithAstric ?? "National ID *",
-        labelStyle: const TextStyle(color: Colors.black),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: accentColor),
-        ),
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(14),
+      ],
+      style: const TextStyle(color: Colors.white, fontSize: 18),
+      decoration: buildGlassInputDecoration(
+        context,
+        AppLocalizations.of(context)?.nationalIdWithAstric ?? "National ID *",
       ),
       validator: (String? valueID) {
         if (valueID == null || valueID.isEmpty) {
           return AppLocalizations.of(context)?.pleaseEnterYourNationalId ??
               "Please enter your National ID";
-        } else if (valueID.length != 14) {
+        } else if (!isNationalIDValid(valueID)) {
           return AppLocalizations.of(context)?.pleaseEnterCorrectNationalId ??
               "Please enter a correct National ID";
         }
         return null;
       },
-      cursorColor: accentColor,
-      keyboardType: TextInputType.number,
-      style: TextStyle(
-        color: primaryDarkColor,
-        fontSize: 20.0,
-        fontFamily: 'cocon-next-arabic-regular',
-      ),
     );
   }
 }
+
+bool isNationalIDValid(String value) {
+  return RegExp(r'^\d{14}$').hasMatch(value);
+}
+  @override
+Widget build(BuildContext context) {
+  return TextFormField(
+    controller: customControllerID.iDController, // ✅ Corrigé
+    enabled: customControllerID.enable,
+    textCapitalization: TextCapitalization.none,
+    style: const TextStyle(color: Colors.white, fontSize: 18),
+    cursorColor: Colors.blueAccent,
+    decoration: buildGlassInputDecoration(
+      context,
+      AppLocalizations.of(context)?.nationalIdWithAstric ?? "National ID *",
+    ),
+    validator: (String? valueID) {
+      if (valueID == null || valueID.isEmpty) {
+        return AppLocalizations.of(context)?.pleaseEnterYourNationalId ??
+            "Please enter your National ID";
+      } else if (valueID.length != 14) {
+        return AppLocalizations.of(context)?.pleaseEnterCorrectNationalId ??
+            "Please enter a correct National ID";
+      }
+      return null;
+    },
+    keyboardType: TextInputType.number,
+  );
+}
+
 
 class MyCustomControllerID {
   final TextEditingController iDController;
@@ -1287,12 +1393,14 @@ class MyCustomControllerID {
 
   MyCustomControllerID({required this.iDController, this.enable = true});
 }
+MyCustomControllerID customControllerID =
+    MyCustomControllerID(iDController: TextEditingController());
 
 class MyCustomTextFieldMobile extends StatelessWidget {
   final MyCustomControllerMobile customController;
 
   const MyCustomTextFieldMobile({
-    Key? key, // ✅ Clé optionnelle maintenant
+    Key? key,
     required this.customController,
   }) : super(key: key);
 
@@ -1301,17 +1409,18 @@ class MyCustomTextFieldMobile extends StatelessWidget {
     return TextFormField(
       controller: customController.mobileController,
       enabled: customController.enable,
-      textCapitalization: TextCapitalization.sentences,
-      decoration: InputDecoration(
-        labelText:
-            AppLocalizations.of(context)?.mobileWithAstric ?? "Mobile *",
-        labelStyle: const TextStyle(color: Colors.black),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: accentColor),
-        ),
-      ),
-      cursorColor: accentColor,
       keyboardType: TextInputType.phone,
+      textCapitalization: TextCapitalization.none,
+      style: const TextStyle(
+        color: Colors.white,          // ✅ Texte blanc
+        fontSize: 18.0,
+        fontFamily: 'cocon-next-arabic-regular',
+      ),
+      cursorColor: Colors.blueAccent, // ✅ Curseur bleu
+      decoration: buildGlassInputDecoration(
+        context,
+        AppLocalizations.of(context)?.mobileWithAstric ?? "Mobile *",
+      ),
       validator: (String? valueMobileNumber) {
         if (valueMobileNumber == null || valueMobileNumber.isEmpty) {
           return AppLocalizations.of(context)?.pleaseEnterYourMobile ??
@@ -1322,11 +1431,6 @@ class MyCustomTextFieldMobile extends StatelessWidget {
         }
         return null;
       },
-      style: TextStyle(
-        color: primaryDarkColor,
-        fontSize: 20.0,
-        fontFamily: 'cocon-next-arabic-regular',
-      ),
     );
   }
 }
@@ -1343,7 +1447,7 @@ class MyCustomTextFieldAddress extends StatelessWidget {
   final MyCustomControllerAddress customController;
 
   const MyCustomTextFieldAddress({
-    Key? key, // ✅ Clé optionnelle
+    Key? key,
     required this.customController,
   }) : super(key: key);
 
@@ -1353,32 +1457,22 @@ class MyCustomTextFieldAddress extends StatelessWidget {
       controller: customController.addressController,
       enabled: customController.enable,
       textCapitalization: TextCapitalization.sentences,
-      decoration: InputDecoration(
-        labelText:
-            AppLocalizations.of(context)?.addressWithAstric ?? "Address *",
-        labelStyle: const TextStyle(color: Colors.black),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: accentColor),
-        ),
+      style: const TextStyle(color: Colors.white, fontSize: 18),
+      cursorColor: Colors.blueAccent,
+      decoration: buildGlassInputDecoration(
+        context,
+        AppLocalizations.of(context)?.addressWithAstric ?? "Address *",
       ),
-      validator: (String? valueAddress) {
-        if (valueAddress == null || valueAddress.isEmpty) {
+      validator: (value) {
+        if (value == null || value.isEmpty) {
           return AppLocalizations.of(context)?.pleaseEnterYourAddress ??
               "Please enter your address";
         }
         return null;
       },
-      cursorColor: accentColor,
-      keyboardType: TextInputType.text,
-      style: TextStyle(
-        color: primaryDarkColor,
-        fontSize: 20.0,
-        fontFamily: 'cocon-next-arabic-regular',
-      ),
     );
   }
 }
-
 
 class MyCustomControllerAddress {
   final TextEditingController addressController;
@@ -1393,7 +1487,7 @@ class MyCustomTextFieldChurchOfAttendance extends StatelessWidget {
   final String? churchOfAttendanceID;
 
   const MyCustomTextFieldChurchOfAttendance({
-    Key? key, // ✅ Optionnel maintenant
+    Key? key,
     required this.customController,
     this.churchOfAttendanceID,
   }) : super(key: key);
@@ -1404,33 +1498,54 @@ class MyCustomTextFieldChurchOfAttendance extends StatelessWidget {
       controller: customController.churchOfAttendanceController,
       enabled: customController.enable,
       textCapitalization: TextCapitalization.sentences,
-      decoration: InputDecoration(
-        labelText: AppLocalizations.of(context)?.churchOfAttendanceWithAstric ??
+      style: const TextStyle(color: Colors.white, fontSize: 18),
+      cursorColor: Colors.blueAccent,
+      decoration: buildGlassInputDecoration(
+        context,
+        AppLocalizations.of(context)?.churchOfAttendanceWithAstric ??
             "Church of Attendance *",
-        labelStyle: const TextStyle(color: Colors.black),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: accentColor),
-        ),
       ),
-      validator: (String? valueChurchOfAttendance) {
-        if ((valueChurchOfAttendance == null || valueChurchOfAttendance.isEmpty) &&
+      validator: (value) {
+        if ((value == null || value.isEmpty) &&
             churchOfAttendanceID == "-1") {
           return AppLocalizations.of(context)?.pleaseEnterYourChurchOfAttendance ??
               "Please enter your church of attendance";
         }
         return null;
       },
-      cursorColor: accentColor,
-      keyboardType: TextInputType.text,
-      style: TextStyle(
-        color: primaryDarkColor,
-        fontSize: 20.0,
-        fontFamily: 'cocon-next-arabic-regular',
-      ),
     );
   }
 }
 
+/// 🔹 Décoration pour champs style "GlassCard"
+InputDecoration buildGlassInputDecoration(BuildContext context, String label) {
+  return InputDecoration(
+    labelText: label,
+    labelStyle: const TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.w500,
+    ),
+    filled: true,
+    fillColor: Colors.white.withOpacity(0.15), // ✅ Fond semi-transparent
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(color: Colors.white, width: 1.5),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(color: Colors.red, width: 1.2),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+  );
+}
 
 class MyCustomControllerChurchOfAttendance {
   final TextEditingController churchOfAttendanceController;

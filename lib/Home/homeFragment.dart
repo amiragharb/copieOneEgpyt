@@ -9,7 +9,7 @@ import 'package:egpycopsversion4/NewsFeed/NewsFeedDetailsActivity.dart';
 import 'package:egpycopsversion4/NewsFeed/mP4Video.dart';
 import 'package:egpycopsversion4/NewsFeed/newsFeedActivityWithCategoryID.dart';
 import 'package:egpycopsversion4/NewsFeed/youtubeVideo.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart';
+import 'package:egpycopsversion4/l10n/app_localizations.dart'; // <<----- Correction ici
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -178,6 +178,7 @@ class _HomeFragmentState extends State<HomeFragment> with TickerProviderStateMix
   }
 
   Widget buildChild() {
+    final local = AppLocalizations.of(context)!; // Utilisation du l10n officiel
     if (loadingState == 0) {
       // Skeleton
       return ListView.builder(
@@ -304,7 +305,7 @@ class _HomeFragmentState extends State<HomeFragment> with TickerProviderStateMix
                     child: Row(
                       children: [
                         Text(
-                          AppLocalizations.of(context)?.by ?? "By",
+                          local.by,
                           style: TextStyle(
                             fontSize: 14,
                             fontFamily: 'cocon-next-arabic-regular',
@@ -421,7 +422,7 @@ class _HomeFragmentState extends State<HomeFragment> with TickerProviderStateMix
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 30.0),
           child: Text(
-            AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
+            local.errorConnectingWithServer,
             style: TextStyle(
               fontSize: 20.0,
               fontFamily: 'cocon-next-arabic-regular',
@@ -446,7 +447,7 @@ class _HomeFragmentState extends State<HomeFragment> with TickerProviderStateMix
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                AppLocalizations.of(context)?.noNewsFound ?? "No news found",
+                local.noNewsFound,
                 style: TextStyle(
                   fontSize: 20.0,
                   fontFamily: 'cocon-next-arabic-regular',

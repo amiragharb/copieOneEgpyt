@@ -746,7 +746,7 @@ class _MyBookingsFragmentState extends State<MyBookingsFragment> {
                         const SizedBox(height: 16),
 
                         // Attendance Type (if exists)
-                        (booking["attendanceTypeID"] == 0)
+                         (booking["attendanceTypeID"] == 0)
                             ? Container()
                             : Container(
                                 margin: const EdgeInsets.only(bottom: 16),

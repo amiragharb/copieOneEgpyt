@@ -149,37 +149,40 @@ class GlassCard extends StatelessWidget {
       borderRadius: radius,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(28, 32, 28, 26),
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            gradient: const LinearGradient(
-              colors: [AuthColors.cardTop, AuthColors.cardBot],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            border: Border.all(color: AuthColors.cardBorder),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.38),
-                blurRadius: 28,
-                offset: const Offset(0, 12),
+        child: Material( // ✅ Ajout du Material ici
+          color: Colors.transparent, // Transparence pour garder l'effet Glass
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(28, 32, 28, 26),
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              gradient: const LinearGradient(
+                colors: [AuthColors.cardTop, AuthColors.cardBot],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-            ],
-          ),
-          // léger reflet chaud en haut
-          foregroundDecoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: const Alignment(0, -1.15),
-              radius: 1.25,
-              colors: [
-                AuthColors.lampWarm.withOpacity(0.12),
-                Colors.transparent,
+              border: Border.all(color: AuthColors.cardBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.38),
+                  blurRadius: 28,
+                  offset: const Offset(0, 12),
+                ),
               ],
-              stops: const [0.0, 1.0],
             ),
+            // léger reflet chaud en haut
+            foregroundDecoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(0, -1.15),
+                radius: 1.25,
+                colors: [
+                  AuthColors.lampWarm.withOpacity(0.12),
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 1.0],
+              ),
+            ),
+            child: child,
           ),
-          child: child,
         ),
       ),
     );

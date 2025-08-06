@@ -117,25 +117,33 @@ print('LANG = ${locale.languageCode} | login = ${t?.login}');
               final prefs = await SharedPreferences.getInstance();
               final hasMainAccount = prefs.getBool('hasMainAccount') ?? false;
               final accountType = prefs.getString('accountType') ?? '';
+if (hasMainAccount) {
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (_) => HomeActivity(false)),
+    ModalRoute.withName('/Home'),
+  );
+} else {
+  final email = emailController.text.trim();
+  final firstName = (prefs.getString('name') ?? '').split(' ').first;
+  final lastName = (prefs.getString('name') ?? '').split(' ').skip(1).join(' ');
+  final userID = prefs.getString('userID') ?? '';
 
-              if (hasMainAccount) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => HomeActivity(false)),
-                  ModalRoute.withName('/Home'),
-                );
-              } else {
-                Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(
-    builder: (_) => CompleteRegistrationDataPageActivity(title: 'Personal'),
-  ),
-  ModalRoute.withName('/CompleteData'),
-);
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(
+      builder: (_) => CompleteRegistrationDataPageActivity(
+        title: 'Personal',
+        userID: userID,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+      ),
+    ),
+    ModalRoute.withName('/CompleteData'),
+  );
+}
 
-
-
-              }
             } else {
               _handleLoginError(context, code ?? 'Error');
               setState(() => loginState = 0);

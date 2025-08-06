@@ -54,35 +54,58 @@ class _MyAppState extends State<MyApp> {
     _decideStart();
   }
 
-  Future<void> _decideStart() async {
-    final prefs = await SharedPreferences.getInstance();
+ Future<void> _decideStart() async {
+  final prefs = await SharedPreferences.getInstance();
 
-    if (!prefs.containsKey('language')) {
-      setState(() => _defaultHome = const LanguageActivity(fromHome: false));
-      return;
-    }
-
-    final loggedIn = (prefs.getString('userID') ?? '').isNotEmpty;
-    if (!loggedIn) {
-      setState(() => _defaultHome = LoginActivity());
-      return;
-    }
-
-    final hasMain = prefs.getBool('hasMainAccount') ?? false;
-    final acctType = prefs.getString('accountType') ?? '';
-    final validated = prefs.getBool('isValidate') ?? false;
-
-    if (validated) {
-     _defaultHome = hasMain
-    ? HomeActivity(false)
-    : CompleteRegistrationDataPageActivity(title: acctType)
-; // ✅
-
-    } else {
-      _defaultHome = const NeedVerificationActivity();
-    }
-    setState(() {});
+  // Si pas de langue → page sélection langue
+  if (!prefs.containsKey('language')) {
+    setState(() => _defaultHome = const LanguageActivity(fromHome: false));
+    return;
   }
+
+  final userID = prefs.getString('userID') ?? '';
+  final email = prefs.getString('email') ?? '';
+  final name = prefs.getString('name') ?? '';
+  final hasMain = prefs.getBool('hasMainAccount') ?? false;
+  final acctType = prefs.getString('accountType') ?? '';
+  final validated = prefs.getBool('isValidate') ?? false;
+
+  // Séparation prénom / nom
+  final parts = name.split(' ');
+  final firstName = parts.isNotEmpty ? parts.first : '';
+  final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+
+  // 1️⃣ Si pas connecté → Login
+  if (userID.isEmpty) {
+    setState(() => _defaultHome = LoginActivity());
+    return;
+  }
+
+  // 2️⃣ Si compte validé
+  if (validated) {
+    if (acctType == "2") {
+      // ✅ Compte Personnel → Home direct
+      _defaultHome = HomeActivity(false);
+    } else {
+      // ✅ Compte Famille
+      _defaultHome = hasMain
+          ? HomeActivity(false)
+          : CompleteRegistrationDataPageActivity(
+              title: acctType.isEmpty ? 'Family' : acctType,
+              userID: userID,
+              email: email,
+              firstName: firstName,
+              lastName: lastName,
+            );
+    }
+  } else {
+    // 3️⃣ Compte non validé → Vérification email
+    _defaultHome = const NeedVerificationActivity();
+  }
+
+  setState(() {});
+}
+
 
   @override
   Widget build(BuildContext context) {

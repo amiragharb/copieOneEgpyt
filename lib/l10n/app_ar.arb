@@ -918,6 +918,117 @@
   "@back": {
     "type": "text"
   }
+  ,
+"personalInformation": "المعلومات الشخصية",
+  "@personalInformation": {
+    "type": "text"
+  },
+"additionalInformation": "معلومات إضافية",
+  "@additionalInformation": {
+    "type": "text"
+  }
+  ,
+"locationInformation": "معلومات الموقع",
+  "@locationInformation": {
+    "type": "text"
+  },
+  "bookingSuccess": "نجح الحجز",
+  "@bookingSuccess": {
+    "type": "text"
+  },
+  "bookingDetails": "تفاصيل الحجز", 
+  "@bookingDetails": {
+    "type": "text"
+  },
+  "remarks": "ملاحظات",
+  "@remarks": {
+    "type": "text"
+  },
+  
+  "live": "مباشر",
+  "@live": {"type": "text"},
+  "watchLiveSubtitle": "شاهد البث المباشر والدورات",
+  "@watchLiveSubtitle": {"type": "text"},
+  "videoLoadFailed": "فشل تحميل الفيديو",
+  "@videoLoadFailed": {"type": "text"},
+  "liveBadge": "مباشر",
+  "@liveBadge": {"type": "text"},
+  "playVideo": "تشغيل الفيديو",
+  "@playVideo": {"type": "text"},
+  "watchLive": "شاهد البث المباشر",
+  "@watchLive": {"type": "text"},
+  "streaming": "بث مباشر",
+  "@streaming": {"type": "text"},
+  "recorded": "مسجل",
+  "@recorded": {"type": "text"},
+  "noDateAvailable": "لا يوجد تاريخ متاح",
+  "@noDateAvailable": {"type": "text"},
+  "connectionErrorTitle": "خطأ في الاتصال",
+  "@connectionErrorTitle": {"type": "text"},
+  "retry": "إعادة المحاولة",
+  "@retry": {"type": "text"},
+  "refresh": "تحديث",
+  "@refresh": {"type": "text"},
+  "noVideosFound": "لا توجد مقاطع فيديو مباشرة أو دورات متاحة حاليًا.\nتحقق مرة أخرى لاحقًا لمحتوى جديد.",
+  "@noVideosFound": {"type": "text"},
+  "noVideosFoundTitle": "لا توجد فيديوهات مباشرة",
+  "@noVideosFoundTitle": {"type": "text"},
+  "errorConnectingWithServer": "تعذر الاتصال بالخادم.\nيرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.",
+  "@errorConnectingWithServer": {"type": "text"},
+ "videoNotAvailable": "الفيديو غير متاح",
+"@videoNotAvailable": {"type": "text"},
+"liveBadge": "مباشر",
+"@liveBadge": { "type": "text" },
+
+"dateTime": "التاريخ والوقت",
+"@dateTime": { "type": "text" },
+
+"liveStreaming": "بث مباشر",
+"@liveStreaming": { "type": "text" },
+
+"recordedVideo": "فيديو مسجل",
+"@recordedVideo": { "type": "text" },
+
+"live": "مباشر",
+"@live": { "type": "text" },
+
+"recorded": "مسجل",
+"@recorded": { "type": "text" },
+
+"addToFavorites": "إضافة إلى المفضلة",
+"@addToFavorites": { "type": "text" },
+
+"download": "تحميل",
+"@download": { "type": "text" },
+
+"connectionError": "خطأ في الاتصال",
+"@connectionError": { "type": "text" },
+
+"tryAgain": "حاول مرة أخرى",
+"@tryAgain": { "type": "text" },
+
+"videoNotFound": "الفيديو غير موجود",
+"@videoNotFound": { "type": "text" },
+
+"goBack": "عودة",
+"@goBack": { "type": "text" },
+
+"videoNotAvailable": "الفيديو غير متاح",
+"@videoNotAvailable": { "type": "text" },
+"status": "الحالة",
+"@status": { "type": "text" },
+
+"loadingCalendar": "جاري تحميل التقويم...",
+"@loadingCalendar": { "type": "text" },
+
+"pleaseTryAgain": "حاول مرة أخرى",
+"@pleaseTryAgain": { "type": "text" }
+
+
+
+
+
+
 }
 
 

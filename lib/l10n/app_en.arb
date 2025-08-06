@@ -934,9 +934,123 @@
 "@required": {
   "type": "text",
   "placeholders": {}
-}, "back": "Back",
+},
+ "back": "Back",
   "@back": {
     "type": "text"
   }
+  ,
+  
+  "personalInformation": "Personal Information",
+  "@personalInformation": {
+    "type": "text"
+  }
+  ,
+  
+  "additionalInformation": "Additional Information",
+  "@additionalInformation": {
+    "type": "text"
+  }
+,
+  
+  "locationInformation": "Location Information",
+  "@locationInformation": {
+    "type": "text"
+  },
+  "bookingSuccess": "Booking Success",
+  "@bookingSuccess": {
+    "type": "text"
+  },
+  "bookingDetails": "Booking Details",
+  "@bookingDetails": {
+    "type": "text"
+  },
+  "remarks": "Remarks", 
+  "@remarks": {
+    "type": "text"
+  },
+  
+  "live": "Live",
+  "@live": {"type": "text"},
+
+  "watchLiveSubtitle": "Watch live streams and courses",
+  "@watchLiveSubtitle": {"type": "text"},
+  "videoLoadFailed": "Video loading failed",
+  "@videoLoadFailed": {"type": "text"},
+  "liveBadge": "LIVE",
+  "@liveBadge": {"type": "text"},
+  "playVideo": "Play Video",
+  "@playVideo": {"type": "text"},
+  "watchLive": "Watch Live",
+  "@watchLive": {"type": "text"},
+  "streaming": "STREAMING",
+  "@streaming": {"type": "text"},
+  "recorded": "RECORDED",
+  "@recorded": {"type": "text"},
+  "noDateAvailable": "No date available",
+  "@noDateAvailable": {"type": "text"},
+  "connectionErrorTitle": "Connection Error",
+  "@connectionErrorTitle": {"type": "text"},
+  "retry": "Retry",
+  "@retry": {"type": "text"},
+  "refresh": "Refresh",
+  "@refresh": {"type": "text"},
+  "noVideosFound": "No live videos or courses are available at the moment.\nCheck back later for new content.",
+  "@noVideosFound": {"type": "text"},
+  "noVideosFoundTitle": "No Live Videos",
+  "@noVideosFoundTitle": {"type": "text"},
+  "errorConnectingWithServer": "Unable to connect with the server.\nPlease check your internet connection and try again.",
+  "@errorConnectingWithServer": {"type": "text"},
+  "videoNotAvailable": "Video not available",
+"@videoNotAvailable": {"type": "text"},
+"liveBadge": "LIVE",
+"@liveBadge": { "type": "text" },
+
+"dateTime": "Date & Time",
+"@dateTime": { "type": "text" },
+
+"liveStreaming": "LIVE STREAMING",
+"@liveStreaming": { "type": "text" },
+
+"recordedVideo": "RECORDED VIDEO",
+"@recordedVideo": { "type": "text" },
+
+"live": "LIVE",
+"@live": { "type": "text" },
+
+"recorded": "RECORDED",
+"@recorded": { "type": "text" },
+
+"addToFavorites": "Add to Favorites",
+"@addToFavorites": { "type": "text" },
+
+"download": "Download",
+"@download": { "type": "text" },
+
+"connectionError": "Connection Error",
+"@connectionError": { "type": "text" },
+
+"tryAgain": "Try Again",
+"@tryAgain": { "type": "text" },
+
+"videoNotFound": "Video Not Found",
+"@videoNotFound": { "type": "text" },
+
+"loadingCalendar": "Loading calendar...",
+"@loadingCalendar": { "type": "text" },
+
+"pleaseTryAgain": "Try Again",
+"@pleaseTryAgain": { "type": "text" },
+
+"goBack": "Go Back",
+"@goBack": { "type": "text" },
+
+"videoNotAvailable": "Video not available",
+"@videoNotAvailable": { "type": "text" },
+"status": "Status",
+"@status": { "type": "text" }
+
+
+
 
 }

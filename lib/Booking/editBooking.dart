@@ -179,7 +179,7 @@ class _EditBookingState extends State<EditBookingActivity> {
           ));
     } else {
       return Text(
-        AppLocalizations.of(context)!.save,
+        AppLocalizations.of(context)?.save ?? "Save",
         style: TextStyle(
           fontSize: 18.0,
           fontFamily: 'cocon-next-arabic-regular',
@@ -189,52 +189,51 @@ class _EditBookingState extends State<EditBookingActivity> {
     }
   }
 
-  Widget bottomBar() {
+ Widget bottomBar() {
     if (familyAccount == "1") {
       return Container(
         width: MediaQuery.of(context).size.width,
         height: 50.0,
-       child: ElevatedButton(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: primaryDarkColor, // équivalent à "color:"
-    foregroundColor: Colors.white,     // équivalent à "textColor:"
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8.0),
-    ),
-    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-  ),
-  onPressed: () async {
-    EditBooking();
-  },
-  child: buildSaveButton(),
-),
-
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryDarkColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          ),
+          onPressed: () async {
+            EditBooking();
+          },
+          child: buildSaveButton(),
+        ),
       );
     } else {
-  return ElevatedButton(
-    onPressed: null, // désactive le bouton
-    child: Text('Action désactivée'),
-  );
-}
-
+      return ElevatedButton(
+        onPressed: null,
+        child: Text('Action désactivée'),
+      );
+    }
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     mContext = context;
     return Scaffold(
       bottomNavigationBar: bottomBar(),
       appBar: AppBar(
-        iconTheme: new IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Colors.white),
         title: Padding(
           padding: const EdgeInsets.all(2.0),
-          child: new Text(
-            AppLocalizations.of(context)!.editBooking,
-            style:
-                TextStyle(color: Colors.white, fontWeight: FontWeight.normal),
+          child: Text(
+            AppLocalizations.of(context)?.editBooking ?? "Edit Booking",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal),
           ),
         ),
-        backgroundColor: primaryDarkColor, systemOverlayStyle: SystemUiOverlayStyle.light,
+        backgroundColor: primaryDarkColor,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: buildChild(),
     );
@@ -345,7 +344,7 @@ class _EditBookingState extends State<EditBookingActivity> {
     });
   }
 
-  EditBooking() async {
+ EditBooking() async {
     String chosenMembers = "";
     for (int i = 0; i < listViewMyFamily.length; i++) {
       if (listViewMyFamily[i]["isChecked"]) {
@@ -357,7 +356,7 @@ class _EditBookingState extends State<EditBookingActivity> {
 
     if (chosenMembers.isEmpty) {
       Fluttertoast.showToast(
-          msg: AppLocalizations.of(context)!.pleaseChooseAtLeastFamilyMember,
+          msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember ?? "Please choose at least one family member",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
@@ -377,7 +376,7 @@ class _EditBookingState extends State<EditBookingActivity> {
         });
         Navigator.of(context).pop();
         Fluttertoast.showToast(
-            msg: AppLocalizations.of(context)!.savedSuccessfully,
+            msg: AppLocalizations.of(context)?.savedSuccessfully ?? "Saved successfully",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -389,7 +388,7 @@ class _EditBookingState extends State<EditBookingActivity> {
           EditBookingState = 2;
         });
         Fluttertoast.showToast(
-            msg: AppLocalizations.of(context)!.sorryYouCannotBookBefore +
+            msg: (AppLocalizations.of(context)?.sorryYouCannotBookBefore ?? "Sorry you cannot book before") +
                 " " +
                 firstAttendDate,
             toastLength: Toast.LENGTH_LONG,
@@ -405,8 +404,7 @@ class _EditBookingState extends State<EditBookingActivity> {
         });
 
         Fluttertoast.showToast(
-            msg: AppLocalizations.of(context)!
-                .youAreNotRegisteredInThisChurchMembership,
+            msg: AppLocalizations.of(context)?.youAreNotRegisteredInThisChurchMembership ?? "You are not registered in this church membership",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -420,15 +418,14 @@ class _EditBookingState extends State<EditBookingActivity> {
         });
 
         Fluttertoast.showToast(
-            msg: AppLocalizations.of(context)!
-                .chosenPersonIsNotaDeacon,
+            msg: AppLocalizations.of(context)?.chosenPersonIsNotaDeacon ?? "The chosen person is not a deacon",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.white,
             textColor: Colors.red,
             fontSize: 16.0);
-      }else if (editBookingResponse == "7") {
+      } else if (editBookingResponse == "7") {
         setState(() {
           EditBookingState = 2;
         });
@@ -447,11 +444,11 @@ class _EditBookingState extends State<EditBookingActivity> {
         });
         if (int.parse(remainingCountFailure) > 10) {
           Fluttertoast.showToast(
-              msg: AppLocalizations.of(context)!.thereAre +
+              msg: (AppLocalizations.of(context)?.thereAre ?? "There are") +
                   " " +
                   remainingCountFailure +
                   " " +
-                  AppLocalizations.of(context)!.availableSeat,
+                  (AppLocalizations.of(context)?.availableSeat ?? "available seat"),
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
@@ -461,11 +458,11 @@ class _EditBookingState extends State<EditBookingActivity> {
         } else {
           if (int.parse(remainingCountFailure) > 1) {
             Fluttertoast.showToast(
-                msg: AppLocalizations.of(context)!.thereAre +
+                msg: (AppLocalizations.of(context)?.thereAre ?? "There are") +
                     " " +
                     remainingCountFailure +
                     " " +
-                    AppLocalizations.of(context)!.availableSeats,
+                    (AppLocalizations.of(context)?.availableSeats ?? "available seats"),
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIosWeb: 1,
@@ -474,11 +471,11 @@ class _EditBookingState extends State<EditBookingActivity> {
                 fontSize: 16.0);
           } else {
             Fluttertoast.showToast(
-                msg: AppLocalizations.of(context)!.thereIs +
+                msg: (AppLocalizations.of(context)?.thereIs ?? "There is") +
                     " " +
                     remainingCountFailure +
                     " " +
-                    AppLocalizations.of(context)!.availableSeatSingular,
+                    (AppLocalizations.of(context)?.availableSeatSingular ?? "available seat"),
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIosWeb: 1,
@@ -492,7 +489,7 @@ class _EditBookingState extends State<EditBookingActivity> {
           EditBookingState = 2;
         });
         Fluttertoast.showToast(
-            msg: AppLocalizations.of(context)!.errorConnectingWithServer,
+            msg: AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -537,7 +534,7 @@ class _EditBookingState extends State<EditBookingActivity> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              AppLocalizations.of(context)!.bookingType,
+              AppLocalizations.of(context)?.bookingType ?? "Booking Type",
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.black,
@@ -559,9 +556,8 @@ class _EditBookingState extends State<EditBookingActivity> {
       ),
     );
   }
-
   Widget attendanceTypeWidget() {
-    return attendanceTypeID == 0 ? Container() :Padding(
+    return attendanceTypeID == 0 ? Container() : Padding(
       padding: const EdgeInsets.only(top: 5.0, left: 20.0, right: 20.0),
       child: Container(
         width: double.infinity,
@@ -569,7 +565,7 @@ class _EditBookingState extends State<EditBookingActivity> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              AppLocalizations.of(context)!.attendanceType,
+              AppLocalizations.of(context)?.attendanceType ?? "Attendance Type",
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.black,
@@ -597,6 +593,7 @@ class _EditBookingState extends State<EditBookingActivity> {
     );
   }
 
+
   Widget holyLiturgyDate() {
     return Padding(
       padding: const EdgeInsets.only(top: 5.0, left: 20.0, right: 20.0),
@@ -606,7 +603,7 @@ class _EditBookingState extends State<EditBookingActivity> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              AppLocalizations.of(context)!.holyLiturgyDate,
+              AppLocalizations.of(context)?.holyLiturgyDate ?? "Holy Liturgy Date",
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.black,
@@ -637,7 +634,6 @@ class _EditBookingState extends State<EditBookingActivity> {
       ),
     );
   }
-
   Widget liturgyTime() {
     return Padding(
       padding: const EdgeInsets.only(top: 5.0, left: 20.0, right: 20.0),
@@ -647,7 +643,7 @@ class _EditBookingState extends State<EditBookingActivity> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              AppLocalizations.of(context)!.time,
+              AppLocalizations.of(context)?.time ?? "Time",
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.black,
@@ -676,7 +672,6 @@ class _EditBookingState extends State<EditBookingActivity> {
       ),
     );
   }
-
   Widget church() {
       return Padding(
         padding: const EdgeInsets.only(top: 5.0, left: 20.0, right: 20.0),
@@ -686,7 +681,7 @@ class _EditBookingState extends State<EditBookingActivity> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                AppLocalizations.of(context)!.church,
+                AppLocalizations.of(context)?.church ?? "Church",
                 style: TextStyle(
                   fontSize: 18.0,
                   color: Colors.black,
@@ -714,7 +709,8 @@ class _EditBookingState extends State<EditBookingActivity> {
       );
   }
 
-  Widget availableSeats() {
+
+   Widget availableSeats() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: 5.0, right: 15.0, left: 15.0),
@@ -728,7 +724,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          AppLocalizations.of(context)!.thereAre,
+                          AppLocalizations.of(context)?.thereAre ?? "There are",
                           style: TextStyle(
                             fontSize: 18.0,
                             fontFamily: 'cocon-next-arabic-regular',
@@ -749,7 +745,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                           ),
                         ),
                         Text(
-                          AppLocalizations.of(context)!.availableSeat,
+                          AppLocalizations.of(context)?.availableSeat ?? "available seat",
                           style: TextStyle(
                             fontSize: 18.0,
                             fontFamily: 'cocon-next-arabic-regular',
@@ -767,7 +763,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              AppLocalizations.of(context)!.thereAre,
+                              AppLocalizations.of(context)?.thereAre ?? "There are",
                               style: TextStyle(
                                 fontSize: 18.0,
                                 fontFamily: 'cocon-next-arabic-regular',
@@ -789,7 +785,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                               ),
                             ),
                             Text(
-                              AppLocalizations.of(context)!.availableSeats,
+                              AppLocalizations.of(context)?.availableSeats ?? "available seats",
                               style: TextStyle(
                                 fontSize: 18.0,
                                 fontFamily: 'cocon-next-arabic-regular',
@@ -806,7 +802,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              AppLocalizations.of(context)!.thereIs,
+                              AppLocalizations.of(context)?.thereIs ?? "There is",
                               style: TextStyle(
                                 fontSize: 18.0,
                                 fontFamily: 'cocon-next-arabic-regular',
@@ -828,8 +824,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                               ),
                             ),
                             Text(
-                              AppLocalizations.of(context)!
-                                  .availableSeatSingular,
+                              AppLocalizations.of(context)?.availableSeatSingular ?? "available seat",
                               style: TextStyle(
                                 fontSize: 18.0,
                                 fontFamily: 'cocon-next-arabic-regular',
@@ -853,7 +848,7 @@ class _EditBookingState extends State<EditBookingActivity> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            AppLocalizations.of(context)!.bookingNumber,
+            AppLocalizations.of(context)?.bookingNumber ?? "Booking Number",
             style: TextStyle(
               fontSize: 18.0,
               color: Colors.black,
@@ -929,7 +924,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                     context: context,
                     builder: (context) => AlertDialog(
                       content: Text(
-                        AppLocalizations.of(context)!.doYouWantToCancelThisBooking,
+                        AppLocalizations.of(context)?.doYouWantToCancelThisBooking ?? "Do you want to cancel this booking?",
                         style: const TextStyle(
                           fontWeight: FontWeight.normal,
                           fontFamily: 'cocon-next-arabic-regular',
@@ -939,7 +934,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(true),
                           child: Text(
-                            AppLocalizations.of(context)!.yes,
+                            AppLocalizations.of(context)?.yes ?? "Yes",
                             style: const TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.normal,
@@ -950,7 +945,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
                           child: Text(
-                            AppLocalizations.of(context)!.no,
+                            AppLocalizations.of(context)?.no ?? "No",
                             style: const TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.normal,
@@ -969,14 +964,14 @@ class _EditBookingState extends State<EditBookingActivity> {
                       final responseDeleteBooking = await deleteBooking();
                       if (responseDeleteBooking == '1') {
                         Fluttertoast.showToast(
-                          msg: AppLocalizations.of(context)!.cancelledSuccessfully,
+                          msg: AppLocalizations.of(context)?.cancelledSuccessfully ?? "Cancelled successfully",
                           backgroundColor: Colors.white,
                           textColor: Colors.green,
                         );
                         Navigator.pop(context);
                       } else {
                         Fluttertoast.showToast(
-                          msg: AppLocalizations.of(context)!.errorConnectingWithServer,
+                          msg: AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
                           backgroundColor: Colors.white,
                           textColor: Colors.red,
                         );
@@ -985,7 +980,7 @@ class _EditBookingState extends State<EditBookingActivity> {
                   }
                 },
                 child: Text(
-                  AppLocalizations.of(context)!.cancelBooking,
+                  AppLocalizations.of(context)?.cancelBooking ?? "Cancel Booking",
                   style: const TextStyle(
                     fontSize: 18.0,
                     fontFamily: 'cocon-next-arabic-regular',
@@ -1072,7 +1067,7 @@ class _EditBookingState extends State<EditBookingActivity> {
   } else if (loadingState == 2) {
     return Center(
       child: Text(
-        AppLocalizations.of(context)!.errorConnectingWithServer,
+        AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error connecting with server",
         style: const TextStyle(
           fontSize: 20.0,
           fontFamily: 'cocon-next-arabic-regular',
@@ -1083,7 +1078,7 @@ class _EditBookingState extends State<EditBookingActivity> {
   } else if (loadingState == 3) {
     return Center(
       child: Text(
-        AppLocalizations.of(context)!.noMembersFound,
+        AppLocalizations.of(context)?.noMembersFound ?? "No members found",
         style: const TextStyle(
           fontSize: 20.0,
           fontFamily: 'cocon-next-arabic-regular',

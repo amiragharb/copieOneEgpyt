@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 class YoutubeLiveVideo extends StatefulWidget {
   final String url;
@@ -59,6 +60,7 @@ class _YoutubeLiveVideoState extends State<YoutubeLiveVideo> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     if (_youtubePlayerController == null || _videoId == null || _videoId!.isEmpty) {
       return Container(
         height: 200,
@@ -72,7 +74,10 @@ class _YoutubeLiveVideoState extends State<YoutubeLiveVideo> {
           children: [
             Icon(Icons.error_outline, color: Colors.grey[600], size: 48),
             const SizedBox(height: 8),
-            Text('Video not available', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+            Text(
+              localizations?.videoNotAvailable ?? "Video not available",
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            ),
           ],
         ),
       );

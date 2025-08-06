@@ -23,7 +23,8 @@ import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity
 import 'package:egpycopsversion4/Settings/settingsActivity.dart';
 import 'package:egpycopsversion4/Settings/changePasswordActivity.dart';
 import 'package:egpycopsversion4/Translation/LocaleHelper.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart' hide SpecificLocalizationDelegate;
+import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations; // <-- plus de hide
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 import '../main.dart' show languageHome;
 
@@ -63,7 +64,6 @@ class HomeActivity extends StatefulWidget {
 }
 
 class HomeActivityState extends State<HomeActivity> {
-  late SpecificLocalizationDelegate _specificLocalizationDelegate;
   late GlobalKey<ScaffoldState> _scaffoldKey;
   int selectedBottomItem = 0;
 
@@ -80,10 +80,8 @@ class HomeActivityState extends State<HomeActivity> {
     super.initState();
     _scaffoldKey = GlobalKey();
     helper.onLocaleChanged = onLocaleChange;
-    _specificLocalizationDelegate =
-        SpecificLocalizationDelegate(Locale(languageHome ?? 'en'));
 
-    fragment = "MyBookings"; // Valeur par défaut
+    fragment = "MyBookings";
     initApp();
   }
 
@@ -112,9 +110,15 @@ class HomeActivityState extends State<HomeActivity> {
 
   void onLocaleChange(Locale locale) {
     setState(() {
-      _specificLocalizationDelegate = SpecificLocalizationDelegate(locale);
       _appLocale = locale;
     });
+  }
+
+  // Méthode à utiliser pour changer de langue (ex: via bouton settings)
+  Future<void> _changeLanguage(String langCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('language', langCode);
+    onLocaleChange(Locale(langCode));
   }
 
   void onBottomNavTap(int index) {
@@ -131,7 +135,8 @@ class HomeActivityState extends State<HomeActivity> {
           fragment = "Live";
           break;
         case 3:
-          if (accountType == "1") {
+          if (accountType == "1") 
+          {
             fragment = "Profile";
           } else {
             Navigator.of(context).push(MaterialPageRoute(
@@ -156,10 +161,10 @@ class HomeActivityState extends State<HomeActivity> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
+        AppLocalizations.delegate, // <-- Important !
         GlobalCupertinoLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        FallbackCupertinoLocalisationsDelegate(),
       ],
       supportedLocales: const [Locale('en'), Locale('ar')],
       locale: _appLocale,
@@ -169,6 +174,12 @@ class HomeActivityState extends State<HomeActivity> {
         hintColor: accentColor,
         fontFamily: 'cocon-next-arabic-regular',
       ),
+      builder: (context, child) {
+        return Directionality(
+          textDirection: _appLocale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+          child: child!,
+        );
+      },
       home: WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
@@ -318,7 +329,6 @@ class HomeActivityState extends State<HomeActivity> {
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Animated background circle
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       width: isSelected ? 36 : 32,
@@ -341,7 +351,6 @@ class HomeActivityState extends State<HomeActivity> {
                             : null,
                       ),
                     ),
-                    // Icon with smooth transition
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       child: Image.asset(
@@ -361,9 +370,7 @@ class HomeActivityState extends State<HomeActivity> {
                     ),
                   ],
                 ),
-                // Responsive spacing
                 SizedBox(height: isSelected ? 4 : 3),
-                // Professional text label with animation
                 Flexible(
                   child: AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 300),
@@ -383,7 +390,6 @@ class HomeActivityState extends State<HomeActivity> {
                     ),
                   ),
                 ),
-                // Professional bottom indicator
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   margin: const EdgeInsets.only(top: 2),
@@ -458,6 +464,14 @@ class HomeActivityState extends State<HomeActivity> {
   Future<void> getSharedData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    // Préférence de langue au démarrage (optionnel)
+    String? savedLang = prefs.getString("language");
+    if (savedLang != null && savedLang != _appLocale.languageCode) {
+      setState(() {
+        _appLocale = Locale(savedLang);
+      });
+    }
+
     setState(() {
       userID = prefs.getString("userID") ?? "";
       userName = prefs.getString("loginUsername") ?? "";
@@ -493,6 +507,23 @@ class HomeActivityState extends State<HomeActivity> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: MyCustomDrawerEmail(customController: customControllerDrawerEmail),
+                ),
+                // Exemple : bouton switch langue
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () => _changeLanguage('en'),
+                        child: const Text("English"),
+                      ),
+                      TextButton(
+                        onPressed: () => _changeLanguage('ar'),
+                        child: const Text("العربية"),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -545,7 +576,3 @@ class MyCustomDrawerEmail extends StatelessWidget {
     );
   }
 }
-
-// === CONTROLEURS ET ICONES POUR LA NAVIGATION BASSE ===
-
-

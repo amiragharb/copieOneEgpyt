@@ -748,40 +748,52 @@ msg: AppLocalizations.of(context)?.pleaseChooseAtLeastFamilyMember
           // Use a small delay to ensure the previous navigation completes
           await Future.delayed(const Duration(milliseconds: 200));
           
-          if (mounted) { // Check if widget is still mounted
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context) => BookingSuccessActivity(
-                  bookNumber: bookNumberAddBooking,
-                  courseDateAr: courseDateArAddBooking,
-                  courseDateEn: courseDateEnAddBooking,
-                  courseTimeAr: courseTimeArAddBooking,
-                  courseTimeEn: courseTimeEnAddBooking,
-                  churchRemarks: churchRemarksAddBooking,
-                  courseRemarks: courseRemarksAddBooking,
-                  churchNameAr: churchNameArAddBooking,
-                  churchNameEn: churchNameEnAddBooking,
-                  governerateNameAr: governerateNameArAddBooking,
-                  governerateNameEn: governerateNameEnAddBooking,
-                  myLanguage: myLanguage,
-                  courseTypeName: courseTypeName,
-                  attendanceTypeIDAddBooking: attendanceTypeIDAddBooking,
-                  attendanceTypeNameArAddBooking: attendanceTypeNameArAddBooking,
-                  attendanceTypeNameEnAddBooking: attendanceTypeNameEnAddBooking,
-                  bookedPersonsList: bookedPersonsList,
-                  bookingInfo: { // ✅ Fournir l'argument requis
-                    "members": listViewMyFamily
-                        .where((member) => member['isChecked'] == true)
-                        .toList(),
-                    "church": selectedChurch ?? "",
-                    "courseDate": selectedDate ?? "",
-                    "courseTime": selectedTime ?? "",
-                    "attendanceType": attendanceTypeIDAddBooking,
-                  },
-                ),
-              ),
-            );
-          }
+         if (mounted) {
+  // 1️⃣ Récupérer si c’est un compte Family ou Personal
+  final prefs = await SharedPreferences.getInstance();
+  final accountType = prefs.getString("accountType") ?? "2"; // 1=Family, 2=Personal
+
+  Map<String, dynamic> bookingData = {
+    "bookNumber": bookNumberAddBooking,
+    "courseDateAr": courseDateArAddBooking,
+    "courseDateEn": courseDateEnAddBooking,
+    "courseTimeAr": courseTimeArAddBooking,
+    "courseTimeEn": courseTimeEnAddBooking,
+    "churchRemarks": churchRemarksAddBooking,
+    "courseRemarks": courseRemarksAddBooking,
+    "churchNameAr": churchNameArAddBooking,
+    "churchNameEn": churchNameEnAddBooking,
+    "governerateNameAr": governerateNameArAddBooking,
+    "governerateNameEn": governerateNameEnAddBooking,
+    "myLanguage": myLanguage,
+    "courseTypeName": courseTypeName,
+    "attendanceTypeIDAddBooking": attendanceTypeIDAddBooking,
+    "attendanceTypeNameArAddBooking": attendanceTypeNameArAddBooking,
+    "attendanceTypeNameEnAddBooking": attendanceTypeNameEnAddBooking,
+    "bookedPersonsList": bookedPersonsList,
+  };
+
+  // 2️⃣ Ajouter les données spécifiques Family
+  if (accountType == "1") {
+    bookingData["members"] = listViewMyFamily
+        .where((member) => member['isChecked'] == true)
+        .toList();
+    bookingData["church"] = selectedChurch ?? "";
+    bookingData["courseDate"] = selectedDate ?? "";
+    bookingData["courseTime"] = selectedTime ?? "";
+    bookingData["attendanceType"] = attendanceTypeIDAddBooking;
+  }
+
+  // 3️⃣ Naviguer vers la page de succès
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (BuildContext context) => BookingSuccessActivity(
+        bookingInfo: bookingData,
+      ),
+    ),
+  );
+}
+
 
           Fluttertoast.showToast(
             msg: AppLocalizations.of(context)?.bookedSuccessfully 

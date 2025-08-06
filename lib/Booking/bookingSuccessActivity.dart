@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 import 'package:egpycopsversion4/API/apiClient.dart';
 import 'package:egpycopsversion4/Colors/colors.dart';
 import 'package:egpycopsversion4/Home/homeActivity.dart';
 import 'package:egpycopsversion4/Models/addBookingDetails.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart';
+import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -37,44 +38,10 @@ String attendanceTypeNameArAddBooking = "", attendanceTypeNameEnAddBooking = "";
 List<BookedPersonsList> bookedPersonsList = [];
 
 class BookingSuccessActivity extends StatefulWidget {
-  final String bookNumber;
-  final String courseDateAr;
-  final String courseDateEn;
-  final String courseTimeAr;
-  final String courseTimeEn;
-  final String churchRemarks;
-  final String courseRemarks;
-  final String churchNameAr;
-  final String churchNameEn;
-  final String governerateNameAr;
-  final String governerateNameEn;
-  final String myLanguage;
-  final String courseTypeName;
-  final int attendanceTypeIDAddBooking;
-  final String attendanceTypeNameArAddBooking;
-  final String attendanceTypeNameEnAddBooking;
-  final List<BookedPersonsList> bookedPersonsList;
-  final Map<String, Object?> bookingInfo;
+  final Map<String, dynamic> bookingInfo;
 
   const BookingSuccessActivity({
     Key? key,
-    this.bookNumber = "",
-    this.courseDateAr = "",
-    this.courseDateEn = "",
-    this.courseTimeAr = "",
-    this.courseTimeEn = "",
-    this.churchRemarks = "",
-    this.courseRemarks = "",
-    this.churchNameAr = "",
-    this.churchNameEn = "",
-    this.governerateNameAr = "",
-    this.governerateNameEn = "",
-    this.myLanguage = "en",
-    this.courseTypeName = "",
-    this.attendanceTypeIDAddBooking = 0,
-    this.attendanceTypeNameArAddBooking = "",
-    this.attendanceTypeNameEnAddBooking = "",
-    this.bookedPersonsList = const [],
     required this.bookingInfo,
   }) : super(key: key);
 
@@ -82,55 +49,77 @@ class BookingSuccessActivity extends StatefulWidget {
   State<StatefulWidget> createState() => BookingSuccessActivityState();
 }
 
-
 class BookingSuccessActivityState extends State<BookingSuccessActivity>
     with TickerProviderStateMixin {
-  String mobileToken = "";
+  late String courseId = "";
+  late String courseTypeName = "";
+  late String courseDate = "";
+  late String courseTime = "";
+  late String churchName = "";
 
-  var _formKey = GlobalKey<FormState>();
-  int loginState = 0;
-  late Animation _animationLogin;
+  String mobileToken = "";
+  final _formKey = GlobalKey<FormState>();
   List<Map<String, dynamic>> listViewBookedPersons = [];
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _initializeData();
     _initFirebaseToken();
     setShared(true);
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        //getDataFromShared();
-      }
-    });
+  }
+
+  void _initializeData() {
+    final info = widget.bookingInfo;
+
+    courseId = (info["id"] ?? "").toString();
+    courseTypeName = (info["courseTypeName"] ?? "").toString();
+    courseDate = (info["courseDate"] ?? "").toString();
+    courseTime = (info["courseTime"] ?? "").toString();
+    churchName = (info["churchName"] ?? "").toString();
+
+    governerateNameAr = (info["governerateNameAr"] ?? info["governerateName"] ?? "").toString();
+    governerateNameEn = (info["governerateNameEn"] ?? info["governerateName"] ?? "").toString();
+    churchNameAr = (info["churchNameAr"] ?? info["churchName"] ?? "").toString();
+    churchNameEn = (info["churchNameEn"] ?? info["churchName"] ?? "").toString();
+    courseDateAr = (info["courseDateAr"] ?? info["courseDate"] ?? "").toString();
+    courseDateEn = (info["courseDateEn"] ?? info["courseDate"] ?? "").toString();
+    courseTimeAr = (info["courseTimeAr"] ?? info["courseTime"] ?? "").toString();
+    courseTimeEn = (info["courseTimeEn"] ?? info["courseTime"] ?? "").toString();
+    churchRemarks = (info["churchRemarks"] ?? "").toString();
+    courseRemarks = (info["courseRemarks"] ?? "").toString();
+    bookNumber = (info["bookingNumber"] ?? info["bookNumber"] ?? "").toString();
+
+    attendanceTypeIDAddBooking = info["attendanceTypeID"] ?? 0;
+    attendanceTypeNameArAddBooking = (info["attendanceTypeNameAr"] ?? "").toString();
+    attendanceTypeNameEnAddBooking = (info["attendanceTypeNameEn"] ?? "").toString();
   }
 
   Future<void> _initFirebaseToken() async {
     try {
       String? token = await FirebaseMessaging.instance.getToken();
-      mobileToken = token ?? "";
-      debugPrint("Token: $mobileToken");
+      if (mounted) {
+        setState(() {
+          mobileToken = token ?? "";
+        });
+      }
     } catch (e) {
       debugPrint("Error getting Firebase token: $e");
     }
   }
 
-  setShared(bool isOpened) async {
+  Future<void> setShared(bool isOpened) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setBool("SuccessIsOpened", isOpened);
-      debugPrint("attendanceTypeIDAddBooking $attendanceTypeIDAddBooking");
-      debugPrint("attendanceTypeNameArAddBooking $attendanceTypeNameArAddBooking");
-      debugPrint("attendanceTypeNameEnAddBooking $attendanceTypeNameEnAddBooking");
-
+      await prefs.setBool("SuccessIsOpened", isOpened);
       personsListListViewData();
     } catch (e) {
       debugPrint("Error in setShared: $e");
     }
   }
 
-  personsListListViewData() {
+  void personsListListViewData() {
     if (!mounted) return;
     setState(() {
       listViewBookedPersons.clear();
@@ -152,575 +141,214 @@ class BookingSuccessActivityState extends State<BookingSuccessActivity>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
+    final bool isFamilyAccount = attendanceTypeIDAddBooking == 1;
+
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) _navigateToHome();
+      },
       child: Scaffold(
-        body: Form(
-          key: _formKey,
-          child: Center(
-            child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                physics: const BouncingScrollPhysics(),
-                itemCount: 1,
-                itemBuilder: (BuildContext context, int index) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 30.0,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context)?.bookedSuccessfully ?? "Booked Successfully",
-                          style: const TextStyle(
-                            fontSize: 22.0,
-                            fontFamily: 'cocon-next-arabic-regular',
-                            color: Colors.green,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                        ),
-                        child: SizedBox(
-                          child: Image.asset(
-                            'images/success.png',
-                          ),
-                          height: 70.0,
-                          width: 70.0,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              AppLocalizations.of(context)?.bookingNumber ?? "Booking Number",
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 5.0, right: 5.0),
-                              child: Text(
-                                bookNumber,
-                                style: const TextStyle(
-                                  fontSize: 22.0,
-                                  fontFamily: 'cocon-next-arabic-regular',
-                                  color: Colors.green,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context)?.pleaseSaveBookingNumber ?? "Please save booking number",
-                          style: const TextStyle(
-                            fontSize: 18.0,
-                            fontFamily: 'cocon-next-arabic-regular',
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              AppLocalizations.of(context)?.governorate ?? "Governorate",
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            const Text(
-                              ': ',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            Expanded(
-                              child: governorateNameChild(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              AppLocalizations.of(context)?.church ?? "Church",
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            const Text(
-                              ': ',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            Expanded(
-                              child: churchNameChild(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppLocalizations.of(context)?.bookingType ?? "Booking Type",
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                            myLanguage == "en"
-                                ? const Padding(
-                                    padding: EdgeInsets.only(right: 5.0),
-                                    child: Text(
-                                      ":",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  )
-                                : const Padding(
-                                    padding: EdgeInsets.only(left: 5.0),
-                                    child: Text(
-                                      ":",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                            Expanded(
-                              child: Text(
-                                courseTypeName,
-                                style: const TextStyle(
-                                  fontSize: 18.0,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      attendanceTypeIDAddBooking == 0
-                          ? Container()
-                          : Padding(
-                              padding: const EdgeInsets.only(
-                                top: 10.0,
-                                right: 20.0,
-                                left: 20.0,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppLocalizations.of(context)?.attendanceType ?? "Attendance Type",
-                                    style: const TextStyle(
-                                      fontSize: 18.0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  myLanguage == "en"
-                                      ? const Padding(
-                                          padding: EdgeInsets.only(right: 5.0),
-                                          child: Text(
-                                            ":",
-                                            style: TextStyle(
-                                              fontSize: 18.0,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        )
-                                      : const Padding(
-                                          padding: EdgeInsets.only(left: 5.0),
-                                          child: Text(
-                                            ":",
-                                            style: TextStyle(
-                                              fontSize: 18.0,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ),
-                                  Expanded(
-                                    child: Text(
-                                      myLanguage == "ar"
-                                          ? attendanceTypeNameArAddBooking
-                                          : attendanceTypeNameEnAddBooking,
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              AppLocalizations.of(context)?.liturgyDate ?? "Liturgy Date",
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            const Text(
-                              ': ',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            Expanded(
-                              child: dateChild(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              AppLocalizations.of(context)?.liturgyTime ?? "Liturgy Time",
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            const Text(
-                              ': ',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'cocon-next-arabic-regular',
-                              ),
-                            ),
-                            Expanded(
-                              child: timeChild(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      attendanceTypeIDAddBooking != 1
-                          ? Container()
-                          : Padding(
-                              padding: const EdgeInsets.only(
-                                top: 10.0,
-                                right: 20.0,
-                                left: 20.0,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppLocalizations.of(context)?.familyMembers ?? "Family Members",
-                                    style: const TextStyle(
-                                      fontSize: 18.0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10.0,
-                          right: 20.0,
-                          left: 20.0,
-                        ),
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: listViewBookedPersons.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Card(
-                              child: Container(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      AppLocalizations.of(context)?.name ?? "Name",
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'cocon-next-arabic-regular',
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                                      child: Text(
-                                        listViewBookedPersons[index]["name"] ?? "",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontFamily: 'cocon-next-arabic-regular',
-                                          color: logoBlue,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      AppLocalizations.of(context)?.nationalId ?? "National ID",
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'cocon-next-arabic-regular',
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                                      child: Text(
-                                        listViewBookedPersons[index]["nationalID"] ?? "",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontFamily: 'cocon-next-arabic-regular',
-                                          color: greyColor,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      courseRemarks.isEmpty
-                          ? Container()
-                          : Padding(
-                              padding: const EdgeInsets.only(
-                                top: 10.0,
-                                right: 20.0,
-                                left: 20.0,
-                              ),
-                              child: Text(
-                                courseRemarks,
-                                style: const TextStyle(
-                                  fontSize: 18.0,
-                                  fontFamily: 'cocon-next-arabic-regular',
-                                  color: Colors.red,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                      churchRemarks.isEmpty
-                          ? Container()
-                          : Padding(
-                              padding: const EdgeInsets.only(
-                                top: 10.0,
-                                right: 20.0,
-                                left: 20.0,
-                              ),
-                              child: Text(
-                                churchRemarks,
-                                style: const TextStyle(
-                                  fontSize: 18.0,
-                                  fontFamily: 'cocon-next-arabic-regular',
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                    ],
-                  );
-                }),
+        appBar: AppBar(
+          title: Text(
+            AppLocalizations.of(context)?.bookingSuccess ?? "Booking Success",
+            style: const TextStyle(
+              fontFamily: 'cocon-next-arabic-regular',
+            ),
+          ),
+          backgroundColor: primaryDarkColor,
+          foregroundColor: Colors.white,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _navigateToHome,
           ),
         ),
-        bottomNavigationBar: Container(
-          width: double.maxFinite,
-          height: 55,
-          color: primaryDarkColor,
-          child: TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: primaryDarkColor,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            ),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => HomeActivity(false)),
-                ModalRoute.withName("/Home"),
-              );
-            },
-            child: Text(
-              AppLocalizations.of(context)?.backToHome ?? "Back to Home",
-              style: const TextStyle(
-                fontSize: 22,
-                color: Colors.white,
-                fontFamily: 'cocon-next-arabic-regular',
-                fontWeight: FontWeight.normal,
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              const SizedBox(height: 30),
+              Text(
+                AppLocalizations.of(context)?.bookedSuccessfully ?? "Booked Successfully",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 22.0,
+                  fontFamily: 'cocon-next-arabic-regular',
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: SizedBox(
+                  height: 80,
+                  width: 80,
+                  child: Image.asset(
+                    'images/success.png',
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 80,
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              if (bookNumber.isNotEmpty) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)?.bookingNumber ?? "Booking Number",
+                      style: const TextStyle(fontSize: 18.0),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      bookNumber,
+                      style: const TextStyle(
+                        fontSize: 22.0,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  AppLocalizations.of(context)?.pleaseSaveBookingNumber ?? "Please save booking number",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16.0, color: Colors.red),
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              _buildDetailRow(context, AppLocalizations.of(context)?.governorate ?? "Governorate",
+                  myLanguage == "en" ? governerateNameEn : governerateNameAr),
+              _buildDetailRow(context, AppLocalizations.of(context)?.church ?? "Church",
+                  myLanguage == "en" ? churchNameEn : churchNameAr),
+              _buildDetailRow(context, AppLocalizations.of(context)?.bookingType ?? "Booking Type",
+                  courseTypeName),
+
+              if (attendanceTypeIDAddBooking != 0)
+                _buildDetailRow(
+                    context,
+                    AppLocalizations.of(context)?.attendanceType ?? "Attendance Type",
+                    myLanguage == "en" ? attendanceTypeNameEnAddBooking : attendanceTypeNameArAddBooking),
+
+              _buildDetailRow(context, AppLocalizations.of(context)?.liturgyDate ?? "Liturgy Date",
+                  myLanguage == "en" ? courseDateEn : courseDateAr),
+              _buildDetailRow(context, AppLocalizations.of(context)?.liturgyTime ?? "Liturgy Time",
+                  myLanguage == "en" ? courseTimeEn : courseTimeAr),
+
+              if (isFamilyAccount && listViewBookedPersons.isNotEmpty)
+                ..._buildFamilyMembersSection(),
+
+              if (courseRemarks.isNotEmpty || churchRemarks.isNotEmpty)
+                ..._buildRemarksSection(),
+
+              const SizedBox(height: 30),
+            ],
+          ),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Container(
+            width: double.maxFinite,
+            height: 60,
+            margin: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryDarkColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+              ),
+              onPressed: _navigateToHome,
+              child: Text(
+                AppLocalizations.of(context)?.backToHome ?? "Back to Home",
+                style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ),
         ),
       ),
-      onWillPop: _onWillPop,
     );
   }
 
-  Future<bool> _onWillPop() async {
-    debugPrint("onWillPop");
+  List<Widget> _buildFamilyMembersSection() {
+    return [
+      const SizedBox(height: 16),
+      Text(
+        AppLocalizations.of(context)?.familyMembers ?? "Family Members",
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 10),
+      ListView.builder(
+        controller: _scrollController,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: listViewBookedPersons.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                _buildPersonDetailRow(
+                  AppLocalizations.of(context)?.name ?? "Name",
+                  listViewBookedPersons[index]["name"] ?? "",
+                  Colors.blueAccent),
+                const SizedBox(height: 8),
+                _buildPersonDetailRow(
+                  AppLocalizations.of(context)?.nationalId ?? "National ID",
+                  listViewBookedPersons[index]["nationalID"] ?? "",
+                  Colors.grey),
+              ]),
+            ),
+          );
+        },
+      )
+    ];
+  }
+
+  List<Widget> _buildRemarksSection() {
+    return [
+      const SizedBox(height: 16),
+      if (courseRemarks.isNotEmpty)
+        Text(courseRemarks, style: const TextStyle(fontSize: 16.0, color: Colors.red)),
+      if (churchRemarks.isNotEmpty)
+        Text(churchRemarks, style: const TextStyle(fontSize: 16.0, color: Colors.black)),
+    ];
+  }
+
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(width: 120, child: Text(label, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600))),
+        const Text(': ', style: TextStyle(fontSize: 16.0)),
+        Expanded(
+            child: Text(value,
+                style: const TextStyle(fontSize: 16.0, color: Colors.green, fontWeight: FontWeight.w500))),
+      ]),
+    );
+  }
+
+  Widget _buildPersonDetailRow(String label, String value, Color valueColor) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      SizedBox(width: 100, child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
+      const Text(': ', style: TextStyle(fontSize: 16)),
+      Expanded(child: Text(value, style: TextStyle(fontSize: 16, color: valueColor, fontWeight: FontWeight.w500))),
+    ]);
+  }
+
+  void _navigateToHome() {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => HomeActivity(false)),
       ModalRoute.withName("/Home"),
     );
-    return false; // Empêche le pop natif (ex: bouton retour Android)
-  }
-
-  Widget governorateNameChild() {
-    if (myLanguage == "en") {
-      return Text(
-        governerateNameEn,
-        style: const TextStyle(
-          fontSize: 18.0,
-          fontFamily: 'cocon-next-arabic-regular',
-        ),
-      );
-    } else {
-      return Text(
-        governerateNameAr,
-        style: const TextStyle(
-          fontSize: 18.0,
-          fontFamily: 'cocon-next-arabic-regular',
-        ),
-      );
-    }
-  }
-
-  Widget churchNameChild() {
-    if (myLanguage == "en") {
-      return Text(
-        churchNameEn,
-        style: const TextStyle(
-          fontSize: 18.0,
-          fontFamily: 'cocon-next-arabic-regular',
-        ),
-      );
-    } else {
-      return Text(
-        churchNameAr,
-        style: const TextStyle(
-          fontSize: 18.0,
-          fontFamily: 'cocon-next-arabic-regular',
-        ),
-      );
-    }
-  }
-
-  Widget timeChild() {
-    if (myLanguage == "en") {
-      return Text(
-        courseTimeEn,
-        style: const TextStyle(
-            fontSize: 18.0,
-            fontFamily: 'cocon-next-arabic-regular',
-            color: Colors.green),
-      );
-    } else {
-      return Text(
-        courseTimeAr,
-        style: const TextStyle(
-            fontSize: 18.0,
-            fontFamily: 'cocon-next-arabic-regular',
-            color: Colors.green),
-      );
-    }
-  }
-
-  Widget dateChild() {
-    if (myLanguage == "en") {
-      return Text(
-        courseDateEn,
-        textDirection: TextDirection.rtl,
-        textAlign: TextAlign.left,
-        style: const TextStyle(
-          fontSize: 18.0,
-          fontFamily: 'cocon-next-arabic-regular',
-          color: Colors.green,
-        ),
-      );
-    } else {
-      return Text(
-        courseDateAr,
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.right,
-        style: const TextStyle(
-          fontSize: 18.0,
-          fontFamily: 'cocon-next-arabic-regular',
-          color: Colors.green,
-        ),
-      );
-    }
-  }
-
-  Future<String> _checkInternetConnection() async {
-    try {
-      var result = await Connectivity().checkConnectivity();
-      return result == ConnectivityResult.none ? "0" : "1";
-    } catch (e) {
-      debugPrint("Error checking connectivity: $e");
-      return "0";
-    }
   }
 }

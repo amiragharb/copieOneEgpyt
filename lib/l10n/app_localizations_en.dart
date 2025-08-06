@@ -310,7 +310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountCreatedSuccessfully => 'Account Created Successfully, Please check your mail to verify your account';
 
   @override
-  String get errorConnectingWithServer => 'Error connecting with server';
+  String get errorConnectingWithServer => 'Unable to connect with the server.\nPlease check your internet connection and try again.';
 
   @override
   String get emailOrPasswordIsNotCorrect => 'Email or Password is not correct';
@@ -463,10 +463,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseChooseCountry => 'Please choose Country';
 
   @override
-  String get live => 'Live';
+  String get live => 'LIVE';
 
   @override
-  String get noVideosFound => 'Currently not available';
+  String get noVideosFound => 'No live videos or courses are available at the moment.\nCheck back later for new content.';
 
   @override
   String get settings => 'Settings';
@@ -559,4 +559,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get back => 'Back';
+
+  @override
+  String get personalInformation => 'Personal Information';
+
+  @override
+  String get additionalInformation => 'Additional Information';
+
+  @override
+  String get locationInformation => 'Location Information';
+
+  @override
+  String get bookingSuccess => 'Booking Success';
+
+  @override
+  String get bookingDetails => 'Booking Details';
+
+  @override
+  String get remarks => 'Remarks';
+
+  @override
+  String get watchLiveSubtitle => 'Watch live streams and courses';
+
+  @override
+  String get videoLoadFailed => 'Video loading failed';
+
+  @override
+  String get liveBadge => 'LIVE';
+
+  @override
+  String get playVideo => 'Play Video';
+
+  @override
+  String get watchLive => 'Watch Live';
+
+  @override
+  String get streaming => 'STREAMING';
+
+  @override
+  String get recorded => 'RECORDED';
+
+  @override
+  String get noDateAvailable => 'No date available';
+
+  @override
+  String get connectionErrorTitle => 'Connection Error';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get noVideosFoundTitle => 'No Live Videos';
+
+  @override
+  String get videoNotAvailable => 'Video not available';
+
+  @override
+  String get dateTime => 'Date & Time';
+
+  @override
+  String get liveStreaming => 'LIVE STREAMING';
+
+  @override
+  String get recordedVideo => 'RECORDED VIDEO';
+
+  @override
+  String get addToFavorites => 'Add to Favorites';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get connectionError => 'Connection Error';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get videoNotFound => 'Video Not Found';
+
+  @override
+  String get loadingCalendar => 'Loading calendar...';
+
+  @override
+  String get pleaseTryAgain => 'Try Again';
+
+  @override
+  String get goBack => 'Go Back';
+
+  @override
+  String get status => 'Status';
 }

@@ -2,7 +2,7 @@ import 'package:egpycopsversion4/API/apiClient.dart';
 import 'package:egpycopsversion4/Booking/courses.dart';
 import 'package:egpycopsversion4/Colors/colors.dart';
 import 'package:egpycopsversion4/Models/calendarCourses.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart';
+import 'package:egpycopsversion4/Translation/localizations.dart' hide AppLocalizations;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 class CalendarOfBookingsActivity extends StatefulWidget {
   final String churchOfAttendanceID;
@@ -62,11 +63,10 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
 
     coursesList = await getCourseByCalender();
 
-    _events.clear(); // 🔹 Important : réinitialiser à chaque chargement
+    _events.clear();
 
     for (var course in coursesList) {
       for (int j = 0; j < (course.timeCount ?? 0); j++) {
-        // 🔹 Normalisation des dates en UTC sans heure
         final parsedDate = DateTime.parse("${course.courseDate}T00:00:00.000Z");
         final normalizedDate = DateTime.utc(parsedDate.year, parsedDate.month, parsedDate.day);
 
@@ -186,7 +186,7 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
             ),
             const SizedBox(height: 16),
             Text(
-              "Loading calendar...",
+              AppLocalizations.of(context)?.loadingCalendar ?? "Loading calendar...",
               style: TextStyle(
                 color: primaryDarkColor.withOpacity(0.7),
                 fontSize: 16,
@@ -201,7 +201,6 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
         key: _formKey,
         child: Column(
           children: [
-            // Church name header with modern styling
             Container(
               margin: const EdgeInsets.fromLTRB(16, 100, 16, 16),
               padding: const EdgeInsets.all(20),
@@ -251,8 +250,6 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
                 ],
               ),
             ),
-            
-            // Calendar with modern styling
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
@@ -277,44 +274,43 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
                 focusedDay: _focusedDay,
                 calendarFormat: _calendarFormat,
                 eventLoader: (day) {
-                  // 🔹 Normalisation du jour pour correspondre aux clés _events
                   final normalizedDay = DateTime.utc(day.year, day.month, day.day);
                   return _events[normalizedDay] ?? [];
                 },
                 selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                 onDaySelected: (selectedDay, focusedDay) {
+                  final normalizedDay = DateTime.utc(selectedDay.year, selectedDay.month, selectedDay.day);
+                  final events = _events[normalizedDay] ?? [];
+
                   setState(() {
                     _selectedDay = selectedDay;
                     _focusedDay = focusedDay;
-
-                    final normalizedDay = DateTime.utc(selectedDay.year, selectedDay.month, selectedDay.day);
-                    final events = _events[normalizedDay] ?? [];
-
-                    if (events.isNotEmpty) {
-                      final formatted = DateFormat('yyyy-MM-dd').format(selectedDay);
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(
-                              builder: (_) => CoursesActivity(
-                                    formatted,
-                                    widget.churchOfAttendanceID,
-                                    widget.churchNameEn,
-                                    widget.churchNameAr,
-                                  )))
-                          .then((value) {
-                        // Action après retour (si besoin)
-                      });
-                    } else {
-                      Fluttertoast.showToast(
-                          msg: AppLocalizations.of(context)?.noSeatsAvailable ?? "No seats available",
-                          toastLength: Toast.LENGTH_LONG,
-                          gravity: ToastGravity.BOTTOM,
-                          backgroundColor: Colors.white,
-                          textColor: accentColor);
-                    }
                   });
+
+                  if (events.isNotEmpty) {
+                    final formatted = DateFormat('yyyy-MM-dd').format(selectedDay);
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => CoursesActivity(
+                          formatted,
+                          widget.churchOfAttendanceID,
+                          widget.churchNameEn,
+                          widget.churchNameAr,
+                        ),
+                      ),
+                    );
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: AppLocalizations.of(context)?.noSeatsAvailable ?? "No seats available",
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.white,
+                      textColor: accentColor,
+                    );
+                  }
                 },
                 calendarStyle: CalendarStyle(
-                  // Today styling
                   todayDecoration: BoxDecoration(
                     color: logoBlue,
                     shape: BoxShape.circle,
@@ -323,8 +319,6 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),
-                  
-                  // Selected day styling
                   selectedDecoration: BoxDecoration(
                     color: primaryColor,
                     shape: BoxShape.circle,
@@ -333,20 +327,10 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),
-                  
-                  // Weekend styling
                   weekendTextStyle: TextStyle(color: primaryDarkColor.withOpacity(0.7)),
-                  
-                  // Default text styling
                   defaultTextStyle: TextStyle(color: primaryDarkColor),
-                  
-                  // Outside days
                   outsideTextStyle: TextStyle(color: primaryDarkColor.withOpacity(0.3)),
-                  
-                  // Disabled days
                   disabledTextStyle: TextStyle(color: primaryDarkColor.withOpacity(0.2)),
-                  
-                  // Marker styling
                   markerDecoration: BoxDecoration(
                     color: primaryColor,
                     shape: BoxShape.circle,
@@ -433,7 +417,7 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
             ),
             const SizedBox(height: 20),
             Text(
-              "Error loading calendar",
+              AppLocalizations.of(context)?.errorConnectingWithServer ?? "Error loading calendar",
               style: TextStyle(
                 fontSize: 18,
                 fontFamily: 'cocon-next-arabic-regular',
@@ -452,9 +436,9 @@ class _CalendarOfBookingsActivityState extends State<CalendarOfBookingsActivity>
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
-              child: const Text(
-                "Try Again",
-                style: TextStyle(
+              child: Text(
+AppLocalizations.of(context)?.pleaseTryAgain ?? "Try Again",
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),

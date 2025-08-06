@@ -4,7 +4,8 @@ import 'package:egpycopsversion4/Home/homeActivity.dart';
 import 'package:egpycopsversion4/Home/youtubeLiveVideo.dart';
 import 'package:egpycopsversion4/Models/liveVideoDetails.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart';
+// BONNE IMPORT ! 
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -110,6 +111,7 @@ class _YoutubeLiveVideoDetailsActivityFromNotificationState
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!; // utilisation correcte
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -128,18 +130,18 @@ class _YoutubeLiveVideoDetailsActivityFromNotificationState
           title: Padding(
             padding: const EdgeInsets.all(2.0),
             child: Text(
-              AppLocalizations.of(context)!.details,
+              localizations.details, // la clé du .arb
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.normal),
             ),
           ),
           backgroundColor: primaryDarkColor,
         ),
-        body: buildChild(),
+        body: _buildChild(localizations),
       ),
     );
   }
 
-  Widget buildChild() {
+  Widget _buildChild(AppLocalizations localizations) {
     if (loadingState == 0) {
       return Padding(
         padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
@@ -184,14 +186,14 @@ class _YoutubeLiveVideoDetailsActivityFromNotificationState
             _textBlock(myLanguage == "en" ? nameEn : nameAr, Colors.black, 14, selectable: true),
             if (date.isNotEmpty)
               _textBlock(date, grey500, 14),
-YoutubeLiveVideo(liveUrl, isLive, true)
+            YoutubeLiveVideo(liveUrl, isLive, true)
           ],
         ),
       );
     } else if (loadingState == 2) {
       return Center(
         child: Text(
-          AppLocalizations.of(context)!.errorConnectingWithServer,
+          localizations.errorConnectingWithServer, // clé du .arb
           style: const TextStyle(
             fontSize: 20.0,
             fontFamily: 'cocon-next-arabic-regular',
@@ -208,7 +210,7 @@ YoutubeLiveVideo(liveUrl, isLive, true)
             const Icon(Icons.live_tv, size: 60, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)!.noVideosFound,
+              localizations.noVideosFound, // clé du .arb
               style: const TextStyle(
                 fontSize: 20.0,
                 fontFamily: 'cocon-next-arabic-regular',

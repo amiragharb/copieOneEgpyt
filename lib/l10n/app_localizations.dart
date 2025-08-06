@@ -692,7 +692,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorConnectingWithServer.
   ///
   /// In en, this message translates to:
-  /// **'Error connecting with server'**
+  /// **'Unable to connect with the server.\nPlease check your internet connection and try again.'**
   String get errorConnectingWithServer;
 
   /// No description provided for @emailOrPasswordIsNotCorrect.
@@ -998,13 +998,13 @@ abstract class AppLocalizations {
   /// No description provided for @live.
   ///
   /// In en, this message translates to:
-  /// **'Live'**
+  /// **'LIVE'**
   String get live;
 
   /// No description provided for @noVideosFound.
   ///
   /// In en, this message translates to:
-  /// **'Currently not available'**
+  /// **'No live videos or courses are available at the moment.\nCheck back later for new content.'**
   String get noVideosFound;
 
   /// No description provided for @settings.
@@ -1186,6 +1186,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back'**
   String get back;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInformation;
+
+  /// No description provided for @additionalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional Information'**
+  String get additionalInformation;
+
+  /// No description provided for @locationInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Information'**
+  String get locationInformation;
+
+  /// No description provided for @bookingSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Success'**
+  String get bookingSuccess;
+
+  /// No description provided for @bookingDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Details'**
+  String get bookingDetails;
+
+  /// No description provided for @remarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Remarks'**
+  String get remarks;
+
+  /// No description provided for @watchLiveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch live streams and courses'**
+  String get watchLiveSubtitle;
+
+  /// No description provided for @videoLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Video loading failed'**
+  String get videoLoadFailed;
+
+  /// No description provided for @liveBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get liveBadge;
+
+  /// No description provided for @playVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Video'**
+  String get playVideo;
+
+  /// No description provided for @watchLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Live'**
+  String get watchLive;
+
+  /// No description provided for @streaming.
+  ///
+  /// In en, this message translates to:
+  /// **'STREAMING'**
+  String get streaming;
+
+  /// No description provided for @recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'RECORDED'**
+  String get recorded;
+
+  /// No description provided for @noDateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No date available'**
+  String get noDateAvailable;
+
+  /// No description provided for @connectionErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Error'**
+  String get connectionErrorTitle;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @noVideosFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Live Videos'**
+  String get noVideosFoundTitle;
+
+  /// No description provided for @videoNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Video not available'**
+  String get videoNotAvailable;
+
+  /// No description provided for @dateTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date & Time'**
+  String get dateTime;
+
+  /// No description provided for @liveStreaming.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE STREAMING'**
+  String get liveStreaming;
+
+  /// No description provided for @recordedVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'RECORDED VIDEO'**
+  String get recordedVideo;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Favorites'**
+  String get addToFavorites;
+
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @connectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Error'**
+  String get connectionError;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @videoNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Video Not Found'**
+  String get videoNotFound;
+
+  /// No description provided for @loadingCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading calendar...'**
+  String get loadingCalendar;
+
+  /// No description provided for @pleaseTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get pleaseTryAgain;
+
+  /// No description provided for @goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get goBack;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

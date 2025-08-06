@@ -310,7 +310,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get accountCreatedSuccessfully => 'تم إنشاء الحساب بنجاح, من فضلك اذهب للبريد الإلكترونى للتفعيل';
 
   @override
-  String get errorConnectingWithServer => 'خطأ فى الاتصال بالخادم';
+  String get errorConnectingWithServer => 'تعذر الاتصال بالخادم.\nيرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.';
 
   @override
   String get emailOrPasswordIsNotCorrect => 'البريد الإلكترونى او كلمة السر غير صحيحة';
@@ -463,10 +463,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pleaseChooseCountry => 'من فضلك اختر دولة';
 
   @override
-  String get live => 'بث مباشر';
+  String get live => 'مباشر';
 
   @override
-  String get noVideosFound => 'غير متوفر حاليا';
+  String get noVideosFound => 'لا توجد مقاطع فيديو مباشرة أو دورات متاحة حاليًا.\nتحقق مرة أخرى لاحقًا لمحتوى جديد.';
 
   @override
   String get settings => 'الإعدادات';
@@ -559,4 +559,94 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get back => 'رجوع';
+
+  @override
+  String get personalInformation => 'المعلومات الشخصية';
+
+  @override
+  String get additionalInformation => 'معلومات إضافية';
+
+  @override
+  String get locationInformation => 'معلومات الموقع';
+
+  @override
+  String get bookingSuccess => 'نجح الحجز';
+
+  @override
+  String get bookingDetails => 'تفاصيل الحجز';
+
+  @override
+  String get remarks => 'ملاحظات';
+
+  @override
+  String get watchLiveSubtitle => 'شاهد البث المباشر والدورات';
+
+  @override
+  String get videoLoadFailed => 'فشل تحميل الفيديو';
+
+  @override
+  String get liveBadge => 'مباشر';
+
+  @override
+  String get playVideo => 'تشغيل الفيديو';
+
+  @override
+  String get watchLive => 'شاهد البث المباشر';
+
+  @override
+  String get streaming => 'بث مباشر';
+
+  @override
+  String get recorded => 'مسجل';
+
+  @override
+  String get noDateAvailable => 'لا يوجد تاريخ متاح';
+
+  @override
+  String get connectionErrorTitle => 'خطأ في الاتصال';
+
+  @override
+  String get refresh => 'تحديث';
+
+  @override
+  String get noVideosFoundTitle => 'لا توجد فيديوهات مباشرة';
+
+  @override
+  String get videoNotAvailable => 'الفيديو غير متاح';
+
+  @override
+  String get dateTime => 'التاريخ والوقت';
+
+  @override
+  String get liveStreaming => 'بث مباشر';
+
+  @override
+  String get recordedVideo => 'فيديو مسجل';
+
+  @override
+  String get addToFavorites => 'إضافة إلى المفضلة';
+
+  @override
+  String get download => 'تحميل';
+
+  @override
+  String get connectionError => 'خطأ في الاتصال';
+
+  @override
+  String get tryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get videoNotFound => 'الفيديو غير موجود';
+
+  @override
+  String get loadingCalendar => 'جاري تحميل التقويم...';
+
+  @override
+  String get pleaseTryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get goBack => 'عودة';
+
+  @override
+  String get status => 'الحالة';
 }
