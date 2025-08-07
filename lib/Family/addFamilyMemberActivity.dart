@@ -686,404 +686,687 @@ void myFamilyListViewData() {
 @override
 Widget build(BuildContext context) {
   final localizations = AppLocalizations.of(context);
+  final isProfileMode = (isMain == 1 && !isAdd);
   
   return Scaffold(
+    backgroundColor: Colors.grey.shade50,
     appBar: AppBar(
-      title: Text(pageTitle),
+      title: Text(
+        pageTitle,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 20,
+        ),
+      ),
       backgroundColor: primaryDarkColor,
       foregroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: true,
     ),
     body: loadingState == 0 
-      ? Center(child: CircularProgressIndicator())
-      : Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Name Field
-                  TextFormField(
-                    controller: customControllerName.nameController,
-                    decoration: InputDecoration(
-                      labelText: localizations?.fullNameWithAstric ?? "Full Name*",
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return localizations?.pleaseEnterYourFullName ?? "Please enter your name";
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      name = value;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  
-                  // National ID Field
-                  TextFormField(
-                    controller: customControllerID.iDController,
-                    decoration: InputDecoration(
-                      labelText: localizations?.nationalIdWithAstric ?? "National ID*",
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return localizations?.pleaseEnterYourNationalId ?? "Please enter your National ID";
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      nationalID = value;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  
-                  // Mobile Field
-                  TextFormField(
-                    controller: customControllerMobile.mobileController,
-                    decoration: InputDecoration(
-                      labelText: localizations?.mobileWithAstric ?? "Mobile*",
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return localizations?.pleaseEnterYourMobile ?? "Please enter your mobile";
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      mobile = value;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  
-                  // Address Field
-                  TextFormField(
-                    controller: customControllerAddress.addressController,
-                    decoration: InputDecoration(
-                      labelText: localizations?.addressWithAstric ?? "Address*",
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                    onChanged: (value) {
-                      address = value;
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  
-                  // Church of Attendance Field (if applicable)
-                  if (showChurchOfAttendanceOthersState)
-                    TextFormField(
-                      controller: customControllerChurchOfAttendance,
-                      decoration: InputDecoration(
-                        labelText: localizations?.churchOfAttendanceWithAstric ?? "Church of Attendance*",
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      onChanged: (value) {
-                        churchOfAttendance = value;
-                      },
-                    ),
-                  
-                  if (showChurchOfAttendanceOthersState) SizedBox(height: 16),
-                  
-                  // Gender Selection (for personal accounts)
-                  if (showGenderState && listDropGender.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          localizations?.genderWithAstric ?? "Gender*",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        ...listDropGender.map((gender) {
-                          return RadioListTile<int>(
-                            title: Text(gender['name']),
-                            value: int.parse(gender['id']),
-                            groupValue: selectedGenderRadioTile,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedGenderRadioTile = value;
-                                showDeaconRadioButtonState = (value == 1); // Show deacon options for males
-                              });
-                            },
-                          );
-                        }).toList(),
-                        SizedBox(height: 16),
-                      ],
-                    ),
-                  
-                  // Relationship Selection (for family accounts)
-                  if (showRelationShipState && listDropRelationship.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          localizations?.relationshipWithAstric ?? "Relationship*",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: relationshipID == "0" ? null : relationshipID,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                          items: listDropRelationship.map((relationship) {
-                            return DropdownMenuItem<String>(
-                              value: relationship['id'],
-                              child: Text(
-                                myLanguage == "ar" 
-                                  ? relationship['nameAr'] 
-                                  : relationship['nameEn']
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              relationshipID = value ?? "0";
-                              // Update deacon visibility based on relationship
-                              showDeaconRadioButtonState = ["1", "3", "5", "7"].contains(relationshipID);
-                            });
-                          },
-                        ),
-                        SizedBox(height: 16),
-                      ],
-                    ),
-                  
-                  // Deacon Selection
-                  if (showDeaconRadioButtonState)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          localizations?.deaconWithAstric ?? "Deacon*",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        RadioListTile<int>(
-                          title: Text(localizations?.yes ?? "Yes"),
-                          value: 1,
-                          groupValue: selectedDeaconRadioTile,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedDeaconRadioTile = value!;
-                            });
-                          },
-                        ),
-                        RadioListTile<int>(
-                          title: Text(localizations?.no ?? "No"),
-                          value: 0,
-                          groupValue: selectedDeaconRadioTile,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedDeaconRadioTile = value!;
-                            });
-                          },
-                        ),
-                        SizedBox(height: 16),
-                      ],
-                    ),
-                  
-                  // Governorate Dropdown
-                  if (listDropGovernorates.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          localizations?.governorate ?? "Governorate",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: governorateID == "0" ? null : governorateID,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                          items: listDropGovernorates.map((governorate) {
-                            return DropdownMenuItem<String>(
-                              value: governorate['id'],
-                              child: Text(
-                                myLanguage == "ar" 
-                                  ? governorate['nameAr'] 
-                                  : governorate['nameEn']
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) async {
-                            setState(() {
-                              governorateID = value ?? "0";
-                            });
-                            // Load churches for selected governorate
-                            if (governorateID != "0") {
-                              churchOfAttendanceList = await getChurchs(governorateID) ?? [];
-                              await churchOfAttendanceDropDownData();
-                            }
-                          },
-                        ),
-                        SizedBox(height: 16),
-                      ],
-                    ),
-                  
-                  // Church Dropdown
-                  if (listDropChurchOfAttendance.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          localizations?.church ?? "Church",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: churchOfAttendanceID == "0" ? null : churchOfAttendanceID,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                          items: listDropChurchOfAttendance.map((church) {
-                            return DropdownMenuItem<String>(
-                              value: church['id'],
-                              child: Text(
-                                myLanguage == "ar" 
-                                  ? church['nameAr'] 
-                                  : church['nameEn']
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              churchOfAttendanceID = value ?? "0";
-                            });
-                          },
-                        ),
-                        SizedBox(height: 24),
-                      ],
-                    ),
-                  
-                  // Error Message
-                  if (errorMessage != null && errorMessage!.isNotEmpty)
-                    Container(
-                      padding: EdgeInsets.all(12),
-                      margin: EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        border: Border.all(color: Colors.red.shade300),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        errorMessage!,
-                        style: TextStyle(
-                          color: Colors.red.shade700,
-                          fontSize: 14,
-                        ),
+      ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(primaryDarkColor),
+              ),
+              SizedBox(height: 16),
+              Text(
+                localizations?.pleaseWait ?? "Loading...",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        )
+      : Form(
+          key: _formKey,
+          child: CustomScrollView(
+            slivers: [
+              // Profile Header (only for profile mode)
+              if (isProfileMode)
+                SliverToBoxAdapter(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: primaryDarkColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
                       ),
                     ),
-                  
-                  // Save Button
-                  ElevatedButton(
-                    onPressed: saveState == 1 ? null : () async {
-                      if (_formKey.currentState!.validate()) {
-                        setState(() {
-                          saveState = 1;
-                          errorMessage = "";
-                        });
-                        
-                        // Check National ID first
-                        String checkResult = await checkNationalID(nationalID);
-                        if (checkResult == "0") {
-                          // Proceed with save
-                          String result = await addEditFamilyMember(name, nationalID, mobile);
-                          setState(() {
-                            saveState = 0;
-                          });
-                          
-                          if (result == "1") {
-                            Fluttertoast.showToast(
-                              msg: localizations?.addedSuccessfully ?? "Saved successfully",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                            );
-                            Navigator.of(context).pop(true);
-                          } else {
-                            Fluttertoast.showToast(
-                              msg: errorMessage ?? (localizations?.errorConnectingWithServer ?? "An error occurred"),
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                            );
-                          }
-                        } else {
-                          setState(() {
-                            saveState = 0;
-                          });
-                          Fluttertoast.showToast(
-                            msg: errorMessage ?? (localizations?.errorConnectingWithServer ?? "An error occurred"),
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                          );
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryDarkColor,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: saveState == 1 
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                        child: Column(
                           children: [
-                            SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 3,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.person,
+                                size: 50,
                                 color: Colors.white,
-                                strokeWidth: 2,
                               ),
                             ),
-                            SizedBox(width: 12),
-                            Text(localizations?.pleaseWait ?? "Please wait...")
+                            SizedBox(height: 16),
+                            Text(
+                              name.isNotEmpty ? name : "Profile",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 8),
+                            if (mobile.isNotEmpty)
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  mobile,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
                           ],
-                        )
-                      : Text(
-                          localizations?.save ?? "Save",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                         ),
+                      ),
+                    ),
                   ),
-                ],
+                ),
+              
+              // Main Content
+              SliverPadding(
+                padding: EdgeInsets.all(20),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Personal Information Section
+                    _buildSectionCard(
+                      title: localizations?.personalInformation ?? "Personal Information",
+                      icon: Icons.person_outline,
+                      children: [
+                        _buildModernTextField(
+                          controller: customControllerName.nameController,
+                          label: localizations?.fullNameWithAstric ?? "Full Name*",
+                          icon: Icons.person,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return localizations?.pleaseEnterYourFullName ?? "Please enter your name";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) => name = value,
+                        ),
+                        SizedBox(height: 20),
+                        _buildModernTextField(
+                          controller: customControllerID.iDController,
+                          label: localizations?.nationalIdWithAstric ?? "National ID*",
+                          icon: Icons.badge,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return localizations?.pleaseEnterYourNationalId ?? "Please enter your National ID";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) => nationalID = value,
+                        ),
+                        SizedBox(height: 20),
+                        _buildModernTextField(
+                          controller: customControllerMobile.mobileController,
+                          label: localizations?.mobileWithAstric ?? "Mobile*",
+                          icon: Icons.phone,
+                          keyboardType: TextInputType.phone,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return localizations?.pleaseEnterYourMobile ?? "Please enter your mobile";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) => mobile = value,
+                        ),
+                      ],
+                    ),
+                    
+                    SizedBox(height: 20),
+                    
+                    // Address & Location Section
+                    _buildSectionCard(
+                      title: "Address & Location",
+                      icon: Icons.location_on_outlined,
+                      children: [
+                        _buildModernTextField(
+                          controller: customControllerAddress.addressController,
+                          label: localizations?.addressWithAstric ?? "Address*",
+                          icon: Icons.home,
+                          maxLines: 2,
+                          onChanged: (value) => address = value,
+                        ),
+                        if (showChurchOfAttendanceOthersState) ...[
+                          SizedBox(height: 20),
+                          _buildModernTextField(
+                            controller: customControllerChurchOfAttendance,
+                            label: localizations?.churchOfAttendanceWithAstric ?? "Church of Attendance*",
+                            icon: Icons.church,
+                            onChanged: (value) => churchOfAttendance = value,
+                          ),
+                        ],
+                      ],
+                    ),
+                    
+                    SizedBox(height: 20),
+                    
+                    // Gender & Relationship Section
+                    if (showGenderState || showRelationShipState || showDeaconRadioButtonState)
+                      _buildSectionCard(
+                        title: "Personal Details",
+                        icon: Icons.people_outline,
+                        children: [
+                          // Gender Selection (for personal accounts)
+                          if (showGenderState && listDropGender.isNotEmpty) ...[
+                            _buildSelectionTitle(localizations?.genderWithAstric ?? "Gender*"),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: listDropGender.map((gender) {
+                                  return RadioListTile<int>(
+                                    title: Text(
+                                      gender['name'],
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    value: int.parse(gender['id']),
+                                    groupValue: selectedGenderRadioTile,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedGenderRadioTile = value;
+                                        showDeaconRadioButtonState = (value == 1);
+                                      });
+                                    },
+                                    activeColor: primaryDarkColor,
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                          
+                          // Relationship Selection (for family accounts)
+                          if (showRelationShipState && listDropRelationship.isNotEmpty) ...[
+                            _buildModernDropdown<String>(
+                              label: localizations?.relationshipWithAstric ?? "Relationship*",
+                              value: relationshipID == "0" ? null : relationshipID,
+                              icon: Icons.family_restroom,
+                              items: listDropRelationship.map((relationship) {
+                                return DropdownMenuItem<String>(
+                                  value: relationship['id'],
+                                  child: Text(
+                                    myLanguage == "ar" 
+                                      ? relationship['nameAr'] 
+                                      : relationship['nameEn']
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  relationshipID = value ?? "0";
+                                  showDeaconRadioButtonState = ["1", "3", "5", "7"].contains(relationshipID);
+                                });
+                              },
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                          
+                          // Deacon Selection
+                          if (showDeaconRadioButtonState) ...[
+                            _buildSelectionTitle(localizations?.deaconWithAstric ?? "Deacon*"),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  RadioListTile<int>(
+                                    title: Text(
+                                      localizations?.yes ?? "Yes",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    value: 1,
+                                    groupValue: selectedDeaconRadioTile,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedDeaconRadioTile = value!;
+                                      });
+                                    },
+                                    activeColor: primaryDarkColor,
+                                  ),
+                                  RadioListTile<int>(
+                                    title: Text(
+                                      localizations?.no ?? "No",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    value: 0,
+                                    groupValue: selectedDeaconRadioTile,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedDeaconRadioTile = value!;
+                                      });
+                                    },
+                                    activeColor: primaryDarkColor,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    
+                    SizedBox(height: 20),
+                    
+                    // Location Details Section
+                    if (listDropGovernorates.isNotEmpty || listDropChurchOfAttendance.isNotEmpty)
+                      _buildSectionCard(
+                        title: "Location Details",
+                        icon: Icons.location_city,
+                        children: [
+                          // Governorate Dropdown
+                          if (listDropGovernorates.isNotEmpty) ...[
+                            _buildModernDropdown<String>(
+                              label: localizations?.governorate ?? "Governorate",
+                              value: governorateID == "0" ? null : governorateID,
+                              icon: Icons.location_city,
+                              items: listDropGovernorates.map((governorate) {
+                                return DropdownMenuItem<String>(
+                                  value: governorate['id'],
+                                  child: Text(
+                                    myLanguage == "ar" 
+                                      ? governorate['nameAr'] 
+                                      : governorate['nameEn']
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) async {
+                                setState(() {
+                                  governorateID = value ?? "0";
+                                });
+                                if (governorateID != "0") {
+                                  churchOfAttendanceList = await getChurchs(governorateID) ?? [];
+                                  await churchOfAttendanceDropDownData();
+                                }
+                              },
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                          
+                          // Church Dropdown
+                          if (listDropChurchOfAttendance.isNotEmpty) ...[
+                            _buildModernDropdown<String>(
+                              label: localizations?.church ?? "Church",
+                              value: churchOfAttendanceID == "0" ? null : churchOfAttendanceID,
+                              icon: Icons.church,
+                              items: listDropChurchOfAttendance.map((church) {
+                                return DropdownMenuItem<String>(
+                                  value: church['id'],
+                                  child: Text(
+                                    myLanguage == "ar" 
+                                      ? church['nameAr'] 
+                                      : church['nameEn']
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  churchOfAttendanceID = value ?? "0";
+                                });
+                              },
+                            ),
+                          ],
+                        ],
+                      ),
+                    
+                    SizedBox(height: 20),
+                    
+                    // Error Message
+                    if (errorMessage != null && errorMessage!.isNotEmpty)
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        margin: EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          border: Border.all(color: Colors.red.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade600,
+                              size: 24,
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                errorMessage!,
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    
+                    SizedBox(height: 20),
+                    
+                    // Save Button
+                    Container(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: saveState == 1 ? null : () async {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              saveState = 1;
+                              errorMessage = "";
+                            });
+                            
+                            String checkResult = await checkNationalID(nationalID);
+                            if (checkResult == "0") {
+                              String result = await addEditFamilyMember(name, nationalID, mobile);
+                              setState(() {
+                                saveState = 0;
+                              });
+                              
+                              if (result == "1") {
+                                Fluttertoast.showToast(
+                                  msg: localizations?.addedSuccessfully ?? "Saved successfully",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                );
+                                Navigator.of(context).pop(true);
+                              } else {
+                                Fluttertoast.showToast(
+                                  msg: errorMessage ?? (localizations?.errorConnectingWithServer ?? "An error occurred"),
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                );
+                              }
+                            } else {
+                              setState(() {
+                                saveState = 0;
+                              });
+                              Fluttertoast.showToast(
+                                msg: errorMessage ?? (localizations?.errorConnectingWithServer ?? "An error occurred"),
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                              );
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryDarkColor,
+                          foregroundColor: Colors.white,
+                          elevation: 2,
+                          shadowColor: primaryDarkColor.withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: saveState == 1 
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Text(
+                                  localizations?.pleaseWait ?? "Please wait...",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                )
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.save,
+                                  size: 24,
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  localizations?.save ?? "Save",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                      ),
+                    ),
+                    
+                    SizedBox(height: 40),
+                  ]),
+                ),
               ),
-            ),
+            ],
           ),
         ),
   );
 }
+
+  // Helper method to build section cards
+  Widget _buildSectionCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: primaryDarkColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: primaryDarkColor,
+                    size: 24,
+                  ),
+                ),
+                SizedBox(width: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method to build modern text fields
+  Widget _buildModernTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? Function(String?)? validator,
+    void Function(String)? onChanged,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Container(
+          margin: EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: primaryDarkColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: primaryDarkColor,
+            size: 20,
+          ),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: primaryDarkColor, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.red.shade400, width: 2),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        labelStyle: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 16,
+        ),
+      ),
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.grey.shade800,
+      ),
+      validator: validator,
+      onChanged: onChanged,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+    );
+  }
+
+  // Helper method to build modern dropdowns
+  Widget _buildModernDropdown<T>({
+    required String label,
+    required T? value,
+    required IconData icon,
+    required List<DropdownMenuItem<T>> items,
+    required void Function(T?) onChanged,
+  }) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Container(
+          margin: EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: primaryDarkColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: primaryDarkColor,
+            size: 20,
+          ),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: primaryDarkColor, width: 2),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        labelStyle: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 16,
+        ),
+      ),
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.grey.shade800,
+      ),
+      items: items,
+      onChanged: onChanged,
+      dropdownColor: Colors.white,
+      icon: Icon(
+        Icons.arrow_drop_down,
+        color: primaryDarkColor,
+      ),
+    );
+  }
+
+  // Helper method to build selection titles
+  Widget _buildSelectionTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey.shade700,
+        ),
+      ),
+    );
+  }
 
 }
 

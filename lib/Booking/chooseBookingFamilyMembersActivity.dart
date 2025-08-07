@@ -6,7 +6,7 @@ import 'package:egpycopsversion4/Colors/colors.dart';
 import 'package:egpycopsversion4/Models/addBookingDetails.dart';
 import 'package:egpycopsversion4/Models/familyMember.dart';
 import 'package:egpycopsversion4/NetworkConnectivity/noNetworkConnectionActivity.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart';
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -125,6 +125,25 @@ String mobileToken = ""; // ✅ pas de late, initialisé par défaut
   String failureMessage = "";
   List<BookedPersonsList> bookedPersonsList = [];
   bool _isNavigating = false; // Add navigation guard
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Update UI when language changes
+    if (mounted) {
+      setState(() {
+        // This will trigger a rebuild with the new language
+      });
+    }
+  }
+
+  String getLocalizedText(String? arText, String? enText) {
+    if (myLanguage == "ar") {
+      return arText ?? enText ?? "";
+    } else {
+      return enText ?? arText ?? "";
+    }
+  }
 
 @override
 void initState() {
@@ -1395,8 +1414,8 @@ Widget availableSeatsLayout() {
 
   // Message avec gestion singulier/pluriel via la localisation
   final message = count <= 1
-      ? AppLocalizations.of(context)?.availableSeatSingular ?? "Available seat $remAttendanceCount"
-      : AppLocalizations.of(context)?.availableSeats ?? "Available seats $remAttendanceCount";
+      ? "Available seat $remAttendanceCount"
+      : "Available seats $remAttendanceCount";
 
   return Center(
     child: Padding(

@@ -8,7 +8,7 @@ import 'package:egpycopsversion4/Models/churchs.dart';
 import 'package:egpycopsversion4/Models/courseDetails.dart';
 import 'package:egpycopsversion4/Models/courses.dart';
 import 'package:egpycopsversion4/Models/governorates.dart';
-import 'package:egpycopsversion4/Translation/localizations.dart';
+import 'package:egpycopsversion4/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -70,8 +70,33 @@ List<Course> coursesList = [];
 
   String userBranchID = "0";
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh data when language changes
+    _refreshLocalizedData();
+  }
+
+  void _refreshLocalizedData() {
+    // Refresh dropdown data with new language
+    if (mounted) {
+      governoratesDropDownData();
+      churchOfAttendanceDropDownData();
+      coursesDropDownData();
+    }
+  }
+
+  String getLocalizedText(String? arText, String? enText) {
+    if (myLanguage == "ar") {
+      return arText ?? enText ?? "";
+    } else {
+      return enText ?? arText ?? "";
+    }
+  }
+
   churchOfAttendanceDropDownData() async {
   print("[DEBUG] churchOfAttendanceDropDownData - start");
+  final localizations = AppLocalizations.of(context);
 
   listDropChurchOfAttendance.clear();
   print("[DEBUG] churchOfAttendanceList length: ${churchOfAttendanceList.length}");
@@ -84,7 +109,7 @@ List<Course> coursesList = [];
         ..add({
           "id": "0",
           "nameAr": "اختار الكنيسة",
-          "nameEn": "Choose Church",
+          "nameEn": localizations?.church ?? "Choose Church",
           "isDefualt": false
         });
 
@@ -159,13 +184,15 @@ coursesDropDownData() async {
 
   Future<void> governoratesDropDownData() async {
   print("[DEBUG] governoratesDropDownData - START");
+  final localizations = AppLocalizations.of(context);
+  
   listDropGovernorates.clear();
   print("[DEBUG] listDropGovernorates CLEARED");
 
   listDropGovernorates.add({
     "id": "0",
     "nameAr": "اختار المحافظة",
-    "nameEn": "Choose Governorate",
+    "nameEn": localizations?.governorate ?? "Choose Governorate",
     "isDefualt": false,
   });
   print("[DEBUG] Added default governorate option");
@@ -785,7 +812,7 @@ Widget buildChild() {
             ),
             const SizedBox(width: 6),
             Text(
-              AppLocalizations.of(context)?.availableSeats ?? "Available Seats",
+              "Available Seats",
               style: TextStyle(
                 fontSize: 16,
                 fontFamily: 'cocon-next-arabic-regular',
@@ -815,7 +842,7 @@ Widget buildChild() {
             ),
             const SizedBox(width: 6),
             Text(
-              AppLocalizations.of(context)?.availableSeatSingular ?? "Seat",
+              "Seat",
               style: TextStyle(
                 fontSize: 16,
                 fontFamily: 'cocon-next-arabic-regular',
