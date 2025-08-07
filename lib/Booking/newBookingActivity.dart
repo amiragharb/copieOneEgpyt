@@ -402,7 +402,7 @@ Future<CourseDetails?> getCourseDetails(String courseID) async {
   String userID = "";
 
  Future<void> getSharedData() async {
-  print("[DEBUG] getSharedData() START");
+  print("[DEBUG] ta() STARgetSharedDaT");
 
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   myLanguage = prefs.getString('language') ?? "en";
@@ -1172,54 +1172,8 @@ Widget buildChild() {
         ],
       ),
     );
-  } else if (availableSeatsState == 2) {
-    print("[DEBUG] availableSeatsState == 2: No seats available");
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            offset: const Offset(0, 4),
-            blurRadius: 12,
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      child: Center(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.event_busy,
-                color: Colors.red,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)?.noSeatsAvailable ?? "No seats available",
-              style: TextStyle(
-                fontSize: 16,
-                fontFamily: 'cocon-next-arabic-regular',
-                color: Colors.red,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  } else if (availableSeatsState == 3) {
+  } 
+  else if (availableSeatsState == 3) {
     print("[DEBUG] availableSeatsState == 3: Loading spinner");
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
